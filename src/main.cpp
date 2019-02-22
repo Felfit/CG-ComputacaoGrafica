@@ -6,6 +6,15 @@
 
 #include <math.h>
 
+int rotate = 0;
+
+int scaleY = 1;
+
+int moveX = 0;
+int moveY = 0;
+int moveZ = 0;
+
+
 void changeSize(int w, int h) {
 
 	// Prevent a divide by zero, when window is too short
@@ -43,11 +52,54 @@ void renderScene(void) {
 		      0.0,0.0,0.0,
 			  0.0f,1.0f,0.0f);
 
-// put the geometric transformations here
+	
 
+// put the geometric transformations here
+	glTranslatef(moveX, moveY, moveZ);
+	glRotatef(rotate, 0, 1, 0); 
+	glScalef(1, scaleY, 1);
+	
 
 // put drawing instructions here
+	glBegin(GL_TRIANGLES);
+		
 
+		//base
+		glColor3f(0, 1, 1);
+
+		glVertex3f(-1, 0, -1);
+		glVertex3f(1, 0, -1);
+		glVertex3f(1, 0, 1);
+
+		glVertex3f(1, 0, 1);
+		glVertex3f(-1, 0, 1);
+		glVertex3f(-1, 0, -1);
+
+		//face 1
+		glColor3f(0, 1, 0);
+		glVertex3f(1, 0, -1);
+		glVertex3f(0, 1, 0);
+		glVertex3f(1, 0, 1);
+
+		//face 2
+		glColor3f(0, 0, 1);
+		glVertex3f(1, 0, 1);
+		glVertex3f(0, 1, 0);
+		glVertex3f(-1, 0, 1);
+
+		//face 3
+		glColor3f(1, 0, 0);
+		glVertex3f(-1, 0, -1);
+		glVertex3f(0, 1, 0);
+		glVertex3f(1, 0, -1);
+
+		//face 4
+		glColor3f(1, 1	, 0);
+		glVertex3f(-1, 0, 1);
+		glVertex3f(0, 1, 0);
+		glVertex3f(-1, 0, -1);
+
+	glEnd();
 
 	// End of frame
 	glutSwapBuffers();
@@ -58,7 +110,81 @@ void renderScene(void) {
 // write function to process keyboard events
 
 
+void keyboard_func(unsigned char key, int x, int y) {
+	switch (key)
+	{
+	case '1':
+		glPolygonMode(GL_FRONT, GL_FILL);
+		renderScene();
+		break;
+	case '2':
+		glPolygonMode(GL_FRONT, GL_LINE);
+		renderScene();
+		break;
+	case '3':
+		glPolygonMode(GL_FRONT, GL_POINT);
+		renderScene();
+		break;
+	case '4':
+		glCullFace(GL_FRONT);
+		renderScene();
+		break;
+	case '5':
+		glCullFace(GL_BACK);
+		renderScene();
+		break;
+	case 'w':
+		moveZ += 1;
+		renderScene();
+		break;
+	case 's':
+		moveZ -= 1;
+		renderScene();
+		break;
+	case 'a':
+		moveX -= 1;
+		renderScene();
+		break;
+	case 'd':
+		moveX += 1;
+		renderScene();
+		break;
+	case 'q':
+		moveY += 1;
+		renderScene();
+		break;
+	case 'e':
+		moveY -= 1;
+		renderScene();
+		break;
+	default:
+		break;
+	}
+}
 
+void special_func(int key, int x, int y) {
+	switch (key)
+	{
+	case GLUT_KEY_UP:
+		scaleY += 1;
+		renderScene();
+		break;
+	case GLUT_KEY_DOWN:
+		scaleY -= 1;
+		renderScene();
+		break;
+	case GLUT_KEY_LEFT:
+		rotate += 10;
+		renderScene();
+		break;
+	case GLUT_KEY_RIGHT:
+		rotate -= 10;
+		renderScene();
+		break;
+	default:
+		break;
+	}
+}
 
 
 
@@ -77,7 +203,8 @@ int main(int argc, char **argv) {
 
 	
 // put here the registration of the keyboard callbacks
-
+	glutKeyboardFunc(keyboard_func);
+	glutSpecialFunc(special_func);
 
 
 //  OpenGL settings
