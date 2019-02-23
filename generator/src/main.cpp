@@ -2,18 +2,47 @@
 #include <string.h>;
 #include <stdlib.h>;
 
-void printVertice(FILE *fp, float x, float y, float z) {
-	fprintf(fp, "%f %f %f\n", x, y, z);
+struct Point
+{
+	float x;
+	float y;
+	float z;
+};
+
+Point newPoint(float x, float y, float z) {
+	Point p;
+	p.x = x;
+	p.y = y;
+	p.z = z;
+	return p;
+}
+
+void printTriangle(FILE *fp, Point p1, Point p2, Point p3) {
+	fprintf(fp, "%f %f %f\n", p1.x, p1.y, p1.z);
+	fprintf(fp, "%f %f %f\n", p2.x, p2.y, p2.z);
+	fprintf(fp, "%f %f %f\n", p3.x, p3.y, p3.z);
+}
+
+void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
+	printTriangle(fp, p1, p2, p3);
+	printTriangle(fp, p3, p4, p1);
 }
 
 void plane(const char* name, float x, float z) {
 	FILE *fp;
 	fp = fopen(name, "w");
 
-	printVertice(fp, x, 0, z);
+	Point p1 = newPoint(x, 0, z); 
+	Point p2 = newPoint(x, 0, -z); 
+	Point p3 = newPoint(-x, 0, -z);
+	Point p4 = newPoint(-x, 0, z);
+
+	printSquare(fp, p1, p2, p3, p4);
 
 	fclose(fp);
 }
+
+
 
 void box(const char* name, float x, float y, float z) {
 	FILE *fp;
@@ -22,29 +51,27 @@ void box(const char* name, float x, float y, float z) {
 	float hy = y / 2;
 	float hz = z / 2;
 
+	Point p1 = newPoint(hx, -hy, hz);
+	Point p2 = newPoint(hx, -hy, -hz);
+	Point p3 = newPoint(-hx, -hy, -hz);
+	Point p4 = newPoint(-hx, -hy, hz);
+	Point p5 = newPoint(hx, hy, hz);
+	Point p6 = newPoint(hx, hy, -hz);
+	Point p7 = newPoint(-hx, hy, -hz);
+	Point p8 = newPoint(-hx, hy, hz);
+
 	//face down
-	printVertice(fp, hx, -hy, hz);
-	printVertice(fp, -hx, -hy, hz);
-	printVertice(fp, -hx, -hy, -hz);
-
-	printVertice(fp, -hx, -hy, -hz);
-	printVertice(fp, hx, -hy, -hz);
-	printVertice(fp, hx, -hy, hz);
-
+	printSquare(fp, p1, p4, p3, p2);
 	//face up
-	printVertice(fp, -hx, hy, -hz);
-	printVertice(fp, -hx, hy, hz);
-	printVertice(fp, hx, hy, hz);
-
-	printVertice(fp, hx, hy, hz);
-	printVertice(fp, hx, hy, -hz);
-	printVertice(fp, -hx, hy, -hz);
-
+	printSquare(fp, p5, p6, p7, p8);
 	//face front
+	printSquare(fp, p1, p5, p8, p4);
 	//face back
+	printSquare(fp, p3, p7, p6, p2);
 	//face right
+	printSquare(fp, p2, p6, p5, p1);
 	//face left
-	
+	printSquare(fp, p4, p8, p7, p3);
 
 	fclose(fp);
 }
