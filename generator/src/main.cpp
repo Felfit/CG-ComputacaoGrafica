@@ -28,6 +28,7 @@ void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
 	printTriangle(fp, p3, p4, p1);
 }
 
+
 void plane(const char* name, float x, float z) {
 	FILE *fp;
 	fp = fopen(name, "w");
@@ -41,7 +42,6 @@ void plane(const char* name, float x, float z) {
 
 	fclose(fp);
 }
-
 
 
 void box(const char* name, float x, float y, float z) {
@@ -78,24 +78,28 @@ void box(const char* name, float x, float y, float z) {
 
 void box(const char* name, float x, float y, float z, int divisions) {
 	FILE *fp;
-	fp = fopen("box.3d", "w");
+	fp = fopen(name, "w");
 
 	fclose(fp);
 }
+
 
 void sphere(const char* name, float radius, int slices, int stacks) {
 	FILE *fp;
-	fp = fopen("sphere.3d", "w");
+	fp = fopen(name, "w");
 
 	fclose(fp);
 }
 
-void cone(const char* name, float radius, int slices, int stacks) {
+
+void cone(const char* name, float radius, float height, int slices, int stacks) {
 	FILE *fp;
-	fp = fopen("cone.3d", "w");
+	fp = fopen(name, "w");
 
 	fclose(fp);
 }
+
+
 
 int main(int argc, char const *argv[]) {
 	
@@ -150,16 +154,17 @@ int main(int argc, char const *argv[]) {
 	}
 	else if (strcmp(argv[1], "cone") == 0)  {
 		// requires bottom radius, height, slices and stacks
-		if (argc <= 5) {
-			fputs("Usage: generator sphere <radius> <slices> <stacks> <output>", stdout);
+		if (argc <= 6) {
+			fputs("Usage: generator sphere <radius> <height> <slices> <stacks> <output>", stdout);
 			return 1;
 		}
 
 		float radius = atof(argv[2]);
-		int slices = atoi(argv[3]);
-		int stacks = atoi(argv[4]);
+		float height = atof(argv[3]);
+		int slices = atoi(argv[4]);
+		int stacks = atoi(argv[5]);
 
-		cone(argv[5], radius, slices, stacks);
+		cone(argv[6], radius, height, slices, stacks);
 	}
 
 
