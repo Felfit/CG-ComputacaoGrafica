@@ -18,7 +18,45 @@ Point newPoint(float x, float y, float z) {
 	p.z = z;
 	return p;
 }
+struct Vector2D
+{
+	float i;
+	float j;
+};
 
+Vector2D newVector2D(float i, float j) {
+	Vector2D v;
+	v.i = i;
+	v.j = j;
+	return v;
+}
+/*
+z --> faces paralelas a yox
+x --> faces paralelas a yoz
+y --> faces paralelas a zox
+*/
+Point calcPoint(Point p, int i, int j, Vector2D v, char type) {
+	Point novo;
+	switch (type) {
+	case 'z':
+		novo.x = p.x + i * v.i;
+		novo.y = p.y + j * v.j;
+		novo.z = p.z;
+		break;
+	case 'x':
+		novo.x = p.x;
+		novo.y = p.y + j * v.j;
+		novo.z = p.z + i * v.i;
+		break;
+
+	case 'y':
+		novo.x = p.x + i * v.i;
+		novo.y = p.y;
+		novo.z = p.z + j * v.j;
+		break;
+	}
+	return novo;
+}
 void printTriangle(FILE *fp, Point p1, Point p2, Point p3) {
 	fprintf(fp, "%f %f %f\n", p1.x, p1.y, p1.z);
 	fprintf(fp, "%f %f %f\n", p2.x, p2.y, p2.z);
@@ -66,43 +104,50 @@ void plane(const char* name, float x, float z) {
 
 	fclose(fp);
 }
-
-
-void box(const char* name, float x, float y, float z) {
+//Constroi uma face
+void printMultiSquare(Point start, char type, int rWise, Vector2D v, int div) {
+	for (int j = 1; j <= div; j++) {
+		for (int i = 1; i <= div; i++) {
+			Point root = calcPoint(start, i - 1, j - 1, v, type);
+			Point a = calcPoint(start, i, j, v, type);
+			Point b = calcPoint(start, i, j - 1, v, type);
+			Point c = calcPoint(start, i - 1, j, v, type);
+			if (rWise == 1) {
+				printSquare(root, c, a, b);
+			}
+			else {
+				printSquare(root, b, a, c);
+			}
+		}
+	}
+}
+void box(const char* name, float x, float y, float z, int div) {
 	FILE *fp;
 	fp = fopen(name, "w");
 	float hx = x / 2;
 	float hy = y / 2;
 	float hz = z / 2;
 
-	Point p1 = newPoint(hx, -hy, hz);
-	Point p2 = newPoint(hx, -hy, -hz);
-	Point p3 = newPoint(-hx, -hy, -hz);
-	Point p4 = newPoint(-hx, -hy, hz);
-	Point p5 = newPoint(hx, hy, hz);
-	Point p6 = newPoint(hx, hy, -hz);
-	Point p7 = newPoint(-hx, hy, -hz);
-	Point p8 = newPoint(-hx, hy, hz);
+	//pontos para servir de origem de refencial de cada face (pode parecer um bocado aleatório, se quiserem explico)
+	Point front = newPoint(-hx, -hy, hz);
+	Point right = newPoint(hx, -hy, -hz);
+	Point left  = newPoint(-hx, -hy, -hz);
+	Point back  = newPoint(-hx, -hy, -hz);
+	Point up	= newPoint(-hx, hy, -hz);
+	Point down  = newPoint(-hx, -hy, -hz);
 
-	//face down
-	printSquare(fp, p1, p4, p3, p2);
-	//face up
-	printSquare(fp, p5, p6, p7, p8);
-	//face front
-	printSquare(fp, p1, p5, p8, p4);
-	//face back
-	printSquare(fp, p3, p7, p6, p2);
-	//face right
-	printSquare(fp, p2, p6, p5, p1);
-	//face left
-	printSquare(fp, p4, p8, p7, p3);
+	//vetores para usar nos ciclos e obter os pontos dos quadrados
+	Vector2D vx = newVector2D((float)dimZ / div, (float)dimY / div);
+	Vector2D vy = newVector2D((float)dimX / div, (float)dimZ / div);
+	Vector2D vz = newVector2D((float)dimX / div, (float)dimY / div);
 
-	fclose(fp);
-}
-
-void box(const char* name, float x, float y, float z, int divisions) {
-	FILE *fp;
-	fp = fopen(name, "w");
+	//desenha
+	printMultiSquare(front, 'z', 2, vz, div);
+	printMultiSquare(right, 'x', 1, vx, div);
+	printMultiSquare(left, 'x', 2, vx, div);
+	printMultiSquare(back, 'z', 1, vz, div);
+	printMultiSquare(up, 'y', 1, vy, div);
+	printMultiSquare(down, 'y', 2, vy, div);
 
 	fclose(fp);
 }
