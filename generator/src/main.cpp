@@ -107,7 +107,6 @@ void box(const char* name, float x, float y, float z, int divisions) {
 	fclose(fp);
 }
 
-/*
 void sphere(const char* name, float radius, int slices, int stacks) {
 	FILE *fp;
 	fp = fopen(name, "w");
@@ -158,7 +157,7 @@ void sphere(const char* name, float radius, int slices, int stacks) {
 
 	fclose(fp);
 }
- */
+
 void cone(const char* name, float radius, float height, int slices, int stacks) {
     FILE *fp;
     fp = fopen(name, "w");
@@ -178,13 +177,15 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
             float upnz = upx * sent + upz * cost;
             float nx = x * cost - z * sent;
             float nz = x * sent + z * cost;
-            fprintf(fp, "%f %f %f\n", x, y, z);
-            fprintf(fp, "%f %f %f\n", upx, upy, upz);
-            fprintf(fp, "%f %f %f\n", nx, y, nz);
+            Point p1 = newPoint(x, y, z);
+            Point p2 = newPoint(upx, upy, upz);
+            Point p3 = newPoint(nx, y, nz);
+			printTriangle(fp, p1, p2, p3);
             if (i != stacks) {//para nao desenhar o triangulo do topo duas vezes
-                fprintf(fp, "%f %f %f\n", upnx, upy, upnz);
-                fprintf(fp, "%f %f %f\n", nx, y, nz);
-                fprintf(fp, "%f %f %f\n", upx, upy, upz);
+            	p1 = newPoint(upnx, upy, upnz);
+            	p2 = newPoint(nx, y, nz);
+            	p3 = newPoint(upx, upy, upz);
+				printTriangle(fp, p1, p2, p3);
             }
             x = nx; z = nz; upx = upnx; upz = upnz;
         }
@@ -195,14 +196,15 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
     {
         float nx = x * cost - z * sent;
         float nz = x * sent + z * cost;
-        fprintf(fp, "%f %f %f\n", nx, 0, nz);
-        fprintf(fp, "%f %f %f\n", 0, 0, 0);
-        fprintf(fp, "%f %f %f\n", x, 0, z);
+        Point p1 = newPoint(nx, 0, nz);
+        Point p2 = newPoint(0, 0, 0);
+        Point p3 = newPoint(x, 0, z);
+        printTriangle(fp, p1, p2, p3);
         x = nx; z = nz;
     }
     fclose(fp);
 }
-
+/*
 void cone(const char* name, float radius, float height, int slices, int stacks) {
 	FILE *fp;
 	fp = fopen(name, "w");
@@ -244,7 +246,7 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
 	}
 	fclose(fp);
 }
-
+*/
 int main(int argc, char const *argv[]) {
 	
     if (argc <= 1) {
