@@ -5,8 +5,7 @@
 
 #define PI 3.1415926
 
-struct Point
-{
+struct Point {
 	float x;
 	float y;
 	float z;
@@ -33,7 +32,6 @@ void printTriangle(FILE *fp, Point p1, Point p2, Point p3) {
  *
  * printSquare(A,B,C,D);
  */
-
 void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
 	printTriangle(fp, p1, p2, p3);
 	printTriangle(fp, p3, p4, p1);
@@ -96,8 +94,12 @@ void box(const char* name, float x, float y, float z, int divisions) {
 void sphere(const char* name, float radius, int slices, int stacks) {
 	FILE *fp;
 	fp = fopen(name, "w");
-    Point points[stacks-1][slices];
+	Point** points = new Point*[stacks-1];
+	for (int i = 0; i < stacks; i++)
+		points[i] = new Point[slices];
+
     Point top = newPoint(0.0, radius, 0.0); // Ponto no topo da esfera
+
     //Restantes pontos de cima para baixo e no sentido contrário dos ponteiros do relógio
     for (int i = 1; i < stacks; ++i) {
         double phi = PI * (double) i / (double) stacks;
@@ -110,14 +112,19 @@ void sphere(const char* name, float radius, int slices, int stacks) {
             points[i-1][j] = newPoint(x, y, z); // Adiciona ao array de pontos
         }
     }
+
     Point bottom = newPoint(0.0, -radius, 0.0); // Ponto no fundo da esfera
-    //Ligar os pontos no topo da esfera
+
+    
     for(int i = 0; i < slices; ++i) {
         Point p1, p2, p3, p4;
 
+		//Ligar os pontos no topo da esfera
         p1 = points[0][i]; // Ponto no primeiro paralelo depois do ponto no topo
         p2 = points[0][(i+1)%slices]; // Ponto à direita do p1
         printTriangle(fp, p1, p2, top); // Triangulos de cima
+
+		//Ligar os pontos no meio da esfera
         for(int j = 0; j < stacks-2; j++) {
             p4 = points[j+1][i]; // Ponto esquerda-baixo
             p1 = points[j+1][(i+1)%slices]; // Ponto direita-baixo
@@ -125,17 +132,22 @@ void sphere(const char* name, float radius, int slices, int stacks) {
             p2 = points[j][(i+1)%slices]; // Ponto direita-cima
             printSquare(fp, p1, p2, p3, p4);
         }
+
+		//Ligar os pontos na base da esfera
         p1 = points[stacks-2][i]; // Ponto no primeiro paralelo depois do ponto no topo
-        printf("%f,%f,%f\n",p1.x,p1.y,p1.z);
         p2 = points[stacks-2][(i+1)%slices]; // Ponto à direita do p1
-        printf("%f,%f,%f\n",p2.x,p2.y,p2.z);
         printTriangle(fp, p1, p2, bottom); // Triangulos de baixo
     }
+
+	// cleanup
+	for (int i = 0; i < stacks; i++)
+		delete[] points[i];
+	delete[] points;
 
 	fclose(fp);
 }
 
-void cone(const char* name, float radius, int slices, int stacks) {
+void cone(const char* name, float radius, float height, int slices, int stacks) {
 	FILE *fp;
 	fp = fopen(name, "w");
 
