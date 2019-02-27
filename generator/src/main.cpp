@@ -18,6 +18,8 @@ Point newPoint(float x, float y, float z) {
 	p.z = z;
 	return p;
 }
+
+
 struct Vector2D
 {
 	float i;
@@ -30,6 +32,58 @@ Vector2D newVector2D(float i, float j) {
 	v.j = j;
 	return v;
 }
+
+
+
+void printTriangleDebug(FILE *fp, Point p1, Point p2, Point p3) {
+    if(fp) {
+        fprintf(fp, "glVertex3f(%f,%f,%f);\n", p1.x, p1.y, p1.z);
+        fprintf(fp, "glVertex3f(%f,%f,%f);\n", p2.x, p2.y, p2.z);
+        fprintf(fp, "glVertex3f(%f,%f,%f);\n", p3.x, p3.y, p3.z);
+    } else {
+        printf("glVertex3f(%f,%f,%f);\n", p1.x, p1.y, p1.z);
+        printf("glVertex3f(%f,%f,%f);\n", p2.x, p2.y, p2.z);
+        printf("glVertex3f(%f,%f,%f);\n", p3.x, p3.y, p3.z);
+    }
+}
+
+void printSquareDebug(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
+	printTriangleDebug(fp, p1, p2, p3);
+	printTriangleDebug(fp, p3, p4, p1);
+}
+
+void printTriangle(FILE *fp, Point p1, Point p2, Point p3) {
+	fprintf(fp, "%f %f %f\n", p1.x, p1.y, p1.z);
+	fprintf(fp, "%f %f %f\n", p2.x, p2.y, p2.z);
+	fprintf(fp, "%f %f %f\n", p3.x, p3.y, p3.z);
+}
+
+/*
+ * p3  -  p2
+ *  |  \  |
+ * p4  -  p1
+ */
+void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
+	printTriangle(fp, p1, p2, p3);
+	printTriangle(fp, p3, p4, p1);
+}
+
+
+
+void plane(const char* name, float x, float z) {
+	FILE *fp;
+	fp = fopen(name, "w");
+
+	Point p1 = newPoint(x, 0, z); 
+	Point p2 = newPoint(x, 0, -z); 
+	Point p3 = newPoint(-x, 0, -z);
+	Point p4 = newPoint(-x, 0, z);
+
+	printSquare(fp, p1, p2, p3, p4);
+
+	fclose(fp);
+}
+
 /*
 z --> faces paralelas a yox
 x --> faces paralelas a yoz
@@ -57,53 +111,7 @@ Point calcPoint(Point p, int i, int j, Vector2D v, char type) {
 	}
 	return novo;
 }
-void printTriangle(FILE *fp, Point p1, Point p2, Point p3) {
-	fprintf(fp, "%f %f %f\n", p1.x, p1.y, p1.z);
-	fprintf(fp, "%f %f %f\n", p2.x, p2.y, p2.z);
-	fprintf(fp, "%f %f %f\n", p3.x, p3.y, p3.z);
-}
 
-void printTriangleDebug(FILE *fp, Point p1, Point p2, Point p3) {
-    if(fp) {
-        fprintf(fp, "glVertex3f(%f,%f,%f);\n", p1.x, p1.y, p1.z);
-        fprintf(fp, "glVertex3f(%f,%f,%f);\n", p2.x, p2.y, p2.z);
-        fprintf(fp, "glVertex3f(%f,%f,%f);\n", p3.x, p3.y, p3.z);
-    } else {
-        printf("glVertex3f(%f,%f,%f);\n", p1.x, p1.y, p1.z);
-        printf("glVertex3f(%f,%f,%f);\n", p2.x, p2.y, p2.z);
-        printf("glVertex3f(%f,%f,%f);\n", p3.x, p3.y, p3.z);
-    }
-}
-/*
- * C -- B
- * | \\ |
- * D -- A
- *
- * printSquare(A,B,C,D);
- */
-void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
-	printTriangle(fp, p1, p2, p3);
-	printTriangle(fp, p3, p4, p1);
-}
-
-void printSquareDebug(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
-    printTriangleDebug(fp, p1, p2, p3);
-    printTriangleDebug(fp, p3, p4, p1);
-}
-
-void plane(const char* name, float x, float z) {
-	FILE *fp;
-	fp = fopen(name, "w");
-
-	Point p1 = newPoint(x, 0, z); 
-	Point p2 = newPoint(x, 0, -z); 
-	Point p3 = newPoint(-x, 0, -z);
-	Point p4 = newPoint(-x, 0, z);
-
-	printSquare(fp, p1, p2, p3, p4);
-
-	fclose(fp);
-}
 //Constroi uma face
 void printMultiSquare(FILE *fp, Point start, char type, int rWise, Vector2D v, int div) {
 	for (int j = 1; j <= div; j++) {
@@ -121,12 +129,13 @@ void printMultiSquare(FILE *fp, Point start, char type, int rWise, Vector2D v, i
 		}
 	}
 }
+
 void box(const char* name, float x, float y, float z, int div) {
 	FILE *fp;
 	fp = fopen(name, "w");
-	float hx = x / 2;
-	float hy = y / 2;
-	float hz = z / 2;
+	const float hx = x / 2;
+	const float hy = y / 2;
+	const float hz = z / 2;
 
 	//pontos para servir de origem de refencial de cada face (pode parecer um bocado aleatório, se quiserem explico)
 	Point front = newPoint(-hx, -hy, hz);
@@ -155,44 +164,51 @@ void box(const char* name, float x, float y, float z, int div) {
 void sphere(const char* name, float radius, int slices, int stacks) {
 	FILE *fp;
 	fp = fopen(name, "w");
+
     Point** points = new Point*[stacks-1];
     for (int i = 0; i < stacks; i++)
         points[i] = new Point[slices];
-    Point top = newPoint(0.0, radius, 0.0); // Ponto no topo da esfera
+
+	// Pontos do topo e fundo da esfera
+    Point top = newPoint(0.0, radius, 0.0);
+	Point bottom = newPoint(0.0, -radius, 0.0);
 
     //Restantes pontos de cima para baixo e no sentido contrário dos ponteiros do relógio
     for (int i = 1; i < stacks; ++i) {
-        double phi = PI * (double) i / (double) stacks;
-        float y = radius * cos(phi); // Posição y do ponto
+        double phi = PI * i / (double) stacks;
+        float y = radius * cos(phi);
         double r = radius * sin(phi); // Projeção do ponto no plano xy
         for (int j = 0; j < slices; ++j) {
-            double teta = 2 * PI * (double) j / (double) slices;
-            float x = r * cos(teta); // Posição x do ponto
-            float z = r * sin(teta); // Posição z do ponto
-            points[i-1][j] = newPoint(x, y, z); // Adiciona ao array de pontos
+            double teta = 2 * PI * j / (double) slices;
+            float x = r * cos(teta);
+            float z = r * sin(teta);
+            points[i-1][j] = newPoint(x, y, z);
         }
     }
 
-    Point bottom = newPoint(0.0, -radius, 0.0); // Ponto no fundo da esfera
+	// Ligar os pontos em triangulos
     for(int i = 0; i < slices; ++i) {
         Point p1, p2, p3, p4;
 
-        //Ligar os pontos no topo da esfera
-        p1 = points[0][i]; // Ponto no primeiro paralelo depois do ponto no topo
-        p2 = points[0][(i+1)%slices]; // Ponto à direita do p1
-        printTriangle(fp, p1, p2, top); // Triangulos de cima
-        //Ligar os pontos no meio da esfera
+		int dir = (i + 1) % slices;
+        // Topo
+        p1 = points[0][i];	 // Ponto no primeiro paralelo depois do ponto no topo
+        p2 = points[0][dir]; // Ponto à direita do p1
+        printTriangle(fp, p1, p2, top);
+
+		// Fundo
+		p1 = points[stacks-2][i];	// Ponto no último paralelo antes do ponto no fundo
+		p2 = points[stacks-2][dir]; // Ponto à direita do p1
+		printTriangle(fp, p1, p2, bottom);
+
+        // Restantes
         for(int j = 0; j < stacks-2; j++) {
-            p4 = points[j+1][i]; // Ponto esquerda-baixo
-            p1 = points[j+1][(i+1)%slices]; // Ponto direita-baixo
-            p3 = points[j][i]; // Ponto esquerda-cima
-            p2 = points[j][(i+1)%slices]; // Ponto direita-cima
+            p4 = points[j+1][i];	// Ponto esquerda-baixo
+            p1 = points[j+1][dir];	// Ponto direita-baixo
+            p3 = points[j][i];		// Ponto esquerda-cima
+            p2 = points[j][dir];	// Ponto direita-cima
             printSquare(fp, p1, p2, p3, p4);
         }
-        //Ligar os pontos no fundo da esfera
-        p1 = points[stacks-2][i]; // Ponto no primeiro paralelo depois do ponto no topo
-        p2 = points[stacks-2][(i+1)%slices]; // Ponto à direita do p1
-        printTriangle(fp, p1, p2, bottom); // Triangulos de baixo
     }
 
 	// cleanup
@@ -206,18 +222,24 @@ void sphere(const char* name, float radius, int slices, int stacks) {
 void cone(const char* name, float radius, float height, int slices, int stacks) {
     FILE *fp;
     fp = fopen(name, "w");
-    float x;    float y;    float z;
-    float teta = PI * 2 / (float)slices;
-    float stackHeight = height / stacks; float cost = cos(teta); float sent = sin(teta);//constants
-    float upx;    float upz;    float upy;
-    x = radius;    z = 0;    y = 0;
-    for (int i = 1; i <= stacks; i++)
-    {
-        float nxtheight = i * stackHeight;
-        float nxtradius = (height - nxtheight)*radius / height;
-        upx = nxtradius; upz = 0; upy = nxtheight;
-        for (int j = 0; j < slices; j++)
-        {
+
+    float x = radius;    
+	float y = 0;    
+	float z = 0;
+    const float teta = PI * 2 / (float) slices;
+	const float cost = cos(teta); 
+	const float sent = sin(teta);
+
+	const float stackHeight = height / stacks;
+    for (int i = 1; i <= stacks; i++) {
+		float nxtheight = i * stackHeight;
+		float nxtradius = (height - nxtheight) * radius / height;
+
+		float upz = 0;
+		float upy = nxtheight;
+        float upx = nxtradius;
+
+        for (int j = 0; j < slices; j++) {
             float upnx = upx * cost - upz * sent;
             float upnz = upx * sent + upz * cost;
             float nx = x * cost - z * sent;
@@ -232,66 +254,32 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
             	p3 = newPoint(upx, upy, upz);
 				printTriangle(fp, p1, p2, p3);
             }
-            x = nx; z = nz; upx = upnx; upz = upnz;
+            x = nx; 
+			z = nz; 
+			upx = upnx; 
+			upz = upnz;
         }
-        x = nxtradius; z = 0; y = nxtheight;
+        x = nxtradius; 
+		z = 0; 
+		y = nxtheight;
     }
-    x = radius;    z = 0;
-    for (int i = 0; i < slices; i++)
-    {
+
+    x = radius;    
+    for (int i = 0; i < slices; i++) {
         float nx = x * cost - z * sent;
         float nz = x * sent + z * cost;
         Point p1 = newPoint(nx, 0, nz);
         Point p2 = newPoint(0, 0, 0);
         Point p3 = newPoint(x, 0, z);
         printTriangle(fp, p1, p2, p3);
-        x = nx; z = nz;
+        x = nx; 
+		z = nz;
     }
+
     fclose(fp);
 }
-/*
-void cone(const char* name, float radius, float height, int slices, int stacks) {
-	FILE *fp;
-	fp = fopen(name, "w");
-	Point top = newPoint(0, height,0);
-    Point points[stacks][slices];
-	for (int i = 1; i <= stacks; ++i) {
-	    float percentage = i / (float) stacks;
-	    float y = height - height * percentage;
-        float r = radius * percentage;
-        // Faz os pontos dos circulos
-        for (int j = 0; j < slices; ++j) {
-            double teta = 2 * PI * (double) j / (double) slices;
-            float x = r * cos(teta); // Posição x do ponto
-            float z = r * sin(teta); // Posição z do ponto
-            points[i - 1][j] = newPoint(x, y, z); // Adiciona ao array de pontos
-        }
-    }
-	for(int i = 0; i < slices; i++){
-	    Point p1, p2, p3, p4;
-	    // Liga os pontos no topo
-        p1 = points[0][(i+1)%slices];
-	    p2 = points[0][i];
-	    p3 = top;
-	    printTriangle(fp, p1, p2, p3);
-	    // Liga os restantes pontos das faces
-        for (int j = 0; j < stacks-1; ++j) {
-            p1 = points[j+1][i]; // Ponto esquerda-baixo
-            p4 = points[j+1][(i+1)%slices]; // Ponto direita-baixo
-            p2 = points[j][i]; // Ponto esquerda-cima
-            p3 = points[j][(i+1)%slices]; // Ponto direita-cima
-            printSquare(fp, p1, p2, p3, p4);
-        }
-	}
-    Point pivot = newPoint(0,0,0);
-	for(int i = 2; i < slices; i++){
-        Point p1 = points[stacks-1][i];
-        Point p2 = points[stacks-1][i-1];
-	    printTriangle(fp, p1, p2, pivot);
-	}
-	fclose(fp);
-}
-*/
+
+
 int main(int argc, char const *argv[]) {
 	
     if (argc <= 1) {
