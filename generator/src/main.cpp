@@ -105,7 +105,7 @@ void plane(const char* name, float x, float z) {
 	fclose(fp);
 }
 //Constroi uma face
-void printMultiSquare(Point start, char type, int rWise, Vector2D v, int div) {
+void printMultiSquare(FILE *fp, Point start, char type, int rWise, Vector2D v, int div) {
 	for (int j = 1; j <= div; j++) {
 		for (int i = 1; i <= div; i++) {
 			Point root = calcPoint(start, i - 1, j - 1, v, type);
@@ -113,10 +113,10 @@ void printMultiSquare(Point start, char type, int rWise, Vector2D v, int div) {
 			Point b = calcPoint(start, i, j - 1, v, type);
 			Point c = calcPoint(start, i - 1, j, v, type);
 			if (rWise == 1) {
-				printSquare(root, c, a, b);
+				printSquare(fp, root, c, a, b);
 			}
 			else {
-				printSquare(root, b, a, c);
+				printSquare(fp, root, b, a, c);
 			}
 		}
 	}
@@ -137,17 +137,17 @@ void box(const char* name, float x, float y, float z, int div) {
 	Point down  = newPoint(-hx, -hy, -hz);
 
 	//vetores para usar nos ciclos e obter os pontos dos quadrados
-	Vector2D vx = newVector2D((float)dimZ / div, (float)dimY / div);
-	Vector2D vy = newVector2D((float)dimX / div, (float)dimZ / div);
-	Vector2D vz = newVector2D((float)dimX / div, (float)dimY / div);
+	Vector2D vx = newVector2D((float)z / div, (float)y / div);
+	Vector2D vy = newVector2D((float)x / div, (float)z / div);
+	Vector2D vz = newVector2D((float)x / div, (float)y / div);
 
 	//desenha
-	printMultiSquare(front, 'z', 2, vz, div);
-	printMultiSquare(right, 'x', 1, vx, div);
-	printMultiSquare(left, 'x', 2, vx, div);
-	printMultiSquare(back, 'z', 1, vz, div);
-	printMultiSquare(up, 'y', 1, vy, div);
-	printMultiSquare(down, 'y', 2, vy, div);
+	printMultiSquare(fp, front, 'z', 2, vz, div);
+	printMultiSquare(fp, right, 'x', 1, vx, div);
+	printMultiSquare(fp, left, 'x', 2, vx, div);
+	printMultiSquare(fp, back, 'z', 1, vz, div);
+	printMultiSquare(fp, up, 'y', 1, vy, div);
+	printMultiSquare(fp, down, 'y', 2, vy, div);
 
 	fclose(fp);
 }
@@ -327,7 +327,7 @@ int main(int argc, char const *argv[]) {
 			box(argv[6], x, y, z, divisions);
 		}
 		else {
-			box(argv[5], x, y, z);
+			box(argv[5], x, y, z, 1);
 		}
 	}
 	else if (strcmp(argv[1], "sphere") == 0)  {
