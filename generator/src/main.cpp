@@ -163,7 +163,7 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
     FILE *fp;
     fp = fopen(name, "w");
     float x;    float y;    float z;
-    float teta = 3.141592654 * 2 / (float)slices;
+    float teta = PI * 2 / (float)slices;
     float stackHeight = height / stacks; float cost = cos(teta); float sent = sin(teta);//constants
     float upx;    float upz;    float upy;
     x = radius;    z = 0;    y = 0;
