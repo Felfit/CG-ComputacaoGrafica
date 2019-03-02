@@ -1,3 +1,5 @@
+#include "Model3D.h"
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -5,6 +7,7 @@
 #endif
 
 #include <math.h>
+
 
 int rotate = 0;
 
@@ -188,14 +191,20 @@ void special_func(int key, int x, int y) {
 
 
 
+
+
+
 int main(int argc, char **argv) {
+
+
+	Model3D model("plane.3d");
 
 // init GLUT and the window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(800,800);
-	glutCreateWindow("CG@DI-UM");
+	glutCreateWindow("Engine");
 		
 // Required callback registry 
 	glutDisplayFunc(renderScene);
