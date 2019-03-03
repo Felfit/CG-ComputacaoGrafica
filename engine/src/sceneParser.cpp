@@ -1,17 +1,15 @@
 #include "tinyxml2.h"
 #include <unordered_map>
 #include "Model3D.h"
-#include "parser.h"
+#include "sceneParser.h"
 
-
-
+using namespace tinyxml2;
 
 void loadmodel(const char*s) {
 	printf("model: %s\n",s);
 }
 
-int sceneParser(char* filename) {
-	Scene s = new struct scene;
+int sceneParser(char* filename,Scene s) {
 	XMLDocument doc;
 	XMLError eresult = doc.LoadFile(filename);
 	if (eresult != XML_SUCCESS)
@@ -34,7 +32,9 @@ int sceneParser(char* filename) {
 	{
 		const char * f = child->Attribute("file");
 		Model3D m = Model3D(f);
+		loadmodel(f);
 		s->modelos.push_front(m);
 		child = child->NextSiblingElement();
 	}
+	return 0;
 }
