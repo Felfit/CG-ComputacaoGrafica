@@ -1,7 +1,17 @@
 #include "Model3D.h"
-
+#include <GL/glut.h>
 using namespace std;
 
+
+void Model3D::drawModel()
+{
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < size; i++)
+	{
+		glVertex3f(points[i].x, points[i].y, points[i].z);
+	}
+	glEnd();
+}
 
 Model3D::Model3D() {
 }
@@ -46,6 +56,7 @@ Model3D::Model3D(string filename) {
 
 
 			points[i] = p;
+			size++;
 		}
 		file.close();
 	}
