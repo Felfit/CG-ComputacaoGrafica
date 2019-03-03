@@ -8,7 +8,7 @@
 
 #include <math.h>
 #include "sceneParser.h"
-
+#include "Model3D.h"
 #include <iostream>
 #include <string>
 #include <windows.h>
@@ -21,7 +21,7 @@ int scaleY = 1;
 int moveX = 0;
 int moveY = 0;
 int moveZ = 0;
-
+Scene s;
 
 void changeSize(int w, int h) {
 
@@ -66,7 +66,11 @@ void renderScene(void) {
 	glTranslatef(moveX, moveY, moveZ);
 	glRotatef(rotates, 0, 1, 0); 
 	glScalef(1, scaleY, 1);
-	
+		
+	for (const auto& model : s->modelos)
+	{
+		model->drawModel();
+	}
 
 	// End of frame
 	glutSwapBuffers();
@@ -154,9 +158,8 @@ void special_func(int key, int x, int y) {
 }
 
 int main(int argc, char **argv) {
-	Scene s = new struct scene;
-	sceneParser("D:\cena2.xml", s);
-	//Model3D("D:\sphere.3d");
+	s = new struct scene;
+	sceneParser("cena2.xml", s);
 // init GLUT and the window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
