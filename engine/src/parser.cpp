@@ -3,8 +3,7 @@
 #include "Model3D.h"
 #include "parser.h"
 
-using namespace std;
-using namespace tinyxml2;
+
 
 
 void loadmodel(const char*s) {
