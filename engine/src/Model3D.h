@@ -18,9 +18,9 @@ private:
 	Point3D *points;
 
 public:
-	void drawModel();
 	Model3D();
 	Model3D(std::string filename);
+	void drawModel();
 	~Model3D();
 };
 

@@ -3,7 +3,7 @@
 
 
 struct scene {
-	std::list<Model3D> modelos;
+	std::list<Model3D*> modelos;
 };
 
 typedef struct scene *Scene;

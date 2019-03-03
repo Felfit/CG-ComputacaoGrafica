@@ -26,7 +26,6 @@ Model3D::Model3D(string filename) {
 	{
 		getline(file, line);
 		int count = stoi(line);
-
 		points = new Point3D[count];
 
 		cout << count << '\n';
@@ -68,4 +67,6 @@ Model3D::Model3D(string filename) {
 
 Model3D::~Model3D() {
 	delete points;
+	cout << "Destruction";
 }
+
