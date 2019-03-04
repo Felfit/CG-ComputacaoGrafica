@@ -323,7 +323,7 @@ int main(int argc, char const *argv[]) {
 	else if (strcmp(argv[1], "cone") == 0)  {
 		// requires bottom radius, height, slices and stacks
 		if (argc <= 6) {
-			fputs("Usage: generator sphere <radius> <height> <slices> <stacks> <output>", stdout);
+			fputs("Usage: generator cone <radius> <height> <slices> <stacks> <output>", stdout);
 			return 1;
 		}
 
