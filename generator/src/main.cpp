@@ -147,7 +147,7 @@ void sphere(const char* name, float radius, int slices, int stacks) {
         //Ligar os pontos no fundo da esfera
         p1 = points[stacks-2][i]; // Ponto no primeiro paralelo depois do ponto no topo
         p2 = points[stacks-2][(i+1)%slices]; // Ponto à direita do p1
-        printTriangle(fp, p1, p2, bottom); // Triangulos de baixo
+        printTriangle(fp, p2, p1, bottom); // Triangulos de baixo
     }
 
 	// cleanup
@@ -204,6 +204,7 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
     }
     fclose(fp);
 }
+
 /*
 void cone(const char* name, float radius, float height, int slices, int stacks) {
 	FILE *fp;
@@ -247,6 +248,7 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
 	fclose(fp);
 }
 */
+
 int main(int argc, char const *argv[]) {
 	
     if (argc <= 1) {
