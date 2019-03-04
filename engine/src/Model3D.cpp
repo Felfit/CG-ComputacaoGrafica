@@ -28,7 +28,6 @@ Model3D::Model3D(string filename) {
 		int count = stoi(line);
 		points = new Point3D[count];
 
-		cout << count << '\n';
 
 		for (int i = 0; getline(file, line); i++) {
 			Point3D p;
@@ -49,9 +48,6 @@ Model3D::Model3D(string filename) {
 			line.erase(0, pos + delimiter.length());
 
 			p.z = stof(line);
-
-			// teste
-			std::cout << p.x << " " << p.y << " " << p.z << std::endl;
 
 
 			points[i] = p;

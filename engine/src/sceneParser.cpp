@@ -5,9 +5,6 @@
 
 using namespace tinyxml2;
 
-void loadmodel(const char*s) {
-	printf("model: %s\n",s);
-}
 
 int sceneParser(char* filename,Scene s) {
 	XMLDocument doc;
@@ -34,7 +31,6 @@ int sceneParser(char* filename,Scene s) {
 		if (!s->modelos[f]) {
 			Model3D* m = new Model3D(f);
 			s->modelos[f] = m;
-			loadmodel(f);
 		}
 		s->objetos.push_back(f);
 		child = child->NextSiblingElement();
