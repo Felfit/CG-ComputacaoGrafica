@@ -7,16 +7,21 @@
 #endif
 
 #include <math.h>
+#include "sceneParser.h"
+#include "Model3D.h"
+#include <iostream>
+#include <string>
+#include <windows.h>
+using namespace std;
 
-
-int rotate = 0;
+int rotates = 0;
 
 int scaleY = 1;
 
 int moveX = 0;
 int moveY = 0;
 int moveZ = 0;
-
+Scene s;
 
 void changeSize(int w, int h) {
 
@@ -56,53 +61,16 @@ void renderScene(void) {
 			  0.0f,1.0f,0.0f);
 
 	
-
+	
 // put the geometric transformations here
 	glTranslatef(moveX, moveY, moveZ);
-	glRotatef(rotate, 0, 1, 0); 
+	glRotatef(rotates, 0, 1, 0); 
 	glScalef(1, scaleY, 1);
-	
-
-// put drawing instructions here
-	glBegin(GL_TRIANGLES);
 		
-
-		//base
-		glColor3f(0, 1, 1);
-
-		glVertex3f(-1, 0, -1);
-		glVertex3f(1, 0, -1);
-		glVertex3f(1, 0, 1);
-
-		glVertex3f(1, 0, 1);
-		glVertex3f(-1, 0, 1);
-		glVertex3f(-1, 0, -1);
-
-		//face 1
-		glColor3f(0, 1, 0);
-		glVertex3f(1, 0, -1);
-		glVertex3f(0, 1, 0);
-		glVertex3f(1, 0, 1);
-
-		//face 2
-		glColor3f(0, 0, 1);
-		glVertex3f(1, 0, 1);
-		glVertex3f(0, 1, 0);
-		glVertex3f(-1, 0, 1);
-
-		//face 3
-		glColor3f(1, 0, 0);
-		glVertex3f(-1, 0, -1);
-		glVertex3f(0, 1, 0);
-		glVertex3f(1, 0, -1);
-
-		//face 4
-		glColor3f(1, 1	, 0);
-		glVertex3f(-1, 0, 1);
-		glVertex3f(0, 1, 0);
-		glVertex3f(-1, 0, -1);
-
-	glEnd();
+	for (const auto& model : s->objetos)
+	{
+		s->modelos[model]->drawModel();
+	}
 
 	// End of frame
 	glutSwapBuffers();
@@ -177,11 +145,11 @@ void special_func(int key, int x, int y) {
 		renderScene();
 		break;
 	case GLUT_KEY_LEFT:
-		rotate += 10;
+		rotates += 10;
 		renderScene();
 		break;
 	case GLUT_KEY_RIGHT:
-		rotate -= 10;
+		rotates -= 10;
 		renderScene();
 		break;
 	default:
@@ -189,16 +157,9 @@ void special_func(int key, int x, int y) {
 	}
 }
 
-
-
-
-
-
 int main(int argc, char **argv) {
-
-
-	Model3D model("plane.3d");
-
+	s = new struct scene;
+	sceneParser("cena2.xml", s);
 // init GLUT and the window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
