@@ -147,7 +147,7 @@ void sphere(const char* name, float radius, int slices, int stacks) {
 	FILE *fp;
 	fp = fopen(name, "w");
 
-	fprintf(fp, "%d\n", 6 * slices * stacks - 6 * slices);
+	fprintf(fp, "%d\n", 6 * slices * (stacks-1) + 3 * slices);
 
     Point** points = new Point*[stacks-1];
     for (int i = 0; i < stacks; i++)
@@ -199,10 +199,6 @@ void sphere(const char* name, float radius, int slices, int stacks) {
         printTriangle(fp, p2, p1, bottom); // Triangulos de baixo
     }
 
-	// cleanup
-	for (int i = 0; i < stacks; i++)
-		delete[] points[i];
-	delete[] points;
 
 	fclose(fp);
 }
