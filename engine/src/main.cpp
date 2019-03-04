@@ -67,9 +67,9 @@ void renderScene(void) {
 	glRotatef(rotates, 0, 1, 0); 
 	glScalef(1, scaleY, 1);
 		
-	for (const auto& model : s->modelos)
+	for (const auto& model : s->objetos)
 	{
-		model->drawModel();
+		s->modelos[model]->drawModel();
 	}
 
 	// End of frame

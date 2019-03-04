@@ -31,9 +31,12 @@ int sceneParser(char* filename,Scene s) {
 	while (child)
 	{
 		const char * f = child->Attribute("file");
-		Model3D* m = new Model3D(f);
-		loadmodel(f);
-		s->modelos.push_front(m);
+		if (!s->modelos[f]) {
+			Model3D* m = new Model3D(f);
+			s->modelos[f] = m;
+			loadmodel(f);
+		}
+		s->objetos.push_back(f);
 		child = child->NextSiblingElement();
 	}
 	return 0;

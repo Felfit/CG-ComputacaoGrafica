@@ -1,9 +1,10 @@
 #include "Model3D.h"
 #include<list>
-
+#include<unordered_map>
 
 struct scene {
-	std::list<Model3D*> modelos;
+	std::unordered_map<std::string, Model3D*> modelos;
+	std::list<std::string> objetos;
 };
 
 typedef struct scene *Scene;
