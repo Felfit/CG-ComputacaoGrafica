@@ -171,11 +171,11 @@ void sphere(const char* name, float radius, int slices, int stacks) {
         // Imprime os triangulos do topo
         p1 = newPoint(x1, yt, z1);
         p2 = newPoint(x2, yt, z2);
-        printTriangleDebug(fp, p2, p1, top);
+        printTriangle(fp, p2, p1, top);
         // Imprime os triangulos do fundo
         p1 = newPoint(x1, yb, z1);
         p2 = newPoint(x2, yb, z2);
-        printTriangleDebug(fp, p1, p2, bottom);
+        printTriangle(fp, p1, p2, bottom);
         // Imprime os restantes
         float beta = betaT; // Começa com beta em cima
         for(int j = 0; j < stacks - 2; j++) { // Imprime até chegar ao penúltimo paralelo
