@@ -14,11 +14,13 @@ struct Point3D
 
 class Model3D {
 private:
+	int size = 0;
 	Point3D *points;
 
 public:
 	Model3D();
 	Model3D(std::string filename);
+	void drawModel();
 	~Model3D();
 };
 

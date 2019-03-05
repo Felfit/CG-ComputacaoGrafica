@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
-
-#define PI 3.1415926
 
 struct Point {
 	float x;
@@ -33,23 +32,6 @@ Vector2D newVector2D(float i, float j) {
 	return v;
 }
 
-void printTriangleDebug(FILE *fp, Point p1, Point p2, Point p3) {
-    if(fp) {
-        fprintf(fp, "glVertex3f(%f,%f,%f);\n", p1.x, p1.y, p1.z);
-        fprintf(fp, "glVertex3f(%f,%f,%f);\n", p2.x, p2.y, p2.z);
-        fprintf(fp, "glVertex3f(%f,%f,%f);\n", p3.x, p3.y, p3.z);
-    } else {
-        printf("glVertex3f(%f,%f,%f);\n", p1.x, p1.y, p1.z);
-        printf("glVertex3f(%f,%f,%f);\n", p2.x, p2.y, p2.z);
-        printf("glVertex3f(%f,%f,%f);\n", p3.x, p3.y, p3.z);
-    }
-}
-
-void printSquareDebug(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
-	printTriangleDebug(fp, p1, p2, p3);
-	printTriangleDebug(fp, p3, p4, p1);
-}
-
 void printTriangle(FILE *fp, Point p1, Point p2, Point p3) {
 	fprintf(fp, "%f %f %f\n", p1.x, p1.y, p1.z);
 	fprintf(fp, "%f %f %f\n", p2.x, p2.y, p2.z);
@@ -71,6 +53,8 @@ void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
 void plane(const char* name, float x, float z) {
 	FILE *fp;
 	fp = fopen(name, "w");
+
+	fputs("6\n", fp);
 
 	Point p1 = newPoint(x, 0, z); 
 	Point p2 = newPoint(x, 0, -z); 
@@ -144,11 +128,12 @@ void box(const char* name, float x, float y, float z, int div) {
 	Point down  = newPoint(-hx, -hy, -hz);
 
 	//vetores para usar nos ciclos e obter os pontos dos quadrados
-	Vector2D vx = newVector2D((float)z / div, (float)y / div);
-	Vector2D vy = newVector2D((float)x / div, (float)z / div);
-	Vector2D vz = newVector2D((float)x / div, (float)y / div);
+	Vector2D vx = newVector2D(z / div, y / div);
+	Vector2D vy = newVector2D(x / div, z / div);
+	Vector2D vz = newVector2D(x / div, y / div);
 
 	//desenha
+	fprintf(fp, "%d\n", div * div * 36);
 	printMultiSquare(fp, front, 'z', 2, vz, div);
 	printMultiSquare(fp, right, 'x', 1, vx, div);
 	printMultiSquare(fp, left, 'x', 2, vx, div);
@@ -162,6 +147,7 @@ void box(const char* name, float x, float y, float z, int div) {
 void sphere(const char* name, float radius, int slices, int stacks) {
 	FILE *fp;
 	fp = fopen(name, "w");
+    fprintf(fp, "%d\n", 6 * (stacks-1) * slices);
 
     Point top = newPoint(0.0, radius, 0.0); // polo do topo
     Point bottom = newPoint(0.0, -radius, 0.0); // polo do fundo
@@ -219,10 +205,12 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
     FILE *fp;
     fp = fopen(name, "w");
 
+	fprintf(fp, "%d\n", stacks * slices * 6);
+
     float x = radius;
 	float y = 0;
 	float z = 0;
-    const float teta = PI * 2 / (float) slices;
+    const float teta = M_PI * 2 / (float) slices;
 	const float cost = cos(teta);
 	const float sent = sin(teta);
 
@@ -329,7 +317,7 @@ int main(int argc, char const *argv[]) {
 	else if (strcmp(argv[1], "cone") == 0)  {
 		// requires bottom radius, height, slices and stacks
 		if (argc <= 6) {
-			fputs("Usage: generator sphere <radius> <height> <slices> <stacks> <output>", stdout);
+			fputs("Usage: generator cone <radius> <height> <slices> <stacks> <output>", stdout);
 			return 1;
 		}
 
