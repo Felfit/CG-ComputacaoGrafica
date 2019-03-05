@@ -163,60 +163,54 @@ void sphere(const char* name, float radius, int slices, int stacks) {
 	FILE *fp;
 	fp = fopen(name, "w");
 
-    Point** points = new Point*[stacks-1];
-    for (int i = 0; i < stacks; i++)
-        points[i] = new Point[slices];
+    Point top = newPoint(0.0, radius, 0.0); // polo do topo
+    Point bottom = newPoint(0.0, -radius, 0.0); // polo do fundo
 
-	// Pontos do topo e fundo da esfera
-    Point top = newPoint(0.0, radius, 0.0);
-	Point bottom = newPoint(0.0, -radius, 0.0);
-
-    //Restantes pontos de cima para baixo e no sentido contrário dos ponteiros do relógio
-    for (int i = 1; i < stacks; ++i) {
-        double phi = PI * i / (double) stacks;
-        float y = radius * cos(phi);
-        double r = radius * sin(phi); // Projeção do ponto no plano xy
-        for (int j = 0; j < slices; ++j) {
-            double teta = 2 * PI * j / (double) slices;
-            float x = r * cos(teta);
-            float z = r * sin(teta);
-            points[i-1][j] = newPoint(x, y, z);
-        }
-    }
-
+    float alfa = 0.0f; // ângulo atual a ser desenhado
+    float delta = (2 * M_PI) / slices; // variação do alfa para o próximo meridiano
+    float zeta = M_PI / stacks; // variação do beta para o próximo paralelo
+    float betaT = M_PI/2 - zeta; // beta dos pontos no paralelo abaixo do polo mais acima
+    float yt = radius * sin(betaT); // y dos pontos no primeiro paralelo abaixo do polo
+    float yb = -yt; // y dos pontos no primeiro paralelo acima do polo
+    float gr = radius * cos(betaT); // raio dos pontos no primeiro e no último paralelo
+    float x1, x2, y, z1, z2;
 	// Ligar os pontos em triangulos
     for(int i = 0; i < slices; ++i) {
         Point p1, p2, p3, p4;
-
-		int dir = (i + 1) % slices;
-        // Topo
-        p1 = points[0][i];	 // Ponto no primeiro paralelo depois do ponto no topo
-        p2 = points[0][dir]; // Ponto à direita do p1
-        printTriangle(fp, p1, p2, top);
-
-		// Fundo
-		p1 = points[stacks-2][i];	// Ponto no último paralelo antes do ponto no fundo
-		p2 = points[stacks-2][dir]; // Ponto à direita do p1
-		printTriangle(fp, p1, p2, bottom);
-
-        // Restantes
-        for(int j = 0; j < stacks-2; j++) {
-            p4 = points[j+1][i];	// Ponto esquerda-baixo
-            p1 = points[j+1][dir];	// Ponto direita-baixo
-            p3 = points[j][i];		// Ponto esquerda-cima
-            p2 = points[j][dir];	// Ponto direita-cima
+        float alfaLeft = alfa + delta;
+        x1 = gr * cos(alfa); // Coordenada x do p1
+        x2 = gr * cos(alfaLeft); // Coordenada x do p2
+        z1 = gr * sin(alfa); // Coordenada z do p1
+        z2 = gr * sin(alfaLeft); // Coordenada z do p2
+        // Imprime os triangulos do topo
+        p1 = newPoint(x1, yt, z1);
+        p2 = newPoint(x2, yt, z2);
+        printTriangleDebug(fp, p2, p1, top);
+        // Imprime os triangulos do fundo
+        p1 = newPoint(x1, yb, z1);
+        p2 = newPoint(x2, yb, z2);
+        printTriangleDebug(fp, p1, p2, bottom);
+        // Imprime os restantes
+        float beta = betaT; // Começa com beta em cima
+        for(int j = 0; j < stacks - 2; j++) { // Imprime até chegar ao penúltimo paralelo
+            float rt = radius * cos(beta); // raio dos pontos
+            float rb = radius * cos(beta - zeta); // raio dos pontos de baixo
+            float yt = radius * sin(beta); // Coordenada y dos pontos
+            float yb = radius * sin(beta - zeta); // Coordenada y dos pontos de baixo
+            x1 = cos(alfa); // Coordenada x dos pontos da direita
+            x2 = cos(alfaLeft); // Coordenada x dos pontos da esquerda
+            z1 = sin(alfa); // Coordenada z dos pontos da direta
+            z2 = sin(alfaLeft); // Coordenada z dos pontos da esquerda
+            p1 = newPoint(rb * x1, yb, rb * z1);
+            p2 = newPoint(rt * x1, yt, rt * z1);
+            p3 = newPoint(rt * x2, yt, rt * z2);
+            p4 = newPoint(rb * x2, yb, rb * z2);
+            // Liga os pontos do paralelo j com os pontos do paralelo inferior
             printSquare(fp, p1, p2, p3, p4);
+            beta -= zeta; // roda a esfera para baixo
         }
-        //Ligar os pontos no fundo da esfera
-        p1 = points[stacks-2][i]; // Ponto no primeiro paralelo depois do ponto no topo
-        p2 = points[stacks-2][(i+1)%slices]; // Ponto à direita do p1
-        printTriangle(fp, p2, p1, bottom); // Triangulos de baixo
+        alfa += delta; // roda a esfera para a esquerda
     }
-
-	// cleanup
-	for (int i = 0; i < stacks; i++)
-		delete[] points[i];
-	delete[] points;
 
 	fclose(fp);
 }
