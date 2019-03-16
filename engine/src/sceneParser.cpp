@@ -2,42 +2,50 @@
 #include <unordered_map>
 #include "Model3D.h"
 #include "sceneParser.h"
+#include <assert.h>
 
 using namespace tinyxml2;
 
 void parseGroup(XMLElement* parent, Group parentGr, Scene s) {
 	Group childGr;
 	XMLElement* child = parent->FirstChildElement();
+	printf("grupo\n");
 	// transformations -> models -> groups
 	while (child) {
 		if (!strcmp("group", child->Name())) {
 			parseGroup(child, childGr, s);
 		}
 		else if (!strcmp("models", child->Name())) {
+			printf("modelos\n");
 			XMLElement* model = child->FirstChildElement();
 			while (model) {
-				const char *filename = child->Attribute("file");
+				printf("modelo: ");
+				const char *filename = model->Attribute("file");
+				printf("%s\n", filename);
 				// adicionar ao childGr
 				if (!s->models[filename]) {
-					Model3D* m = new Model3D(filename);
-					s->models[filename] = m; //insert
+					//Model3D* m = new Model3D(filename);
+					//s->models[filename] = m; //insert
 				}
 				model = model->NextSiblingElement();
 			}
 		}
 		else if (!strcmp("translate", child->Name())) {
+			printf("translate\n");
 			float x = (float) atof(child->Attribute("X"));
 			float y = (float) atof(child->Attribute("Y"));
 			float z = (float) atof(child->Attribute("Z"));
 			childGr.setTranslate(x, y, z);
 		}
 		else if (!strcmp("scale", child->Name())) {
+			printf("scale\n");
 			float x = (float) atof(child->Attribute("X"));
 			float y = (float) atof(child->Attribute("Y"));
 			float z = (float) atof(child->Attribute("Z"));
 			childGr.setScale(x, y, z);
 		}
 		else if (!strcmp("rotate", child->Name())) {
+			printf("rotate\n");
 			float a = (float) atof(child->Attribute("angle"));
 			float x = (float) atof(child->Attribute("axisX"));
 			float y = (float) atof(child->Attribute("axisY"));
@@ -73,6 +81,7 @@ int sceneParser(char* filename, Scene s) {
 		printf("Wrong file Format");
 	}
 	// primeiro <group>
+	
 	el = el->FirstChildElement();
 	if (strcmp("group", el->Name())) {
 		printf("Wrong file Format");

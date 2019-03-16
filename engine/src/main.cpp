@@ -136,13 +136,16 @@ void special_func(int key, int x, int y) {
 }
 
 int main(int argc, char **argv) {
-	
+
 	if (argc <= 1) {
 		fputs("Usage: engine <config>\n", stdout);
 		return 1;
 	}
 	s = new struct scene;
-	sceneParser(argv[1], s);
+	
+	sceneParser(argv[2], s);
+
+	return 0;
 
 // init GLUT and the window
 	glutInit(&argc, argv);

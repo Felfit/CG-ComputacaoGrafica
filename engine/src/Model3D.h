@@ -14,7 +14,7 @@ struct Point3D
 
 class Model3D {
 private:
-	int size = 0;
+	unsigned int size = 0;
 	Point3D *points;
 
 public:
