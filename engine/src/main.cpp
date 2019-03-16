@@ -60,10 +60,11 @@ void renderScene(void) {
 	gluLookAt(x, y, z,
 		0.0, 0.0, 0.0,
 		0.0f, 1.0f, 0.0f);
-		
-	for (const auto& model : s->objetos) {
-		s->modelos[model]->drawModel();
+	/*
+	for (const auto& group : s->groups) {
+		//group -> drawModel
 	}
+	*/
 
 	// End of frame
 	glutSwapBuffers();

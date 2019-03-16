@@ -19,8 +19,7 @@ Point newPoint(float x, float y, float z) {
 }
 
 
-struct Vector2D
-{
+struct Vector2D {
 	float i;
 	float j;
 };
@@ -52,7 +51,7 @@ void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
 
 void plane(const char* name, float x, float z) {
 	FILE *fp;
-	fp = fopen(name, "w");
+	fopen_s(&fp, name, "w");
 
 	fputs("6\n", fp);
 
@@ -114,7 +113,7 @@ void printMultiSquare(FILE *fp, Point start, char type, int rWise, Vector2D v, i
 
 void box(const char* name, float x, float y, float z, int div) {
 	FILE *fp;
-	fp = fopen(name, "w");
+	fopen_s(&fp, name, "w");
 	const float hx = x / 2;
 	const float hy = y / 2;
 	const float hz = z / 2;
@@ -146,7 +145,7 @@ void box(const char* name, float x, float y, float z, int div) {
 
 void sphere(const char* name, float radius, int slices, int stacks) {
 	FILE *fp;
-	fp = fopen(name, "w");
+	fopen_s(&fp, name, "w");
     fprintf(fp, "%d\n", 6 * (stacks-1) * slices);
 
     Point top = newPoint(0.0, radius, 0.0); // polo do topo
@@ -159,7 +158,7 @@ void sphere(const char* name, float radius, int slices, int stacks) {
     float yt = radius * sin(betaT); // y dos pontos no primeiro paralelo abaixo do polo
     float yb = -yt; // y dos pontos no primeiro paralelo acima do polo
     float gr = radius * cos(betaT); // raio dos pontos no primeiro e no último paralelo
-    float x1, x2, y, z1, z2;
+    float x1, x2, z1, z2;
 	// Ligar os pontos em triangulos
     for(int i = 0; i < slices; ++i) {
         Point p1, p2, p3, p4;
@@ -203,7 +202,7 @@ void sphere(const char* name, float radius, int slices, int stacks) {
 
 void cone(const char* name, float radius, float height, int slices, int stacks) {
     FILE *fp;
-    fp = fopen(name, "w");
+	fopen_s(&fp, name, "w");
 
 	fprintf(fp, "%d\n", stacks * slices * 6);
 
