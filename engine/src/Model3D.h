@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <GL/glut.h>
 
 struct Point3D
 {
@@ -14,13 +15,13 @@ struct Point3D
 
 class Model3D {
 private:
-	unsigned int size = 0;
+	int size = 0;
 	Point3D *points;
 
 public:
 	Model3D();
-	Model3D(std::string filename);
-	void drawModel();
+	int parse(const char* filename);
+	const void draw();
 	~Model3D();
 };
 

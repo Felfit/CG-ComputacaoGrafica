@@ -1,29 +1,25 @@
 #include "Model3D.h"
-#include <GL/glut.h>
+
 using namespace std;
 
 
-void Model3D::drawModel()
-{
+const void Model3D::draw() {
 	glBegin(GL_TRIANGLES);
-	for (int i = 0; i < size; i++)
-	{
-		glVertex3f(points[i].x, points[i].y, points[i].z);
-	}
+		for (int i = 0; i < size; i++) {
+			glVertex3f(points[i].x, points[i].y, points[i].z);
+		}
 	glEnd();
 }
 
 Model3D::Model3D() {
 }
 
-Model3D::Model3D(string filename) {
-
+int Model3D::parse(const char* filename) {
 	string line;
 	ifstream file;
 	file.open(filename);
 
-	if (file.is_open())
-	{
+	if (file.is_open()) {
 		getline(file, line);
 		int count = stoi(line);
 		points = new Point3D[count];
@@ -58,11 +54,11 @@ Model3D::Model3D(string filename) {
 	else cout << "Unable to open file";
 
 	file.close();
-	
+
+	return 0;
 }
 
 Model3D::~Model3D() {
 	delete points;
-	cout << "Destruction";
 }
 

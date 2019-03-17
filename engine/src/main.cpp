@@ -1,23 +1,29 @@
-#include "Model3D.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
 #endif
+
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "sceneParser.h"
-#include "Model3D.h"
-#include <iostream>
-#include <string>
-#include <windows.h>
-using namespace std;
 
-float alfaC;
-float betaC;
-float radiusC = 10;
-Scene s;
+#include "Scene.h"
+#include "Model3D.h"
+
+float alfa = 0.0f, beta = 0.5f, radius = 100.0f;
+float camX, camY, camZ;
+Scene scene;
+
+void spherical2Cartesian() {
+
+	camX = radius * cos(beta) * sin(alfa);
+	camY = radius * sin(beta);
+	camZ = radius * cos(beta) * cos(alfa);
+}
+
 
 void changeSize(int w, int h) {
 
@@ -45,6 +51,7 @@ void changeSize(int w, int h) {
 }
 
 
+
 void renderScene(void) {
 
 	// clear buffers
@@ -52,40 +59,19 @@ void renderScene(void) {
 
 	// set the camera
 	glLoadIdentity();
-
-	float x = radiusC * sin(alfaC) * cos(betaC);
-	float y = radiusC * sin(betaC);
-	float z = radiusC * cos(alfaC) * cos(betaC);
-
-	gluLookAt(x, y, z,
+	gluLookAt(camX, camY, camZ,
 		0.0, 0.0, 0.0,
 		0.0f, 1.0f, 0.0f);
-	/*
-	for (const auto& group : s->groups) {
-		//group -> drawModel
-	}
-	*/
 
+	scene.draw();
+	
 	// End of frame
 	glutSwapBuffers();
 }
 
 
-
-// write function to process keyboard events
-
-
-void keyboard_func(unsigned char key, int x, int y) {
-	switch (key)
-	{
-	case '1':
-		radiusC += 1;
-		renderScene();
-		break;
-	case '2':
-		radiusC -= 1;
-		renderScene();
-		break;
+void processKeys(unsigned char c, int xx, int yy) {
+	switch (c) {
 	case '3':
 		glPolygonMode(GL_FRONT, GL_FILL);
 		renderScene();
@@ -111,63 +97,87 @@ void keyboard_func(unsigned char key, int x, int y) {
 	}
 }
 
-void special_func(int key, int x, int y) {
-	switch (key)
-	{
-	case GLUT_KEY_UP:
-		betaC += M_PI / 8;
-		renderScene();
-		break;
-	case GLUT_KEY_DOWN:
-		betaC -= M_PI / 8;
-		renderScene();
-		break;
-	case GLUT_KEY_LEFT:
-		alfaC += M_PI / 8;
-		renderScene();
-		break;
+
+void processSpecialKeys(int key, int xx, int yy) {
+
+	switch (key) {
+
 	case GLUT_KEY_RIGHT:
-		alfaC -= M_PI / 8;
-		renderScene();
+		alfa -= 0.1; break;
+
+	case GLUT_KEY_LEFT:
+		alfa += 0.1; break;
+
+	case GLUT_KEY_UP:
+		beta += 0.1f;
+		if (beta > 1.5f)
+			beta = 1.5f;
 		break;
-	default:
+
+	case GLUT_KEY_DOWN:
+		beta -= 0.1f;
+		if (beta < -1.5f)
+			beta = -1.5f;
 		break;
+
+	case GLUT_KEY_PAGE_DOWN: radius -= 1.0f;
+		if (radius < 1.0f)
+			radius = 1.0f;
+		break;
+
+	case GLUT_KEY_PAGE_UP: radius += 1.0f; break;
 	}
+	spherical2Cartesian();
+	glutPostRedisplay();
+
 }
 
-int main(int argc, char **argv) {
 
+void printInfo() {
+
+	printf("Vendor: %s\n", glGetString(GL_VENDOR));
+	printf("Renderer: %s\n", glGetString(GL_RENDERER));
+	printf("Version: %s\n", glGetString(GL_VERSION));
+
+	printf("\nUse Arrows to move the camera up/down and left/right\n");
+	printf("Home and End control the distance from the camera to the origin");
+}
+
+
+int main(int argc, char **argv) {
+	/*
 	if (argc <= 1) {
 		fputs("Usage: engine <config>\n", stdout);
 		return 1;
 	}
-	s = new struct scene;
-	
-	sceneParser(argv[2], s);
+	s.parse(argv[2]);
+	*/
+	scene.parse("example.xml");
 
-	return 0;
 
 // init GLUT and the window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(800,800);
-	glutCreateWindow("Engine");
+	glutCreateWindow("engine");
 		
 // Required callback registry 
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
-
 	
-// put here the registration of the keyboard callbacks
-	glutKeyboardFunc(keyboard_func);
-	glutSpecialFunc(special_func);
-
+// Callback registration for keyboard processing
+	glutKeyboardFunc(processKeys);
+	glutSpecialFunc(processSpecialKeys);
 
 //  OpenGL settings
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	
+
+	spherical2Cartesian();
+
+	printInfo();
+
 // enter GLUT's main cycle
 	glutMainLoop();
 	
