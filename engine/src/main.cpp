@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
 	}
 	s.parse(argv[2]);
 	*/
-	scene.parse("example.xml");
+
 
 
 // init GLUT and the window
@@ -175,8 +175,10 @@ int main(int argc, char **argv) {
 	glEnable(GL_CULL_FACE);
 
 	spherical2Cartesian();
-
 	printInfo();
+
+	//Load de coisas
+	scene.parse("exemplo.xml");
 
 // enter GLUT's main cycle
 	glutMainLoop();

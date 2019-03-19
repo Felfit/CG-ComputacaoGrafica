@@ -3,7 +3,6 @@
 using namespace std;
 
 
-
 Group::Group() {
 }
 
@@ -11,11 +10,12 @@ Group::~Group() {
 
 }
 
+
+
+
 void Group::draw() {
 	glPushMatrix();
-	glRotatef(rAng, rX, rY, rZ);
-	glTranslatef(tX, tY, tZ);
-	glScalef(sX, sY, sZ);
+	glMultMatrixf(this->matrix);
 	for (auto& m : models) {
 		m->draw();
 	}

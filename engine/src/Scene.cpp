@@ -21,7 +21,7 @@ int Scene::parse(char* filename) {
 	}
 	XMLNode* n = doc.FirstChild();
 	if (!n) {
-		printf("Ficheiro n�o tem nodos");
+		printf("Ficheiro n�o tem nodos");
 		return -2;
 	}
 	// <scene> 
@@ -30,13 +30,17 @@ int Scene::parse(char* filename) {
 		printf("Wrong file Format");
 	}
 	// primeiro <group>
-
 	el = el->FirstChildElement();
-	if (strcmp("group", el->Name())) {
-		printf("Wrong file Format");
+	while (el)
+	{
+		if (strcmp("group", el->Name())) {
+			printf("Wrong file Format");
+		}
+		root = new Group();
+		parseGroup(el, root);
+		groups.push_front(root);
+		el=el->NextSiblingElement();
 	}
-	root = new Group();
-	parseGroup(el, root);
 	return 0;
 }
 
@@ -45,6 +49,9 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 	XMLElement* child = parent->FirstChildElement();
 	printf("<group>\n");
 	// transformations -> models -> groups
+	//Inicialização
+	glPushMatrix();
+	glLoadIdentity();
 	while (child) {
 		if (!strcmp("group", child->Name())) {
 			Group* childGr = new Group();
@@ -60,9 +67,9 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 				if (!models[filename]) {
 					Model3D* m = new Model3D();
 					m->parse(filename);
-					parentGr->addModel(m);
 					models[filename] = m;
 				}
+				parentGr->addModel(models[filename]);
 				model = model->NextSiblingElement();
 			}
 			printf("</models>\n");
@@ -72,14 +79,14 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 			float x = (float)atof(child->Attribute("X"));
 			float y = (float)atof(child->Attribute("Y"));
 			float z = (float)atof(child->Attribute("Z"));
-			parentGr->setTranslate(x, y, z);
+			glTranslatef(x,y,z);
 		}
 		else if (!strcmp("scale", child->Name())) {
 			printf("scale\n");
 			float x = (float)atof(child->Attribute("X"));
 			float y = (float)atof(child->Attribute("Y"));
 			float z = (float)atof(child->Attribute("Z"));
-			parentGr->setScale(x, y, z);
+			glScalef(x,y,z);
 		}
 		else if (!strcmp("rotate", child->Name())) {
 			printf("rotate\n");
@@ -87,7 +94,7 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 			float x = (float)atof(child->Attribute("axisX"));
 			float y = (float)atof(child->Attribute("axisY"));
 			float z = (float)atof(child->Attribute("axisZ"));
-			parentGr->setRotate(a, x, y, z);
+			glRotatef(a,x,y,z);
 		}
 		else {
 			printf("Wrong file Format");
@@ -95,11 +102,18 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 		}
 		child = child->NextSiblingElement();
 	}
+	GLfloat *matrix = new GLfloat[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+	parentGr->matrix = matrix;
+	glPopMatrix();
 	printf("</group>\n");
 }
 
 void Scene::draw() {
-	root->draw();
+	//root->draw();
+	for (auto const& group : groups) {
+		group->draw();
+	}
 }
 
 

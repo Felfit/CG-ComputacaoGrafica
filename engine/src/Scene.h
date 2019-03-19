@@ -11,6 +11,7 @@ class Scene {
 private:
 	std::unordered_map<std::string, Model3D*> models;
 	Group* root;
+	std::list<Group *> groups;
 	void parseGroup(tinyxml2::XMLElement* parent, Group* parentGr);
 
 public:
