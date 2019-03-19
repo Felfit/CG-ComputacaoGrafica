@@ -16,32 +16,37 @@ int Scene::parse(char* filename) {
 	XMLError eresult = doc.LoadFile(filename);
 	if (eresult != XML_SUCCESS)
 	{
-		printf("Erro a abrir o fichero");
+		printf("Erro a abrir o fichero\n");
 		return -1;
 	}
 	XMLNode* n = doc.FirstChild();
 	if (!n) {
-		printf("Ficheiro n�o tem nodos");
+		printf("Ficheiro n�o tem nodos\n");
 		return -2;
 	}
 	// <scene> 
 	XMLElement* el = n->ToElement();
 	if (strcmp("scene", el->Name())) {
-		printf("Wrong file Format");
+		printf("Wrong file Format\n");
 	}
 	// primeiro <group>
 	el = el->FirstChildElement();
 	while (el)
 	{
 		if (strcmp("group", el->Name())) {
-			printf("Wrong file Format");
+			printf("Wrong file Format\n");
 		}
-		root = new Group();
-		parseGroup(el, root);
-		groups.push_front(root);
+		Group *group = new Group();
+		parseGroup(el, group);
+		groups.push_front(group);
 		el=el->NextSiblingElement();
 	}
 	return 0;
+}
+
+float getAttr(XMLElement *element, const char* name, float default) {
+	const XMLAttribute *attr = element->FindAttribute(name);
+    return attr == nullptr ? default: (float)atof(attr->Value());
 }
 
 void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
@@ -75,26 +80,26 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 			printf("</models>\n");
 		}
 		else if (!strcmp("translate", child->Name())) {
-			printf("translate\n");
-			float x = (float)atof(child->Attribute("X"));
-			float y = (float)atof(child->Attribute("Y"));
-			float z = (float)atof(child->Attribute("Z"));
-			glTranslatef(x,y,z);
+			float x = getAttr(child, "X", 0);
+			float y = getAttr(child, "Y", 0);
+			float z = getAttr(child, "Z", 0);
+			printf("translate %f %f %f\n", x, y, z);
+			glTranslatef(x, y, z);
 		}
 		else if (!strcmp("scale", child->Name())) {
-			printf("scale\n");
-			float x = (float)atof(child->Attribute("X"));
-			float y = (float)atof(child->Attribute("Y"));
-			float z = (float)atof(child->Attribute("Z"));
-			glScalef(x,y,z);
+			float x = getAttr(child, "X", 1);
+			float y = getAttr(child, "Y", 1);
+			float z = getAttr(child, "Z", 1);
+			printf("scale %f %f %f\n", x, y, z);
+			glScalef(x, y, z);
 		}
 		else if (!strcmp("rotate", child->Name())) {
-			printf("rotate\n");
-			float a = (float)atof(child->Attribute("angle"));
-			float x = (float)atof(child->Attribute("axisX"));
-			float y = (float)atof(child->Attribute("axisY"));
-			float z = (float)atof(child->Attribute("axisZ"));
-			glRotatef(a,x,y,z);
+			float a = getAttr(child, "angle", 0);
+			float x = getAttr(child, "axisX", 0);
+			float y = getAttr(child, "axisY", 0);
+			float z = getAttr(child, "axisZ", 0);
+			printf("rotate %f %f %f\n", x, y, z);
+			glRotatef(a, x, y, z);
 		}
 		else {
 			printf("Wrong file Format");
@@ -110,7 +115,6 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 }
 
 void Scene::draw() {
-	//root->draw();
 	for (auto const& group : groups) {
 		group->draw();
 	}

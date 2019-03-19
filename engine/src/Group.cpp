@@ -16,10 +16,10 @@ Group::~Group() {
 void Group::draw() {
 	glPushMatrix();
 	glMultMatrixf(this->matrix);
-	for (auto& m : models) {
+	for (auto& m : this->models) {
 		m->draw();
 	}
-	for (auto& g : groups) {
+	for (auto& g : this->groups) {
 		g->draw();
 	}
 	glPopMatrix();

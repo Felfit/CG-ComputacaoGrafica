@@ -80,18 +80,21 @@ void renderScene(void) {
 	glLoadIdentity();
 	drawCamera();
 	
+
+	// axis
 	glBegin(GL_LINES);
-	glColor3f(1, 1, 1);
-	glVertex3f(-100, 0, 0);
-	glVertex3f(100, 0, 0);
-	//glColor3f(0, 1, 0);
-	glVertex3f(0, -100, 0);
-	glVertex3f(0, 100, 0);
-	//glColor3f(0, 0, 1);
-	glVertex3f(0, 0, 100);
-	glVertex3f(0, 0, -100);
+		glColor3f(1, 0, 0);
+		glVertex3f(-100, 0, 0);
+		glVertex3f(100, 0, 0);
+		glColor3f(0, 1, 0);
+		glVertex3f(0, -100, 0);
+		glVertex3f(0, 100, 0);
+		glColor3f(0, 0, 1);
+		glVertex3f(0, 0, 100);
+		glVertex3f(0, 0, -100);
 	glEnd();
 
+	glColor3f(1, 1, 1);
 	scene.draw();
 	
 	// End of frame
@@ -121,7 +124,7 @@ void processKeys(unsigned char keycode, int x, int y) {
 		camAlpha += theta;
 		break;
 	case 'w':
-		camx += speed*cos(camBeta)*cos(camAlpha);
+		camx += speed * cos(camBeta)*cos(camAlpha);
 		camy += speed * sin(camBeta);
 		camz += speed * sin(camAlpha);
 		break;
@@ -186,7 +189,7 @@ int main(int argc, char **argv) {
 	s.parse(argv[2]);
 	*/
 
-
+	
 
 // init GLUT and the window
 	glutInit(&argc, argv);
@@ -208,6 +211,7 @@ int main(int argc, char **argv) {
 	glEnable(GL_CULL_FACE);
 	spherical2Cartesian();
 	printInfo();
+
 	//Load de coisas
 	scene.parse("exemplo.xml");
 
