@@ -24,6 +24,25 @@ void spherical2Cartesian() {
 	camZ = radius * cos(beta) * cos(alfa);
 }
 
+float theta = 0.03141593*2;
+float camAlpha = -1.822124;
+float camBeta = -0.251327;
+float camx = 45.267159;
+float camy = 41.017670;
+float camz = 113.516701;
+int speed = 2;
+
+void drawCamera() {
+	double lookatxyz[3] = {
+		cos(camBeta)*cos(camAlpha),
+		sin(camBeta),
+		sin(camAlpha)
+	};
+
+	gluLookAt(camx, camy, camz,
+		lookatxyz[0] + camx, lookatxyz[1] + camy, lookatxyz[2] + camz,
+		0, 1, 0);
+}
 
 void changeSize(int w, int h) {
 
@@ -59,9 +78,19 @@ void renderScene(void) {
 
 	// set the camera
 	glLoadIdentity();
-	gluLookAt(camX, camY, camZ,
-		0.0, 0.0, 0.0,
-		0.0f, 1.0f, 0.0f);
+	drawCamera();
+	
+	glBegin(GL_LINES);
+	glColor3f(1, 1, 1);
+	glVertex3f(-100, 0, 0);
+	glVertex3f(100, 0, 0);
+	//glColor3f(0, 1, 0);
+	glVertex3f(0, -100, 0);
+	glVertex3f(0, 100, 0);
+	//glColor3f(0, 0, 1);
+	glVertex3f(0, 0, 100);
+	glVertex3f(0, 0, -100);
+	glEnd();
 
 	scene.draw();
 	
@@ -69,67 +98,71 @@ void renderScene(void) {
 	glutSwapBuffers();
 }
 
+void processSpecialKeys(int keycode, int x, int y) {
+	switch (keycode)
+	{
+	case GLUT_KEY_DOWN:
+		camy -= speed;
+		break;
+	case GLUT_KEY_UP:
+		camy += speed;
+		break;
+	}
+	renderScene();
+}
 
-void processKeys(unsigned char c, int xx, int yy) {
-	switch (c) {
-	case '3':
+void processKeys(unsigned char keycode, int x, int y) {
+	switch (keycode)
+	{
+	case 'q':
+		camAlpha -= theta;
+		break;
+	case 'e':
+		camAlpha += theta;
+		break;
+	case 'w':
+		camx += speed*cos(camBeta)*cos(camAlpha);
+		camy += speed * sin(camBeta);
+		camz += speed * sin(camAlpha);
+		break;
+	case 's':
+		camx -= speed * cos(camBeta)*cos(camAlpha);
+		camy += speed * sin(camBeta+M_PI);
+		camz-= speed * sin(camAlpha);
+		break;
+	case 'a':
+		camx += speed * cos(camBeta)*cos(camAlpha - M_PI_2);
+		camz += speed * sin(camAlpha - M_PI_2);
+		break;
+	case 'd':
+		camx += speed * cos(camBeta)*cos(camAlpha + M_PI_2);
+		camz += speed * sin(camAlpha + M_PI_2);
+		break;
+	case 'f':
+		if(theta >-M_2_PI)
+			camBeta -= theta;
+		break;
+	case 'r':
+		if (theta < M_2_PI)
+			camBeta += theta;
+		break;
+	case '1':
 		glPolygonMode(GL_FRONT, GL_FILL);
 		renderScene();
 		break;
-	case '4':
+	case '2':
 		glPolygonMode(GL_FRONT, GL_LINE);
 		renderScene();
 		break;
-	case '5':
+	case '3':
 		glPolygonMode(GL_FRONT, GL_POINT);
 		renderScene();
 		break;
-	case '6':
-		glCullFace(GL_FRONT);
-		renderScene();
-		break;
-	case '7':
-		glCullFace(GL_BACK);
-		renderScene();
-		break;
 	default:
+		return;
 		break;
 	}
-}
-
-
-void processSpecialKeys(int key, int xx, int yy) {
-
-	switch (key) {
-
-	case GLUT_KEY_RIGHT:
-		alfa -= 0.1; break;
-
-	case GLUT_KEY_LEFT:
-		alfa += 0.1; break;
-
-	case GLUT_KEY_UP:
-		beta += 0.1f;
-		if (beta > 1.5f)
-			beta = 1.5f;
-		break;
-
-	case GLUT_KEY_DOWN:
-		beta -= 0.1f;
-		if (beta < -1.5f)
-			beta = -1.5f;
-		break;
-
-	case GLUT_KEY_PAGE_DOWN: radius -= 1.0f;
-		if (radius < 1.0f)
-			radius = 1.0f;
-		break;
-
-	case GLUT_KEY_PAGE_UP: radius += 1.0f; break;
-	}
-	spherical2Cartesian();
-	glutPostRedisplay();
-
+	renderScene();
 }
 
 
@@ -139,8 +172,8 @@ void printInfo() {
 	printf("Renderer: %s\n", glGetString(GL_RENDERER));
 	printf("Version: %s\n", glGetString(GL_VERSION));
 
-	printf("\nUse Arrows to move the camera up/down and left/right\n");
-	printf("Home and End control the distance from the camera to the origin");
+	printf("\nUse WASD to move the camera, up/down to raise the camera, QERF to rotate the camera \n");
+	printf("Use 1:FillMode 2:Wireframe 3:Point Mode\n");
 }
 
 
@@ -173,10 +206,8 @@ int main(int argc, char **argv) {
 //  OpenGL settings
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-
 	spherical2Cartesian();
 	printInfo();
-
 	//Load de coisas
 	scene.parse("exemplo.xml");
 
