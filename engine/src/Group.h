@@ -40,7 +40,6 @@ private:
 	bool hasScale = false;
 
 public:
-	GLfloat* matrix;
 	void draw();
 	void addModel(Model3D* m) { models.push_back(m); }
 	void addGroup(Group* g) { groups.push_back(g); }

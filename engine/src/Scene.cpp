@@ -53,10 +53,6 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 
 	XMLElement* child = parent->FirstChildElement();
 	printf("<group>\n");
-	// transformations -> models -> groups
-	//Inicialização
-	glPushMatrix();
-	glLoadIdentity();
 	while (child) {
 		if (!strcmp("group", child->Name())) {
 			Group* childGr = new Group();
@@ -107,10 +103,6 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 		}
 		child = child->NextSiblingElement();
 	}
-	GLfloat *matrix = new GLfloat[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
-	parentGr->matrix = matrix;
-	glPopMatrix();
 	printf("</group>\n");
 }
 
