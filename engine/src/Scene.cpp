@@ -84,14 +84,14 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 			float y = getAttr(child, "Y", 0);
 			float z = getAttr(child, "Z", 0);
 			printf("translate %f %f %f\n", x, y, z);
-			glTranslatef(x, y, z);
+			parentGr->addTranslate(x, y, z);
 		}
 		else if (!strcmp("scale", child->Name())) {
 			float x = getAttr(child, "X", 1);
 			float y = getAttr(child, "Y", 1);
 			float z = getAttr(child, "Z", 1);
 			printf("scale %f %f %f\n", x, y, z);
-			glScalef(x, y, z);
+			parentGr->addScale(x, y, z);
 		}
 		else if (!strcmp("rotate", child->Name())) {
 			float a = getAttr(child, "angle", 0);
@@ -99,7 +99,7 @@ void Scene::parseGroup(XMLElement* parent, Group* parentGr) {
 			float y = getAttr(child, "axisY", 0);
 			float z = getAttr(child, "axisZ", 0);
 			printf("rotate %f %f %f\n", x, y, z);
-			glRotatef(a, x, y, z);
+			parentGr->addRotate(a, x, y, z);
 		}
 		else {
 			printf("Wrong file Format");
