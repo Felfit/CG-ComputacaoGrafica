@@ -15,7 +15,7 @@ private:
 
 public:
 	Scene();
-	int parse(char* filename);
+	int parse(char *filename);
 	void draw();
 	~Scene();
 };

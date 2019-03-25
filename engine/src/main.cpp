@@ -81,7 +81,7 @@ void renderScene(void) {
 	drawCamera();
 	
 
-	// axis
+	// XYZ axis
 	glBegin(GL_LINES);
 		glColor3f(1, 0, 0);
 		glVertex3f(-100, 0, 0);
@@ -102,8 +102,7 @@ void renderScene(void) {
 }
 
 void processSpecialKeys(int keycode, int x, int y) {
-	switch (keycode)
-	{
+	switch (keycode) {
 	case GLUT_KEY_DOWN:
 		camy -= speed;
 		break;
@@ -115,8 +114,7 @@ void processSpecialKeys(int keycode, int x, int y) {
 }
 
 void processKeys(unsigned char keycode, int x, int y) {
-	switch (keycode)
-	{
+	switch (keycode) {
 	case 'q':
 		camAlpha -= theta;
 		break;
@@ -130,7 +128,7 @@ void processKeys(unsigned char keycode, int x, int y) {
 		break;
 	case 's':
 		camx -= speed * cos(camBeta)*cos(camAlpha);
-		camy += speed * sin(camBeta+M_PI);
+		camy += speed * sin(camBeta + M_PI);
 		camz-= speed * sin(camAlpha);
 		break;
 	case 'a':
@@ -188,7 +186,8 @@ int main(int argc, char **argv) {
 	}
 	
 
-	
+//	Load scene
+	scene.parse(argv[2]);
 
 // init GLUT and the window
 	glutInit(&argc, argv);
