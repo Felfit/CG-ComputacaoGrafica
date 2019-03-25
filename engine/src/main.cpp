@@ -181,13 +181,12 @@ void printInfo() {
 
 
 int main(int argc, char **argv) {
-	/*
+
 	if (argc <= 1) {
 		fputs("Usage: engine <config>\n", stdout);
 		return 1;
 	}
-	s.parse(argv[2]);
-	*/
+	
 
 	
 
@@ -213,7 +212,7 @@ int main(int argc, char **argv) {
 	printInfo();
 
 	//Load de coisas
-	scene.parse("exemplo.xml");
+	scene.parse(argv[1]);
 
 // enter GLUT's main cycle
 	glutMainLoop();
