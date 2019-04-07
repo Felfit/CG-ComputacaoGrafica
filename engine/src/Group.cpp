@@ -11,38 +11,47 @@ Group::~Group() {
 }
 
 
-void Group::addRotate(float angle, float x, float y, float z) {
+void Group::addRotate(Rotate nr) {
 	if (hasRotate)
 		return;
-	r.x = x;
-	r.y = y;
-	r.z = z;
-	r.angle = angle;
+	r = nr;
 	transforms[tranformsSize++] = 'r';
 }
-void Group::addTranslate(float x, float y, float z) {
+void Group::addTranslate(Translate nt) {
 	if (hasTranslate)
 		return;
-	t.x = x;
-	t.y = y;
-	t.z = z;
+	t = nt;
 	transforms[tranformsSize++] = 't';
 }
-void Group::addScale(float x, float y, float z){
+void Group::addScale(Scale ns){
 	if (hasScale)
 		return;
-	s.x = x;
-	s.y = y;
-	s.z = z;
+	s = ns;
 	transforms[tranformsSize++] = 's';
 }
 
+// TODO: anims
+
+/* 
+A set of points will be provided to define a Catmull-Rom cubic curve, as well as the number of seconds to run the whole curve.
+Due to Catmull-Rom’s curve definition it is always required an initial point before the initial
+curve segment and another point after the last segment. The minimum number of points is 4.
+*/
+void Group::addTranslateAnim(float time, vector<Point3D> points) {
+	// TODO: exception tamanho minimo 4
+
+}
+
+// the number of seconds to perform a full 360 degrees rotation around the specified axis
+void Group::addRotateAnim(float time, float x, float y, float z) {
+
+}
+
+// usar glutGet(GLUT_ELAPSED_TIME) para o tempo nas anims
 void Group::draw() {
 	glPushMatrix();
-	for (int i = 0; i < tranformsSize; i++)
-	{
-		switch (transforms[i])
-		{
+	for (int i = 0; i < tranformsSize; i++) {
+		switch (transforms[i]) {
 		case 'r':
 			glRotatef(r.angle,r.x,r.y,r.z);
 			break;

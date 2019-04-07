@@ -4,6 +4,7 @@ using namespace std;
 
 
 const void Model3D::draw() {
+	// TODO: VBOs
 	glBegin(GL_TRIANGLES);
 		for (int i = 0; i < size; i++) {
 			glVertex3f(points[i].x, points[i].y, points[i].z);

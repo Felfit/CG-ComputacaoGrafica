@@ -6,48 +6,51 @@
 #include <list>
 #include <string>
 #include <utility>
+#include <vector> 
 
-typedef struct translate {
+struct Translate {
 	float x;
 	float y;
 	float z;
-} Translate;
+};
 
-typedef struct scale {
+struct Scale {
 	float x;
 	float y;
 	float z;
-} Scale;
+};
 
-typedef struct rotate {
+struct Rotate {
 	float x;
 	float y;
 	float z;
 	float angle;
-} Rotate;
+};
 
 class Group {
-private:
-	std::list<Model3D*> models;
-	std::list<Group*> groups;
-	char transforms[3];
-	int tranformsSize = 0;
-	Translate t; 
-	bool hasTranslate = false;
-	Rotate r; 
-	bool hasRotate = false;
-	Scale s; 
-	bool hasScale = false;
+	private:
+		std::list<Model3D*> models;
+		std::list<Group*> groups;
+		char transforms[3];
+		int tranformsSize = 0;
+		Translate t; 
+		bool hasTranslate = false;
+		Rotate r; 
+		bool hasRotate = false;
+		Scale s; 
+		bool hasScale = false;
 
-public:
-	void draw();
-	void addModel(Model3D* m) { models.push_back(m); }
-	void addGroup(Group* g) { groups.push_back(g); }
-	void addRotate(float angle,float x,float y,float z);
-	void addTranslate(float x,float y,float z);
-	void addScale(float x,float y,float z);
-	Group();
-	~Group();
+	public:
+		void draw();
+		void addModel(Model3D* m) { models.push_back(m); }
+		void addGroup(Group* g) { groups.push_back(g); }
+		void addRotate(Rotate r);
+		void addTranslate(Translate t);
+		void addScale(Scale s);
+		void addTranslateAnim(float time, std::vector<Point3D> points);
+		void addRotateAnim(float time, float x, float y, float z);
+		Group();
+		~Group();
 };
 
 #endif GROUP_H

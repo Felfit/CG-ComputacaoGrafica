@@ -1,8 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #define _USE_MATH_DEFINES
 #include <math.h>
+
+
 
 struct Point {
 	float x;
@@ -47,6 +54,42 @@ void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
 	printTriangle(fp, p3, p4, p1);
 }
 
+
+void bezier(const char* name, const char* cpFile, int tessellation) {
+	FILE *fp;
+	fopen_s(&fp, name, "w");
+
+	std::string line;
+	std::ifstream file;
+	file.open(cpFile);
+
+	if (file.is_open()) {
+		getline(file, line);
+		int nPacthes = stoi(line);
+		for (int i = 0; i < nPacthes; i++) {
+			getline(file, line);
+			std::stringstream stream(line);
+			int n; 
+			while (stream >> n) { 
+				std::cout << "Indice: " << n << "\n"; 
+				// TODO: coisas
+			}
+		}
+
+		int nCPoints = stoi(line);
+		for (int i = 0; i < nCPoints; i++) {
+			getline(file, line);
+			// TODO: coisas
+		}
+		file.close();
+
+		// TODO: coisas
+	}
+	else std::cout << "Unable to open bezier patches file";
+	file.close();
+
+	fclose(fp);
+}
 
 
 void plane(const char* name, float x, float z) {
@@ -262,6 +305,8 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
     fclose(fp);
 }
 
+
+
 int main(int argc, char const *argv[]) {
 	
     if (argc <= 1) {
@@ -326,6 +371,17 @@ int main(int argc, char const *argv[]) {
 		int stacks = atoi(argv[5]);
 
 		cone(argv[6], radius, height, slices, stacks);
+	}
+	else if (strcmp(argv[1], "bezier") == 0) {
+		// requires tessellation level and bezier patches descrition info filename
+		if (argc <= 6) {
+			fputs("Usage: generator bezier <tessellation> <bezier patches filename> <output>", stdout);
+			return 1;
+		}
+
+		int tessellation = atoi(argv[2]);
+
+		bezier(argv[4], argv[3], tessellation);
 	}
 
 

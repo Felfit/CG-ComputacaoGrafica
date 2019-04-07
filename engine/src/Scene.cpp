@@ -1,6 +1,5 @@
 #include "Scene.h"
 
-
 using namespace std;
 using namespace tinyxml2;
 
@@ -42,9 +41,14 @@ int Scene::parse(char *filename) {
 	return 0;
 }
 
-float getAttr(XMLElement *element, const char *name, float default) {
+float getAttrOrDefault(XMLElement *element, const char *name, float default) {
 	const XMLAttribute *attr = element->FindAttribute(name);
-    return attr == nullptr ? default: (float)atof(attr->Value());
+    return attr == nullptr ? default : (float)atof(attr->Value());
+}
+
+float getAttr(XMLElement *element, const char *name) {
+	const XMLAttribute *attr = element->FindAttribute(name);
+    return (float)atof(attr->Value()); // TODO: exception
 }
 
 void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
@@ -70,23 +74,52 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 			}
 		}
 		else if (!strcmp("translate", child->Name())) {
-			float x = getAttr(child, "X", 0);
-			float y = getAttr(child, "Y", 0);
-			float z = getAttr(child, "Z", 0);
-			parentGr->addTranslate(x, y, z);
+			const XMLAttribute *timeAttr = child->FindAttribute("time");
+			if (timeAttr != nullptr) {
+				float time = (float)atof(timeAttr->Value());
+
+				vector<Point3D> points; // new ?
+				XMLElement *point = child->FirstChildElement();
+				while (point) {
+					Point3D p;
+					p.x = getAttr(child, "X");
+					p.y = getAttr(child, "Y");
+					p.z = getAttr(child, "Z");
+					points.push_back(p);
+					point = point->NextSiblingElement();
+				}
+				parentGr->addTranslateAnim(time, points);
+			}
+			else {
+				Translate t;
+				t.x = getAttrOrDefault(child, "X", 0);
+				t.y = getAttrOrDefault(child, "Y", 0);
+				t.z = getAttrOrDefault(child, "Z", 0);
+				parentGr->addTranslate(t);
+			}
 		}
 		else if (!strcmp("scale", child->Name())) {
-			float x = getAttr(child, "X", 1);
-			float y = getAttr(child, "Y", 1);
-			float z = getAttr(child, "Z", 1);
-			parentGr->addScale(x, y, z);
+			Scale s;
+			s.x = getAttrOrDefault(child, "X", 1);
+			s.y = getAttrOrDefault(child, "Y", 1);
+			s.z = getAttrOrDefault(child, "Z", 1);
+			parentGr->addScale(s);
 		}
 		else if (!strcmp("rotate", child->Name())) {
-			float a = getAttr(child, "angle", 0);
-			float x = getAttr(child, "axisX", 0);
-			float y = getAttr(child, "axisY", 0);
-			float z = getAttr(child, "axisZ", 0);
-			parentGr->addRotate(a, x, y, z);
+			Rotate r;
+			r.x = getAttrOrDefault(child, "axisX", 0);
+			r.y = getAttrOrDefault(child, "axisY", 0);
+			r.z = getAttrOrDefault(child, "axisZ", 0);
+			const XMLAttribute *timeAttr = child->FindAttribute("time");
+			if (timeAttr != nullptr) {
+				float time = (float)atof(timeAttr->Value());
+				parentGr->addRotateAnim(time, r.x, r.y, r.z);
+			} 
+			else {
+				r.angle = getAttrOrDefault(child, "angle", 0);
+				parentGr->addRotate(r);
+			}
+			
 		}
 		else {
 			printf("Wrong file format\n");

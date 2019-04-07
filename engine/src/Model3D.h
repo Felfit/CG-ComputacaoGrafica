@@ -13,15 +13,15 @@ struct Point3D {
 };
 
 class Model3D {
-private:
-	int size = 0;
-	Point3D *points;
+	private:
+		int size = 0;
+		Point3D *points;
 
-public:
-	Model3D();
-	int parse(const char* filename);
-	const void draw();
-	~Model3D();
-};
+	public:
+		Model3D();
+		int parse(const char* filename);
+		const void draw();
+		~Model3D();
+	};
 
 #endif MODEL3D_H
