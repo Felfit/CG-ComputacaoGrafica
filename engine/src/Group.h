@@ -16,7 +16,7 @@ struct TranslateStatic {
 
 struct TranslateAnim {
 	float time;
-	vector<Point3D> points;
+	std::vector<Point3D> points;
 };
 
 struct RotateStatic {
