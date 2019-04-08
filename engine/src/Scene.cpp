@@ -76,9 +76,11 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 		else if (!strcmp("translate", child->Name())) {
 			const XMLAttribute *timeAttr = child->FindAttribute("time");
 			if (timeAttr != nullptr) {
-				float time = (float)atof(timeAttr->Value());
+				TranslateAnim ta;
+				ta.time = (float)atof(timeAttr->Value());
 
 				vector<Point3D> points; // new ?
+				ta.points = points;
 				XMLElement *point = child->FirstChildElement();
 				while (point) {
 					Point3D p;
@@ -88,14 +90,14 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 					points.push_back(p);
 					point = point->NextSiblingElement();
 				}
-				parentGr->addTranslateAnim(time, points);
+				parentGr->addTranslateAnim(ta);
 			}
 			else {
-				Translate t;
-				t.x = getAttrOrDefault(child, "X", 0);
-				t.y = getAttrOrDefault(child, "Y", 0);
-				t.z = getAttrOrDefault(child, "Z", 0);
-				parentGr->addTranslate(t);
+				TranslateStatic ts;
+				ts.x = getAttrOrDefault(child, "X", 0);
+				ts.y = getAttrOrDefault(child, "Y", 0);
+				ts.z = getAttrOrDefault(child, "Z", 0);
+				parentGr->addTranslate(ts);
 			}
 		}
 		else if (!strcmp("scale", child->Name())) {
@@ -106,18 +108,20 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 			parentGr->addScale(s);
 		}
 		else if (!strcmp("rotate", child->Name())) {
-			Rotate r;
-			r.x = getAttrOrDefault(child, "axisX", 0);
-			r.y = getAttrOrDefault(child, "axisY", 0);
-			r.z = getAttrOrDefault(child, "axisZ", 0);
+			RotateStatic rs;
+			rs.x = getAttrOrDefault(child, "axisX", 0);
+			rs.y = getAttrOrDefault(child, "axisY", 0);
+			rs.z = getAttrOrDefault(child, "axisZ", 0);
 			const XMLAttribute *timeAttr = child->FindAttribute("time");
 			if (timeAttr != nullptr) {
-				float time = (float)atof(timeAttr->Value());
-				parentGr->addRotateAnim(time, r.x, r.y, r.z);
+				RotateAnim ra;
+				ra.time = (float)atof(timeAttr->Value());
+				ra.x = rs.x; ra.y = rs.y; ra.z = rs.z;
+				parentGr->addRotateAnim(ra);
 			} 
 			else {
-				r.angle = getAttrOrDefault(child, "angle", 0);
-				parentGr->addRotate(r);
+				rs.angle = getAttrOrDefault(child, "angle", 0);
+				parentGr->addRotate(rs);
 			}
 			
 		}
@@ -134,6 +138,3 @@ void Scene::draw() {
 		group->draw();
 	}
 }
-
-
-

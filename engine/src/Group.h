@@ -8,10 +8,29 @@
 #include <utility>
 #include <vector> 
 
-struct Translate {
+struct TranslateStatic {
 	float x;
 	float y;
 	float z;
+};
+
+struct TranslateAnim {
+	float time;
+	vector<Point3D> points;
+};
+
+struct RotateStatic {
+	float x;
+	float y;
+	float z;
+	float angle;
+};
+
+struct RotateAnim {
+	float x;
+	float y;
+	float z;
+	float time;
 };
 
 struct Scale {
@@ -20,12 +39,8 @@ struct Scale {
 	float z;
 };
 
-struct Rotate {
-	float x;
-	float y;
-	float z;
-	float angle;
-};
+
+
 
 class Group {
 	private:
@@ -33,10 +48,14 @@ class Group {
 		std::list<Group*> groups;
 		char transforms[3];
 		int tranformsSize = 0;
-		Translate t; 
-		bool hasTranslate = false;
-		Rotate r; 
-		bool hasRotate = false;
+		TranslateStatic ts;
+		TranslateAnim ta;
+		bool hasTranslateStatic = false;
+		bool hasTranslateAnim = false;
+		RotateStatic rs;
+		RotateAnim ra;
+		bool hasRotateStatic = false;
+		bool hasRotateAnim = false;
 		Scale s; 
 		bool hasScale = false;
 
@@ -44,11 +63,11 @@ class Group {
 		void draw();
 		void addModel(Model3D* m) { models.push_back(m); }
 		void addGroup(Group* g) { groups.push_back(g); }
-		void addRotate(Rotate r);
-		void addTranslate(Translate t);
+		void addRotate(RotateStatic r);
+		void addTranslate(TranslateStatic t);
 		void addScale(Scale s);
-		void addTranslateAnim(float time, std::vector<Point3D> points);
-		void addRotateAnim(float time, float x, float y, float z);
+		void addTranslateAnim(TranslateAnim anim);
+		void addRotateAnim(RotateAnim r);
 		Group();
 		~Group();
 };
