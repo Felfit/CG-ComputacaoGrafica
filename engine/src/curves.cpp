@@ -144,13 +144,13 @@ void getGlobalBezierCurvePoint(std::vector<Point3D> points, float gt, float *pos
 	getCurvePoint(t, p[0], p[1], p[2], p[3], pos, deriv, bezierMatrix);
 }
 
-void renderCatmullCurve(int npoints, float p[][3],int pointcount) {
+void renderCatmullCurve(std::vector<Point3D> points,int npoints) {
 	glBegin(GL_LINE_STRIP);
 	for (int i = 0; i < npoints; i++)
 	{
 		float pos[4] = { 0 };
 		float der[4] = { 0 };
-		getGlobalCatmullRomCurvePoint(p,pointcount,i / (float)npoints, pos, der);
+		getGlobalCatmullRomCurvePoint(points,i / (float)npoints, pos, der);
 		glVertex3f(pos[0], pos[1], pos[2]);
 	}
 	glEnd();

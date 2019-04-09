@@ -14,24 +14,24 @@ int Scene::parse(char *filename) {
 	XMLDocument doc;
 	XMLError eresult = doc.LoadFile(filename);
 	if (eresult != XML_SUCCESS) {
-		printf("Erro a abrir o fichero\n");
+		cerr << "Erro a abrir o ficheiro xml de configuracao: " << filename << "\n";
 		return -1;
 	}
 	XMLNode* n = doc.FirstChild();
 	if (!n) {
-		printf("Ficheiro nao tem nodos\n");
+		cerr << "Erro no xml: ficheiro nao tem nodos\n";
 		return -2;
 	}
 	// <scene> 
 	XMLElement* el = n->ToElement();
 	if (strcmp("scene", el->Name())) {
-		printf("Wrong file format\n");
+		cerr << "Erro no xml: primeira tag deve ser scene\n";
 	}
 	// percorre os <group> do primeiro nível
 	el = el->FirstChildElement();
 	while (el) {
 		if (strcmp("group", el->Name())) {
-			printf("Wrong file format\n");
+			cerr << "Erro no xml: a scene deve apenas conter tags group\n";
 		}
 		Group *group = new Group();
 		parseGroup(el, group);
@@ -48,7 +48,11 @@ float getAttrOrDefault(XMLElement *element, const char *name, float default) {
 
 float getAttr(XMLElement *element, const char *name) {
 	const XMLAttribute *attr = element->FindAttribute(name);
-    return (float)atof(attr->Value()); // TODO: exception
+	if (attr == nullptr) {
+		std::string s = name;
+		throw s;
+	}
+    return (float)atof(attr->Value());
 }
 
 void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
@@ -77,20 +81,23 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 			const XMLAttribute *timeAttr = child->FindAttribute("time");
 			if (timeAttr != nullptr) {
 				TranslateAnim ta;
-				ta.time = (float)atof(timeAttr->Value());
-
-				vector<Point3D> points; // new ?
-				ta.points = points;
-				XMLElement *point = child->FirstChildElement();
-				while (point) {
-					Point3D p;
-					p.x = getAttr(child, "X");
-					p.y = getAttr(child, "Y");
-					p.z = getAttr(child, "Z");
-					points.push_back(p);
-					point = point->NextSiblingElement();
+				ta.time = (float) atof(timeAttr->Value());
+				try {
+					XMLElement *point = child->FirstChildElement();
+					while (point) {
+						Point3D p;
+						p.x = getAttr(point, "X");
+						p.y = getAttr(point, "Y");
+						p.z = getAttr(point, "Z");
+						ta.points.push_back(p);
+						point = point->NextSiblingElement();
+					}
+					parentGr->addTranslateAnim(ta);
+				} 
+				catch (string s) {
+					cerr << "Erro no xml: numa transformacao dinamica um ponto nao tem a coordenada " << s;
+					break;
 				}
-				parentGr->addTranslateAnim(ta);
 			}
 			else {
 				TranslateStatic ts;
@@ -123,10 +130,9 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 				rs.angle = getAttrOrDefault(child, "angle", 0);
 				parentGr->addRotate(rs);
 			}
-			
 		}
 		else {
-			printf("Wrong file format\n");
+			cerr << "Erro no xml: tag desconhecida dentro de group\n";
 			break;
 		}
 		child = child->NextSiblingElement();
