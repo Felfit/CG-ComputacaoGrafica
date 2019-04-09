@@ -52,7 +52,8 @@ int Model3D::parse(const char* filename) {
 		}
 		file.close();
 	}
-	else cout << "Unable to open file";
+	else fprintf(stderr, "%s: %s\n", strerror(errno), filename);
+
 
 	file.close();
 

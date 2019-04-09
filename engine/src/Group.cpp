@@ -18,6 +18,7 @@ void Group::addRotate(RotateStatic nr) {
 	rs = nr;
 	transforms[tranformsSize++] = 'r';
 }
+
 void Group::addTranslate(TranslateStatic nt) {
 	if (hasTranslateAnim || hasTranslateStatic)
 		return;
@@ -25,6 +26,7 @@ void Group::addTranslate(TranslateStatic nt) {
 	ts = nt;
 	transforms[tranformsSize++] = 't';
 }
+
 void Group::addScale(Scale ns){
 	if (hasScale)
 		return;
@@ -58,7 +60,6 @@ void Group::addRotateAnim(RotateAnim nr) {
 	transforms[tranformsSize++] = 'r';
 }
 
-// usar glutGet(GLUT_ELAPSED_TIME) para o tempo nas anims
 void Group::draw() {
 	glPushMatrix();
 	for (int i = 0; i < tranformsSize; i++) {
@@ -106,7 +107,7 @@ void Group::applyTranslateAnim()
 	float der[4] = { 0 };
 	//TODO mudar curve point
 	getGlobalCatmullRomCurvePoint(ta.points, ta.currtime, pos, der);
-	float velocity = length(der);
+	float velocity = length(der) * 1000;
 	glTranslatef(pos[0], pos[1], pos[2]);
 	float z[3];
 	normalize(der);
