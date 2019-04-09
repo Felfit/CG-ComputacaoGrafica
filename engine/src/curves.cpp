@@ -135,6 +135,7 @@ void getGlobalBezierCurvePoint(std::vector<Point3D> points, float gt, float *pos
 	indices[0] = segment*4;
 	indices[1] = (indices[0] + 1);
 	indices[2] = (indices[1] + 1);
+	
 	indices[3] = (indices[2] + 1);
 	float p[4][3] = { {points.at(indices[0]).x,points.at(indices[0]).y,points.at(indices[0]).z},
 					  {points.at(indices[1]).x,points.at(indices[1]).y,points.at(indices[1]).z},
@@ -143,7 +144,7 @@ void getGlobalBezierCurvePoint(std::vector<Point3D> points, float gt, float *pos
 	getCurvePoint(t, p[0], p[1], p[2], p[3], pos, deriv, bezierMatrix);
 }
 
-void renderCatmullCurve(int npoints, float p[][3],int pointcount,float m[4][4]) {
+void renderCatmullCurve(int npoints, float p[][3],int pointcount) {
 	glBegin(GL_LINE_STRIP);
 	for (int i = 0; i < npoints; i++)
 	{
@@ -154,6 +155,19 @@ void renderCatmullCurve(int npoints, float p[][3],int pointcount,float m[4][4]) 
 	}
 	glEnd();
 }
+
+void renderBezierCurve(std::vector<Point3D> points, int npoints) {
+	glBegin(GL_LINE_STRIP);
+	for (int i = 0; i < npoints; i++)
+	{
+		float pos[4] = { 0 };
+		float der[4] = { 0 };
+		getGlobalBezierCurvePoint(points, i / (float)npoints, pos, der);
+		glVertex3f(pos[0], pos[1], pos[2]);
+	}
+	glEnd();
+}
+
 
 void renderSingleBezierCurve(int npoints, float p0[3], float p1[3], float p2[3], float p3[3]) {
 	glBegin(GL_LINE_STRIP);

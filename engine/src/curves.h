@@ -19,6 +19,7 @@ void buildRotMatrix(float *x, float *y, float *z, float *m);
 void cross(float *a, float *b, float *res);
 float length(float *v);
 void normalize(float *a);
-void renderCatmullCurve(int npoints, float p[][3], int pointcount, float m[4][4]);
+void renderCatmullCurve(int npoints, float p[][3], int pointcount);
 void renderSingleBezierCurve(int npoints, float p0[3], float p1[3], float p2[3], float p3[3]);
+void renderBezierCurve(std::vector<Point3D> points, int npoints);
 void getGlobalBezierCurvePoint(std::vector<Point3D> points, float gt, float *pos, float *deriv);
