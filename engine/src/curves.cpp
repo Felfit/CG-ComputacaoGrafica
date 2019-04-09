@@ -126,18 +126,28 @@ void getGlobalCatmullRomCurvePoint(std::vector<Point3D> points, float gt, float 
 	getCurvePoint(t, p[0], p[1], p[2], p[3], pos, deriv, catmullMatrix);
 }
 
-void renderCurve(float p[][3],int pointcount,float m[4][4]) {
-
-// draw curve using line segments with GL_LINE_LOOP
-	glBegin(GL_LINES);
-	for (int i = 0; i < 500; i++)
+void renderCatmullCurve(int npoints, float p[][3],int pointcount,float m[4][4]) {
+	glBegin(GL_LINE_STRIP);
+	for (int i = 0; i < npoints; i++)
 	{
 		float pos[4] = { 0 };
 		float der[4] = { 0 };
-		getGlobalCatmullRomCurvePoint(p,pointcount,i / 500.0, pos, der);
+		getGlobalCatmullRomCurvePoint(p,pointcount,i / (float)npoints, pos, der);
 		glVertex3f(pos[0], pos[1], pos[2]);
 	}
 	glEnd();
 }
 
+void renderSingleBezierCurve(int npoints, float p0[3], float p1[3], float p2[3], float p3[3]) {
+	glBegin(GL_LINE_STRIP);
+
+	for (int i = 0; i < npoints; i++)
+	{
+		float pos[4] = { 0 };
+		float der[4] = { 0 };
+		getCurvePoint(i/(float)npoints, p0, p1, p2, p3, pos, der, bezierMatrix);
+		glVertex3f(pos[0], pos[1], pos[2]);
+	}
+	glEnd();
+}
 

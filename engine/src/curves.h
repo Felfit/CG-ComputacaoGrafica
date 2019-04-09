@@ -18,4 +18,5 @@ void buildRotMatrix(float *x, float *y, float *z, float *m);
 void cross(float *a, float *b, float *res);
 float length(float *v);
 void normalize(float *a);
-void renderCurve(float p[][3], int pointcount, float m[4][4]);
+void renderCatmullCurve(int npoints, float p[][3], int pointcount, float m[4][4]);
+void renderSingleBezierCurve(int npoints, float p0[3], float p1[3], float p2[3], float p3[3]);
