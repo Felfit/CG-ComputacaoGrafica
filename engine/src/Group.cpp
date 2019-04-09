@@ -18,6 +18,7 @@ void Group::addRotate(RotateStatic nr) {
 	rs = nr;
 	transforms[tranformsSize++] = 'r';
 }
+
 void Group::addTranslate(TranslateStatic nt) {
 	if (hasTranslateAnim || hasTranslateStatic)
 		return;
@@ -25,6 +26,7 @@ void Group::addTranslate(TranslateStatic nt) {
 	ts = nt;
 	transforms[tranformsSize++] = 't';
 }
+
 void Group::addScale(Scale ns){
 	if (hasScale)
 		return;
@@ -99,6 +101,7 @@ void Group::draw() {
 
 void Group::applyTranslateAnim()
 {
+	renderCatmullCurve(ta.points, 200);
 	float pos[4] = { 0 };
 	float der[4] = { 0 };
 	//TODO mudar curve point

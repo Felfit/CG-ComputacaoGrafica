@@ -77,17 +77,15 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 			const XMLAttribute *timeAttr = child->FindAttribute("time");
 			if (timeAttr != nullptr) {
 				TranslateAnim ta;
-				ta.time = (float)atof(timeAttr->Value());
+				ta.time = (float) atof(timeAttr->Value());
 
-				vector<Point3D> points; // new ?
-				ta.points = points;
 				XMLElement *point = child->FirstChildElement();
 				while (point) {
 					Point3D p;
-					p.x = getAttr(child, "X");
-					p.y = getAttr(child, "Y");
-					p.z = getAttr(child, "Z");
-					points.push_back(p);
+					p.x = getAttr(point, "X");
+					p.y = getAttr(point, "Y");
+					p.z = getAttr(point, "Z");
+					ta.points.push_back(p);
 					point = point->NextSiblingElement();
 				}
 				parentGr->addTranslateAnim(ta);
