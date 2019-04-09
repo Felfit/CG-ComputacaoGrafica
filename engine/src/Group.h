@@ -1,6 +1,7 @@
 #ifndef GROUP_H
 #define GROUP_H
 
+#include "curves.h"
 #include "Model3D.h"
 #include <GL/glut.h>
 #include <list>
@@ -15,8 +16,10 @@ struct TranslateStatic {
 };
 
 struct TranslateAnim {
-	float time;
+	float time = 0;
+	float currtime = 0;
 	std::vector<Point3D> points;
+	float y[3] = {0,1,0};
 };
 
 struct RotateStatic {
@@ -58,6 +61,7 @@ class Group {
 		bool hasRotateAnim = false;
 		Scale s; 
 		bool hasScale = false;
+		void applyTranslateAnim();
 
 	public:
 		void draw();
