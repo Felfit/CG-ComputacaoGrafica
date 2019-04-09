@@ -76,7 +76,7 @@ void Group::draw() {
 				glTranslatef(ts.x, ts.y, ts.z);
 			}
 			else if(hasTranslateAnim){
-				// TODO: coisas
+				applyTranslateAnim();
 			}
 			break;
 		case 's':
@@ -93,4 +93,25 @@ void Group::draw() {
 		g->draw();
 	}
 	glPopMatrix();
+}
+
+void Group::applyTranslateAnim()
+{
+	float pos[4] = { 0 };
+	float der[4] = { 0 };
+	//TODO mudar curve point
+	getGlobalCurvePoint(ta.points, ta.currtime, pos, der, catmullMatrix);
+	float velocity = length(der);
+	glTranslatef(pos[0], pos[1], pos[2]);
+	float z[3];
+	normalize(der);
+	normalize(ta.y);
+	cross(der, ta.y, z);
+	normalize(z);
+	float m[16];
+	buildRotMatrix(der, ta.y, z, m);
+	glMultMatrixf(m);
+	cross(z, der, ta.y);
+	//TODO update this
+	ta.currtime += 2 / velocity;
 }

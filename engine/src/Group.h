@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <vector> 
+#include "curves.h"
 
 struct TranslateStatic {
 	float x;
@@ -15,8 +16,10 @@ struct TranslateStatic {
 };
 
 struct TranslateAnim {
-	float time;
+	float time = 0;
+	float currtime = 0;
 	std::vector<Point3D> points;
+	float y[3] = {0,1,0};
 };
 
 struct RotateStatic {
@@ -58,6 +61,7 @@ class Group {
 		bool hasRotateAnim = false;
 		Scale s; 
 		bool hasScale = false;
+		void applyTranslateAnim();
 
 	public:
 		void draw();
