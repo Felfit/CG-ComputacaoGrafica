@@ -122,8 +122,25 @@ void getGlobalCatmullRomCurvePoint(std::vector<Point3D> points, float gt, float 
 	float p[4][3] = {   {points.at(indices[0]).x,points.at(indices[0]).y,points.at(indices[0]).z},
 						{points.at(indices[1]).x,points.at(indices[1]).y,points.at(indices[1]).z},
 						{points.at(indices[2]).x,points.at(indices[3]).y,points.at(indices[2]).z},
-						{points.at(indices[3]).x,points.at(indices[3]).y,points.at(indices[3]).z},};
+						{points.at(indices[3]).x,points.at(indices[3]).y,points.at(indices[3]).z}};
 	getCurvePoint(t, p[0], p[1], p[2], p[3], pos, deriv, catmullMatrix);
+}
+
+void getGlobalBezierCurvePoint(std::vector<Point3D> points, float gt, float *pos, float *deriv) {
+	int numSegments = points.size() / 4;
+	float t = gt * numSegments;
+	int segment = (int)floor(t) % numSegments;
+	t = t - floor(t);
+	int indices[4];
+	indices[0] = segment*4;
+	indices[1] = (indices[0] + 1);
+	indices[2] = (indices[1] + 1);
+	indices[3] = (indices[2] + 1);
+	float p[4][3] = { {points.at(indices[0]).x,points.at(indices[0]).y,points.at(indices[0]).z},
+					  {points.at(indices[1]).x,points.at(indices[1]).y,points.at(indices[1]).z},
+					  {points.at(indices[2]).x,points.at(indices[3]).y,points.at(indices[2]).z},
+					  {points.at(indices[3]).x,points.at(indices[3]).y,points.at(indices[3]).z}};
+	getCurvePoint(t, p[0], p[1], p[2], p[3], pos, deriv, bezierMatrix);
 }
 
 void renderCatmullCurve(int npoints, float p[][3],int pointcount,float m[4][4]) {

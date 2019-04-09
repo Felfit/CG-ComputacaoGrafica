@@ -11,6 +11,7 @@ static float bezierMatrix[4][4] = {{-1.0f,  3.0f, -3.0f, 1.0f},
 							{ 3.0f, -6.0f,  3.0f, 0.0f},
 							{-3.0f,  3.0f,  0.0f, 0.0f},
 							{ 1.0f,  0.0f,  0.0f, 0.0f} };
+
 void getGlobalCatmullRomCurvePoint(std::vector<Point3D> points, float gt, float *pos, float *deriv);
 void getGlobalCatmullRomCurvePoint(float points[][3], int numpoints, float gt, float *pos, float *deriv);
 void getCurvePoint(float t, float *p0, float *p1, float *p2, float *p3, float *pos, float *deriv, float curveMatrix[4][4]);
@@ -20,3 +21,4 @@ float length(float *v);
 void normalize(float *a);
 void renderCatmullCurve(int npoints, float p[][3], int pointcount, float m[4][4]);
 void renderSingleBezierCurve(int npoints, float p0[3], float p1[3], float p2[3], float p3[3]);
+void getGlobalBezierCurvePoint(std::vector<Point3D> points, float gt, float *pos, float *deriv);
