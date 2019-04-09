@@ -68,7 +68,9 @@ void Group::draw() {
 				glRotatef(rs.angle, rs.x, rs.y, rs.z);
 			}
 			else if (hasRotateAnim) {
-				// TODO: coisas
+				float angle = glutGet(GLUT_ELAPSED_TIME) % 1000 / (ra.time * 1000) * 360;
+				glRotatef(angle, ra.x, ra.y, ra.z);
+				glutPostRedisplay();
 			}
 			break;
 		case 't':
