@@ -100,7 +100,7 @@ void Group::applyTranslateAnim()
 	float pos[4] = { 0 };
 	float der[4] = { 0 };
 	//TODO mudar curve point
-	getGlobalCurvePoint(ta.points, ta.currtime, pos, der, catmullMatrix);
+	getGlobalCatmullRomCurvePoint(ta.points, ta.currtime, pos, der);
 	float velocity = length(der);
 	glTranslatef(pos[0], pos[1], pos[2]);
 	float z[3];
