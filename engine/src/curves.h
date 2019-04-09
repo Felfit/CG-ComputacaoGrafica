@@ -2,12 +2,12 @@
 #include <vector> 
 #include "Model3D.h"
 
-float catmullMatrix[4][4] = { {-0.5f, 1.5f, -1.5f, 0.5f},
+static float catmullMatrix[4][4] = { {-0.5f, 1.5f, -1.5f, 0.5f},
 							  { 1.0f, -2.5f,  2.0f, -0.5f },
 							  { -0.5f,  0.0f,  0.5f,  0.0f },
 							  { 0.0f,  1.0f,  0.0f,  0.0f } };
 
-float bezierMatrix[4][4] = {{-1.0f,  3.0f, -3.0f, 1.0f},
+static float bezierMatrix[4][4] = {{-1.0f,  3.0f, -3.0f, 1.0f},
 							{ 3.0f, -6.0f,  3.0f, 0.0f},
 							{-3.0f,  3.0f,  0.0f, 0.0f},
 							{ 1.0f,  0.0f,  0.0f, 0.0f} };

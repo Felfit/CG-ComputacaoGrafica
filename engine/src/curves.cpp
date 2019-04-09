@@ -106,7 +106,7 @@ void getGlobalCatmullRomCurvePoint(float points [][3],int numpoints,float gt, fl
 }
 
 void getGlobalCatmullRomCurvePoint(std::vector<Point3D> points, float gt, float *pos, float *deriv) {
-	int numpoints = points.size;
+	int numpoints = points.size();
 	float t = gt * numpoints; // this is the real global t
 	int index = floor(t);  // which segment
 	t = t - index; // where within  the segment
@@ -134,11 +134,10 @@ void renderCurve(float p[][3],int pointcount,float m[4][4]) {
 	{
 		float pos[4] = { 0 };
 		float der[4] = { 0 };
-		getGlobalCatmullRomCurvePoint(p,pointcount,i / 500.0, pos, der, m);
+		getGlobalCatmullRomCurvePoint(p,pointcount,i / 500.0, pos, der);
 		glVertex3f(pos[0], pos[1], pos[2]);
 	}
 	glEnd();
 }
-
 
 

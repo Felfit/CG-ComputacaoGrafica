@@ -1,13 +1,13 @@
 #ifndef GROUP_H
 #define GROUP_H
 
+#include "curves.h"
 #include "Model3D.h"
 #include <GL/glut.h>
 #include <list>
 #include <string>
 #include <utility>
 #include <vector> 
-#include "curves.h"
 
 struct TranslateStatic {
 	float x;
