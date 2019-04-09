@@ -37,7 +37,7 @@ void Group::addScale(Scale ns){
 
 /* 
 A set of points will be provided to define a Catmull-Rom cubic curve, as well as the number of seconds to run the whole curve.
-Due to Catmull-Rom’s curve definition it is always required an initial point before the initial
+Due to Catmull-Romï¿½s curve definition it is always required an initial point before the initial
 curve segment and another point after the last segment. The minimum number of points is 4.
 */
 void Group::addTranslateAnim(TranslateAnim nt) {
@@ -97,8 +97,11 @@ void Group::draw() {
 	glPopMatrix();
 }
 
+
+
 void Group::applyTranslateAnim()
 {
+	renderCatmullCurve(ta.points, 200);
 	float pos[4] = { 0 };
 	float der[4] = { 0 };
 	//TODO mudar curve point
@@ -115,5 +118,16 @@ void Group::applyTranslateAnim()
 	glMultMatrixf(m);
 	cross(z, der, ta.y);
 	//TODO update this
-	ta.currtime += 2 / velocity;
+	//Update if
+	
+	int delta = glutGet(GLUT_ELAPSED_TIME)-ta.lastSecond;
+	//0.5 ï¿½ uma volta
+	int time = 5;
+	float speed = 1.0/(12.65*time);
+	ta.currtime += (1.0 / velocity)*speed *delta;
+	if (ta.currtime - floor(ta.currtime)<0.05) {
+		printf("%d\n", glutGet(GLUT_ELAPSED_TIME));
+	}
+	ta.lastSecond = glutGet(GLUT_ELAPSED_TIME);
+	
 }

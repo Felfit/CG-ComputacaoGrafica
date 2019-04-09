@@ -106,15 +106,13 @@ void getGlobalCatmullRomCurvePoint(float points [][3],int numpoints,float gt, fl
 }
 
 void getGlobalCatmullRomCurvePoint(std::vector<Point3D> points, float gt, float *pos, float *deriv) {
-	int numpoints = points.size();
-	float t = gt * numpoints; // this is the real global t
-	int index = floor(t);  // which segment
-	t = t - index; // where within  the segment
+	int numSegments = points.size() - 3;
+	float t = gt * numSegments;
+	int segment = (int)floor(t) % numSegments;
+	t = t - floor(t);
 
-	// indices store the points
-	int segpoinst = numpoints - 3;
 	int indices[4];
-	indices[0] = (index) % segpoinst;
+	indices[0] = segment;
 	indices[1] = (indices[0] + 1);
 	indices[2] = (indices[1] + 1);
 	indices[3] = (indices[2] + 1);
@@ -145,7 +143,7 @@ void getGlobalBezierCurvePoint(std::vector<Point3D> points, float gt, float *pos
 }
 
 void renderCatmullCurve(std::vector<Point3D> points,int npoints) {
-	glBegin(GL_LINE_STRIP);
+	glBegin(GL_LINES);
 	for (int i = 0; i < npoints; i++)
 	{
 		float pos[4] = { 0 };
@@ -167,6 +165,7 @@ void renderBezierCurve(std::vector<Point3D> points, int npoints) {
 	}
 	glEnd();
 }
+
 
 
 void renderSingleBezierCurve(int npoints, float p0[3], float p1[3], float p2[3], float p3[3]) {

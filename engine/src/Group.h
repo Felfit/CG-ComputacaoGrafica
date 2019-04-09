@@ -18,6 +18,7 @@ struct TranslateStatic {
 struct TranslateAnim {
 	float time = 0;
 	float currtime = 0;
+	int lastSecond = 0;
 	std::vector<Point3D> points;
 	float y[3] = {0,1,0};
 };
