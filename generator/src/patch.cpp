@@ -24,8 +24,6 @@ std::vector<int> fillArrayInt(int size, std::ifstream& file) {
 		std::string token;
 		getline(file, line);
 
-		//line.erase(std::remove(line.begin(), line.end(), ','), line.end());
-
 		while ((pos = line.find(delimiter)) != std::string::npos) {
 			token = line.substr(0, pos);
 			int ind = stoi(token);
