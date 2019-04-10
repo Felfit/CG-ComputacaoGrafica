@@ -198,6 +198,8 @@ int main(int argc, char **argv) {
 // Required callback registry 
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
+	glEnableClientState(GL_VERTEX_ARRAY);
+
 	
 // Callback registration for keyboard processing
 	glutKeyboardFunc(processKeys);
