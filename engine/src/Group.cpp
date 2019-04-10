@@ -35,8 +35,6 @@ void Group::addScale(Scale ns){
 	transforms[tranformsSize++] = 's';
 }
 
-// TODO: anims
-
 /* 
 A set of points will be provided to define a Catmull-Rom cubic curve, as well as the number of seconds to run the whole curve.
 Due to Catmull-Rom�s curve definition it is always required an initial point before the initial
@@ -69,9 +67,7 @@ void Group::draw() {
 				glRotatef(rs.angle, rs.x, rs.y, rs.z);
 			}
 			else if (hasRotateAnim) {
-				float angle = glutGet(GLUT_ELAPSED_TIME) % 1000 / (ra.time * 1000) * 360;
-				glRotatef(angle, ra.x, ra.y, ra.z);
-				glutPostRedisplay();
+				applyRotateAnim();
 			}
 			break;
 		case 't':
@@ -98,6 +94,13 @@ void Group::draw() {
 	glPopMatrix();
 }
 
+void Group::applyRotateAnim() {
+	float mstime = ra.time * 1000;
+	float angle = fmod(glutGet(GLUT_ELAPSED_TIME), mstime) / mstime * 360;
+	glRotatef(angle, ra.x, ra.y, ra.z);
+	glutPostRedisplay();
+}
+
 
 
 void Group::applyTranslateAnim()
@@ -106,11 +109,10 @@ void Group::applyTranslateAnim()
 	float pos[4] = { 0 };
 	float der[4] = { 0 };
 	getGlobalCatmullRomCurvePoint(ta.points, ta.currtime, pos, der);
-	float velocity = length(der);
 	glTranslatef(pos[0], pos[1], pos[2]);
-	float z[3];
 	normalize(der);
 	normalize(ta.y);
+	float z[3];
 	cross(der, ta.y, z);
 	normalize(z);
 	float m[16];
@@ -118,11 +120,11 @@ void Group::applyTranslateAnim()
 	glMultMatrixf(m);
 	cross(z, der, ta.y);
 	
-	int delta = glutGet(GLUT_ELAPSED_TIME)-ta.lastSecond;
-	ta.currtime += 1.0 /(1000 * ta.time)*delta;
-	if (ta.currtime - floor(ta.currtime)<0.05) {
-		printf("%d\n", glutGet(GLUT_ELAPSED_TIME));
+	int delta = glutGet(GLUT_ELAPSED_TIME) - ta.lastSecond;
+	ta.currtime += 1.0 / (1000 * ta.time) * delta;
+	if (ta.currtime - floor(ta.currtime) < 0.05) {
+		//printf("%d\n", glutGet(GLUT_ELAPSED_TIME)/1000);
 	}
 	ta.lastSecond = glutGet(GLUT_ELAPSED_TIME);
-	
+	glutPostRedisplay();
 }

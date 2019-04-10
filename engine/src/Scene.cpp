@@ -95,7 +95,7 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 					parentGr->addTranslateAnim(ta);
 				} 
 				catch (string s) {
-					cerr << "Erro no xml: numa transformacao dinamica um ponto nao tem a coordenada " << s;
+					cerr << "Erro no xml: numa transformacao dinamica um ponto nao tem a coordenada " << s << "\n";
 					break;
 				}
 			}

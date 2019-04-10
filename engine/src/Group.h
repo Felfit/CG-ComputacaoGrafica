@@ -63,6 +63,7 @@ class Group {
 		Scale s; 
 		bool hasScale = false;
 		void applyTranslateAnim();
+		void applyRotateAnim();
 
 	public:
 		void draw();

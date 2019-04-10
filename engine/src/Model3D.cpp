@@ -5,11 +5,14 @@ using namespace std;
 
 const void Model3D::draw() {
 	// TODO: VBOs
+	glutSolidTeapot(10);
+		/*
 	glBegin(GL_TRIANGLES);
 		for (int i = 0; i < size; i++) {
 			glVertex3f(points[i].x, points[i].y, points[i].z);
 		}
 	glEnd();
+	*/
 }
 
 Model3D::Model3D() {
