@@ -105,7 +105,6 @@ void Group::applyTranslateAnim()
 	renderCatmullCurve(ta.points, 200);
 	float pos[4] = { 0 };
 	float der[4] = { 0 };
-	//TODO mudar curve point
 	getGlobalCatmullRomCurvePoint(ta.points, ta.currtime, pos, der);
 	float velocity = length(der);
 	glTranslatef(pos[0], pos[1], pos[2]);
@@ -118,11 +117,8 @@ void Group::applyTranslateAnim()
 	buildRotMatrix(der, ta.y, z, m);
 	glMultMatrixf(m);
 	cross(z, der, ta.y);
-	//TODO update this
-	//Update if
 	
 	int delta = glutGet(GLUT_ELAPSED_TIME)-ta.lastSecond;
-	//0.5 � uma volta
 	ta.currtime += 1.0 /(1000 * ta.time)*delta;
 	if (ta.currtime - floor(ta.currtime)<0.05) {
 		printf("%d\n", glutGet(GLUT_ELAPSED_TIME));
