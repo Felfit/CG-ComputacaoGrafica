@@ -15,7 +15,7 @@ struct Point3D {
 class Model3D {
 	private:
 		int size = 0;
-		Point3D *points;
+		GLuint buffers[1];
 
 	public:
 		Model3D();
