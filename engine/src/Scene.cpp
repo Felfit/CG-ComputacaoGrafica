@@ -80,19 +80,20 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 		else if (!strcmp("translate", child->Name())) {
 			const XMLAttribute *timeAttr = child->FindAttribute("time");
 			if (timeAttr != nullptr) {
-				TranslateAnim ta;
-				ta.time = (float) atof(timeAttr->Value());
+				TranslateAnim* ta = new TranslateAnim();
+				ta->time = (float) atof(timeAttr->Value());
 				try {
 					XMLElement *point = child->FirstChildElement();
+					// TODO: exception tamanho minimo 4
 					while (point) {
 						Point3D p;
 						p.x = getAttr(point, "X");
 						p.y = getAttr(point, "Y");
 						p.z = getAttr(point, "Z");
-						ta.points.push_back(p);
+						ta->points.push_back(p);
 						point = point->NextSiblingElement();
 					}
-					parentGr->addTranslateAnim(ta);
+					parentGr->addTransform(ta);
 				} 
 				catch (string s) {
 					cerr << "Erro no xml: numa transformacao dinamica um ponto nao tem a coordenada " << s << "\n";
@@ -100,35 +101,36 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 				}
 			}
 			else {
-				TranslateStatic ts;
-				ts.x = getAttrOrDefault(child, "X", 0);
-				ts.y = getAttrOrDefault(child, "Y", 0);
-				ts.z = getAttrOrDefault(child, "Z", 0);
-				parentGr->addTranslate(ts);
+				TranslateStatic* ts = new TranslateStatic();
+				ts->x = getAttrOrDefault(child, "X", 0);
+				ts->y = getAttrOrDefault(child, "Y", 0);
+				ts->z = getAttrOrDefault(child, "Z", 0);
+				parentGr->addTransform(ts);
 			}
 		}
 		else if (!strcmp("scale", child->Name())) {
-			Scale s;
-			s.x = getAttrOrDefault(child, "X", 1);
-			s.y = getAttrOrDefault(child, "Y", 1);
-			s.z = getAttrOrDefault(child, "Z", 1);
-			parentGr->addScale(s);
+			ScaleStatic* s = new ScaleStatic();
+			s->x = getAttrOrDefault(child, "X", 1);
+			s->y = getAttrOrDefault(child, "Y", 1);
+			s->z = getAttrOrDefault(child, "Z", 1);
+			parentGr->addTransform(s);
 		}
-		else if (!strcmp("rotate", child->Name())) {
-			RotateStatic rs;
-			rs.x = getAttrOrDefault(child, "axisX", 0);
-			rs.y = getAttrOrDefault(child, "axisY", 0);
-			rs.z = getAttrOrDefault(child, "axisZ", 0);
+		else if (!strcmp("rotate", child->Name())) {	
+			float x = getAttrOrDefault(child, "axisX", 0);
+			float y = getAttrOrDefault(child, "axisY", 0);
+			float z = getAttrOrDefault(child, "axisZ", 0);
 			const XMLAttribute *timeAttr = child->FindAttribute("time");
 			if (timeAttr != nullptr) {
-				RotateAnim ra;
-				ra.time = (float)atof(timeAttr->Value());
-				ra.x = rs.x; ra.y = rs.y; ra.z = rs.z;
-				parentGr->addRotateAnim(ra);
+				RotateAnim* ra = new RotateAnim();
+				ra->x = x; ra->y = y; ra->z = z;
+				ra->time = (float)atof(timeAttr->Value());
+				parentGr->addTransform(ra);
 			} 
 			else {
-				rs.angle = getAttrOrDefault(child, "angle", 0);
-				parentGr->addRotate(rs);
+				RotateStatic* rs = new RotateStatic();
+				rs->x = x; rs->y = y; rs->z = z;
+				rs->angle = getAttrOrDefault(child, "angle", 0);
+				parentGr->addTransform(rs);
 			}
 		}
 		else {
