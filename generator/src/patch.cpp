@@ -156,16 +156,26 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
                 }
             }
             // Loop que divide as curvas de bezier
-            for (int ui = 0; ui < 1; ++ui) {
-                for (int vi = 0; vi < 1; ++vi) {
-                    double u = 0.0; // placeholder
-                    double v = 0.0; // placeholder
+            for (int ui = 0; ui < tesselations; ++ui) {
+				double u = (double) ui / tesselations;
+                for (int vi = 0; vi < tesselations; ++vi) {
+					double v = (double) vi / tesselations;
                     bezierPoint(controlPoints, u, v, point); // Não sei se está bem, mas segui o que estava no caderno
                     printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
+					bezierPoint(controlPoints, (u + 1.0f/tesselations), (v + 1.0f/tesselations), point);
+					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
+					bezierPoint(controlPoints, u, (v + 1.0f / tesselations), point);
+					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
+				
+					bezierPoint(controlPoints, (u + 1.0f / tesselations), v, point);
+					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
+					bezierPoint(controlPoints, (u + 1.0f / tesselations), (v + 1.0f / tesselations), point);
+					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
+					bezierPoint(controlPoints, u, v, point);
+					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
                 }
             }
         }
-
         // Fazer triângulos
 
         // Imprimir no ficheiro
