@@ -1,18 +1,14 @@
+#include<GL/glew.h>
 #include "Model3D.h"
-
 using namespace std;
 
 
 const void Model3D::draw() {
-	// TODO: VBOs
-	glutSolidTeapot(10);
-		/*
-	glBegin(GL_TRIANGLES);
-		for (int i = 0; i < size; i++) {
-			glVertex3f(points[i].x, points[i].y, points[i].z);
-		}
-	glEnd();
-	*/
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+	//Dizlhe como ler do buffer
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glDrawArrays(GL_TRIANGLES, 0, size);
+
 }
 
 Model3D::Model3D() {
@@ -26,9 +22,7 @@ int Model3D::parse(const char* filename) {
 	if (file.is_open()) {
 		getline(file, line);
 		int count = stoi(line);
-		points = new Point3D[count];
-
-
+		float *pointsf = new float[count * 3];
 		for (int i = 0; getline(file, line); i++) {
 			Point3D p;
 
@@ -49,11 +43,18 @@ int Model3D::parse(const char* filename) {
 
 			p.z = stof(line);
 
-
-			points[i] = p;
+			pointsf[i * 3] = p.x;
+			pointsf[i * 3 + 1] = p.y;
+			pointsf[i * 3 + 2] = p.z;
 			size++;
 		}
 		file.close();
+		glGenBuffers(1, buffers);
+		//Set buffer as active
+		glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+		//Copia coisas para o buffer
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*size*3, pointsf, GL_STATIC_DRAW);
+		delete[] pointsf;
 	}
 	else fprintf(stderr, "%s: %s\n", strerror(errno), filename);
 
@@ -64,6 +65,6 @@ int Model3D::parse(const char* filename) {
 }
 
 Model3D::~Model3D() {
-	delete points;
+	glDeleteBuffers(1,buffers);
 }
 
