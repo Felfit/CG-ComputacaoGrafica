@@ -123,9 +123,7 @@ void Group::applyTranslateAnim()
 	
 	int delta = glutGet(GLUT_ELAPSED_TIME)-ta.lastSecond;
 	//0.5 � uma volta
-	int time = 5;
-	float speed = 1.0/(12.65*time);
-	ta.currtime += (1.0 / velocity)*speed *delta;
+	ta.currtime += 1.0 /(1000 * ta.time)*delta;
 	if (ta.currtime - floor(ta.currtime)<0.05) {
 		printf("%d\n", glutGet(GLUT_ELAPSED_TIME));
 	}
