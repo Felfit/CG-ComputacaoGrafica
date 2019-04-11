@@ -64,26 +64,6 @@ std::vector<double> fillArrayDouble(int size, std::ifstream& file) {
 	return result;
 }
 
-double* multMatrix4x4(double a[4][4], double b[4][4], double r[4][4]) {
-	for (int i = 0; i < 4; i++) {
-		for(int j = 0; j < 4; j++) {
-			r[i][j] = 0;
-			for(int k = 0; k < 4; k++) {
-				r[i][j] += a[i][k] * b[k][j];
-			}
-		}
-	}
-}
-
-void multMatrix4x4Col(double m[4][4], double c[4], double r[4]) {
-	for (int i = 0; i < 4; i++) {
-		r[i] = 0;
-		for(int j = 0; j < 4; j++) {
-			r[i] += m[i][j] * c[j];
-		}
-	}
-}
-
 void multLinMatrix4x4(double l[4], double m[4][4], double r[4]) {
 	for (int i = 0; i < 4; i++) {
 		r[i] = 0;
@@ -128,9 +108,7 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
 	std::string line;
 	std::ifstream file;
 	file.open(cpFile);
-	printf("%s\n", cpFile);
 
-	printf("hey\n");
 	if (file.is_open()) {
 		getline(file, line);
 		int nPatches = stoi(line);
@@ -142,7 +120,6 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
 
 		//Coisas
         for (int l = 0; l < nPatches; ++l) {
-            double point[3];
             int patchOffset = 16 * l;
             double controlPoints[3][4][4];
             for (int i = 0; i < 4; ++i) {
@@ -156,29 +133,28 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
                 }
             }
             // Loop que divide as curvas de bezier
+			float parts = 1.0f / tesselations;
             for (int ui = 0; ui < tesselations; ++ui) {
 				double u = (double) ui / tesselations;
                 for (int vi = 0; vi < tesselations; ++vi) {
 					double v = (double) vi / tesselations;
-                    bezierPoint(controlPoints, u, v, point); // Não sei se está bem, mas segui o que estava no caderno
-                    printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
-					bezierPoint(controlPoints, (u + 1.0f/tesselations), (v + 1.0f/tesselations), point);
-					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
-					bezierPoint(controlPoints, u, (v + 1.0f / tesselations), point);
-					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
+					double point[3];
+                    bezierPoint(controlPoints, u, v, point); 
+                    fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
+					bezierPoint(controlPoints, (u + parts), (v + parts), point);
+					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
+					bezierPoint(controlPoints, u, (v + parts), point);
+					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
 				
-					bezierPoint(controlPoints, (u + 1.0f / tesselations), v, point);
-					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
-					bezierPoint(controlPoints, (u + 1.0f / tesselations), (v + 1.0f / tesselations), point);
-					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
+					bezierPoint(controlPoints, (u + parts), v, point);
+					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
+					bezierPoint(controlPoints, (u + parts), (v + parts), point);
+					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
 					bezierPoint(controlPoints, u, v, point);
-					printf("%d (%f, %f, %f)\n", l, point[0], point[1], point[2]);
+					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
                 }
             }
         }
-        // Fazer triângulos
-
-        // Imprimir no ficheiro
 
 		file.close();
 
@@ -186,9 +162,4 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
 	else std::cout << "Unable to open bezier patches file\n";
 
 	if(fp) fclose(fp);
-}
-
-int main() {
-    parsePatches("/home/dansvc/Desktop/target.txt", "/home/dansvc/Downloads/teapot.patch", 1);
-    return 0;
 }
