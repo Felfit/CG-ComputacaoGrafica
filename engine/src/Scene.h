@@ -10,14 +10,14 @@
 class Scene {
 private:
 	std::unordered_map<std::string, Model3D*> models;
-	std::list<Group *> groups;
+	std::list<Group*> groups;
 	void parseGroup(tinyxml2::XMLElement* parent, Group* parentGr);
 
 public:
 	Scene();
+	~Scene();
 	int parse(char *filename);
 	void draw();
-	~Scene();
 };
 
 #endif SCENE_H

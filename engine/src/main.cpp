@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <GL/glew.h>
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -198,6 +198,8 @@ int main(int argc, char **argv) {
 // Required callback registry 
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
+	glEnableClientState(GL_VERTEX_ARRAY);
+
 	
 // Callback registration for keyboard processing
 	glutKeyboardFunc(processKeys);
@@ -206,6 +208,7 @@ int main(int argc, char **argv) {
 //  OpenGL settings
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	glewInit();
 	spherical2Cartesian();
 	printInfo();
 

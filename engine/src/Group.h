@@ -9,40 +9,66 @@
 #include <utility>
 #include <vector> 
 
-struct TranslateStatic {
-	float x;
-	float y;
-	float z;
+
+
+class Transform {
+	public:
+		virtual void apply() = 0;
+		virtual int getType() = 0;
 };
 
-struct TranslateAnim {
-	float time = 0;
-	float currtime = 0;
-	int lastSecond = 0;
-	std::vector<Point3D> points;
-	float y[3] = {0,1,0};
+class TranslateAnim : public Transform {
+	public:
+		int getType() { return 0; }
+		void apply();
+		float time = 0;
+		std::vector<Point3D> points;
+		
+	private:
+		int lastSecond = 0;
+		float currtime = 0;
+		float y[3] = { 0,1,0 };
 };
 
-struct RotateStatic {
-	float x;
-	float y;
-	float z;
-	float angle;
+
+class TranslateStatic : public Transform {
+	public:
+		int getType() { return 0; }
+		void apply();
+		float x;
+		float y;
+		float z;
 };
 
-struct RotateAnim {
-	float x;
-	float y;
-	float z;
-	float time;
+class RotateAnim : public Transform {
+	public:
+		int getType() { return 1; }
+		void apply();
+		float x;
+		float y;
+		float z;
+		float time;
 };
 
-struct Scale {
-	float x;
-	float y;
-	float z;
+
+class RotateStatic : public Transform {
+	public:
+		int getType() { return 1; }
+		void apply();
+		float x;
+		float y;
+		float z;
+		float angle;
 };
 
+class ScaleStatic : public Transform {
+	public:
+		int getType() { return 2; }
+		void apply();
+		float x;
+		float y;
+		float z;
+};
 
 
 
@@ -50,29 +76,14 @@ class Group {
 	private:
 		std::list<Model3D*> models;
 		std::list<Group*> groups;
-		char transforms[3];
+		Transform* transforms[3];
 		int tranformsSize = 0;
-		TranslateStatic ts;
-		TranslateAnim ta;
-		bool hasTranslateStatic = false;
-		bool hasTranslateAnim = false;
-		RotateStatic rs;
-		RotateAnim ra;
-		bool hasRotateStatic = false;
-		bool hasRotateAnim = false;
-		Scale s; 
-		bool hasScale = false;
-		void applyTranslateAnim();
-
+		
 	public:
 		void draw();
+		void addTransform(Transform* t);
 		void addModel(Model3D* m) { models.push_back(m); }
 		void addGroup(Group* g) { groups.push_back(g); }
-		void addRotate(RotateStatic r);
-		void addTranslate(TranslateStatic t);
-		void addScale(Scale s);
-		void addTranslateAnim(TranslateAnim anim);
-		void addRotateAnim(RotateAnim r);
 		Group();
 		~Group();
 };
