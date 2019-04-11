@@ -9,7 +9,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-
+#include "patch.h"
 
 struct Point {
 	float x;
@@ -53,44 +53,6 @@ void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
 	printTriangle(fp, p1, p2, p3);
 	printTriangle(fp, p3, p4, p1);
 }
-
-
-void bezier(const char* name, const char* cpFile, int tessellation) {
-	FILE *fp;
-	fopen_s(&fp, name, "w");
-
-	std::string line;
-	std::ifstream file;
-	file.open(cpFile);
-
-	if (file.is_open()) {
-		getline(file, line);
-		int nPacthes = stoi(line);
-		for (int i = 0; i < nPacthes; i++) {
-			getline(file, line);
-			std::stringstream stream(line);
-			int n; 
-			while (stream >> n) { 
-				std::cout << "Indice: " << n << "\n"; 
-				// TODO: coisas
-			}
-		}
-
-		int nCPoints = stoi(line);
-		for (int i = 0; i < nCPoints; i++) {
-			getline(file, line);
-			// TODO: coisas
-		}
-		file.close();
-
-		// TODO: coisas
-	}
-	else std::cout << "Unable to open bezier patches file";
-	file.close();
-
-	fclose(fp);
-}
-
 
 void plane(const char* name, float x, float z) {
 	FILE *fp;
@@ -308,12 +270,11 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
 
 
 int main(int argc, char const *argv[]) {
-	
-    if (argc <= 1) {
+	if (argc <= 1) {
 		fputs("Usage: generator [OPTION]...\n", stdout);
 		return 1;
-    }
-	
+	}
+
 	if (strcmp(argv[1], "plane") == 0) {
 		// a square in the XZ plane, centred in the origin, made with 2 triangles
 		if (argc <= 4) {
@@ -326,7 +287,7 @@ int main(int argc, char const *argv[]) {
 
 		plane(argv[4], x, z);
 	}
-	else if (strcmp(argv[1], "box") == 0)  {
+	else if (strcmp(argv[1], "box") == 0) {
 		// requires X, Y and Z dimensions, and optionally the number of divisions
 		if (argc <= 5) {
 			fputs("Usage: generator box <X dimension> <Z dimension> <Z dimension> <divisions(optional)> <output>", stdout);
@@ -345,7 +306,7 @@ int main(int argc, char const *argv[]) {
 			box(argv[5], x, y, z, 1);
 		}
 	}
-	else if (strcmp(argv[1], "sphere") == 0)  {
+	else if (strcmp(argv[1], "sphere") == 0) {
 		// requires radius, slices and stacks
 		if (argc <= 5) {
 			fputs("Usage: generator sphere <radius> <slices> <stacks> <output>", stdout);
@@ -358,7 +319,7 @@ int main(int argc, char const *argv[]) {
 
 		sphere(argv[5], radius, slices, stacks);
 	}
-	else if (strcmp(argv[1], "cone") == 0)  {
+	else if (strcmp(argv[1], "cone") == 0) {
 		// requires bottom radius, height, slices and stacks
 		if (argc <= 6) {
 			fputs("Usage: generator cone <radius> <height> <slices> <stacks> <output>", stdout);
@@ -383,9 +344,7 @@ int main(int argc, char const *argv[]) {
 
 		bezier(argv[4], argv[3], tessellation);
 	}
-
-
-    return 0;
+	return 0;
 }
 
 
