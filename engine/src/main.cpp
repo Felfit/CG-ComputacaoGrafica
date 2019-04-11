@@ -13,35 +13,28 @@
 #include "Scene.h"
 #include "Model3D.h"
 
-float alfa = 0.0f, beta = 0.5f, radius = 100.0f;
-float camX, camY, camZ;
 Scene scene;
 
-void spherical2Cartesian() {
 
-	camX = radius * cos(beta) * sin(alfa);
-	camY = radius * sin(beta);
-	camZ = radius * cos(beta) * cos(alfa);
-}
-
-float theta = 0.03141593*2;
-float camAlpha = -1.822124;
-float camBeta = -0.251327;
-float camx = 45.267159;
-float camy = 41.017670;
-float camz = 113.516701;
+float camx = 0;
+float camy = 0;
+float camz = 0;
 int speed = 2;
 
+int alpha = 5, beta = 0 , theta = 2.5, r = 50;
+int roll = 0;
+
 void drawCamera() {
+	float camAlpha = alpha * M_PI / 180;
+	float camBeta = beta * M_PI / 180;
 	double lookatxyz[3] = {
 		cos(camBeta)*cos(camAlpha),
 		sin(camBeta),
 		sin(camAlpha)
 	};
-
 	gluLookAt(camx, camy, camz,
 		lookatxyz[0] + camx, lookatxyz[1] + camy, lookatxyz[2] + camz,
-		0, 1, 0);
+		0,sin(camBeta+M_PI_2),0);
 }
 
 void changeSize(int w, int h) {
@@ -78,9 +71,8 @@ void renderScene(void) {
 
 	// set the camera
 	glLoadIdentity();
-	drawCamera();
 	
-
+	drawCamera();
 	// XYZ axis
 	glBegin(GL_LINES);
 		glColor3f(1, 0, 0);
@@ -114,56 +106,56 @@ void processSpecialKeys(int keycode, int x, int y) {
 }
 
 void processKeys(unsigned char keycode, int x, int y) {
+	float camAlpha = alpha * M_PI / 180.0;
+	float camBeta = beta * M_PI / 180.0;
+	float dx = speed * cos(camAlpha);
+	float dz = speed * sin(camAlpha);
+	float rx = speed * cos(camAlpha + M_PI_2);
+	float rz = speed * sin(camAlpha + M_PI_2);
 	switch (keycode) {
-	case 'q':
-		camAlpha -= theta;
-		break;
-	case 'e':
-		camAlpha += theta;
-		break;
-	case 'w':
-		camx += speed * cos(camBeta)*cos(camAlpha);
-		camy += speed * sin(camBeta);
-		camz += speed * sin(camAlpha);
-		break;
-	case 's':
-		camx -= speed * cos(camBeta)*cos(camAlpha);
-		camy += speed * sin(camBeta + M_PI);
-		camz-= speed * sin(camAlpha);
-		break;
-	case 'a':
-		camx += speed * cos(camBeta)*cos(camAlpha - M_PI_2);
-		camz += speed * sin(camAlpha - M_PI_2);
-		break;
-	case 'd':
-		camx += speed * cos(camBeta)*cos(camAlpha + M_PI_2);
-		camz += speed * sin(camAlpha + M_PI_2);
-		break;
-	case 'f':
-		if(theta >-M_2_PI)
-			camBeta -= theta;
-		break;
-	case 'r':
-		if (theta < M_2_PI)
-			camBeta += theta;
-		break;
-	case '1':
-		glPolygonMode(GL_FRONT, GL_FILL);
-		renderScene();
-		break;
-	case '2':
-		glPolygonMode(GL_FRONT, GL_LINE);
-		renderScene();
-		break;
-	case '3':
-		glPolygonMode(GL_FRONT, GL_POINT);
-		renderScene();
-		break;
-	default:
-		return;
-		break;
+		case 'q':
+			alpha -= theta;
+			break;
+		case 'e':
+			alpha += theta;
+			break;
+		case 'w':
+			camx += dx;
+			camz += dz;
+			break;
+		case 's':
+			camx -= dx;
+			camz -= dz;
+			break;
+		case 'a':
+			camx -= rx;
+			camz -= rz;
+			break;
+		case 'd':
+			camx += rx;
+			camz += rz;
+			break;
+		case 'f':
+			if(beta > -60)
+				beta -= theta;
+			break;
+		case 'r':
+			if (beta < 60)
+				beta += theta;
+			break;
+		case '1':
+			glPolygonMode(GL_FRONT, GL_FILL);
+			break;
+		case '2':
+			glPolygonMode(GL_FRONT, GL_LINE);
+			break;
+		case '3':
+			glPolygonMode(GL_FRONT, GL_POINT);
+			break;
+		default:
+			return;
+			break;
 	}
-	renderScene();
 }
 
 
@@ -209,7 +201,6 @@ int main(int argc, char **argv) {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glewInit();
-	spherical2Cartesian();
 	printInfo();
 
 	//	Load scene
