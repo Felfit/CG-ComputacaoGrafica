@@ -127,13 +127,13 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
 
 		//Coisas
 		fprintf(fp, "%d\n", nPatches * tesselations * tesselations * 6);
-        for (int l = 0; l < nPatches; ++l) {
-            int patchOffset = 16 * l;
+        for (int l = 0; l < 1; ++l) {
+            int patchOffset = 3 * 16 * l;
             double controlPoints[3][4][4];
             for (int i = 0; i < 4; ++i) {
                 for (int j = 0; j < 4; ++j) {
                     for (int k = 0; k < 3; ++k) {
-                        int indexOffset = patchOffset + (j * 4 + i);
+                        int indexOffset = patchOffset + (i * 4 + j);
                         // Insere na matrix por coluna
                         controlPoints[k][i][j] = points[indexes[indexOffset] * 3 + k];
                     }
@@ -147,19 +147,20 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
                 for (int vi = 0; vi < tesselations; ++vi) {
 					double v = (double) vi / tesselations;
 					double point[3];
+					bezierPoint(controlPoints, u, v, point); 
+					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
 					bezierPoint(controlPoints, u, (v + parts), point);
+					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
+					bezierPoint(controlPoints, (u + parts), (v + parts), point);
 					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
+				
 					bezierPoint(controlPoints, u, v, point);
-					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
+					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
 					bezierPoint(controlPoints, (u + parts), (v + parts), point);
 					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
-			
-					bezierPoint(controlPoints, u, v, point);
-					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
 					bezierPoint(controlPoints, (u + parts), v, point);
 					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
-					bezierPoint(controlPoints, (u + parts), (v + parts), point);
-					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
+			
                 }
             }
         }
