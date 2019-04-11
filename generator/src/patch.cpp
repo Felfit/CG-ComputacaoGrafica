@@ -80,12 +80,19 @@ void bezierPoint(double controlPoints[3][4][4], double u, double v, double point
 			{ 3,-6,-3, 0},
 			{-3, 3, 0, 0},
 			{ 1, 0, 0, 0}
-	}; // b == M, M == M^T
+	}; // b == M
 
-	double u2 = u * u;
-	double u3 = u * u2;
-	double v2 = v * v;
-	double v3 = v * v2;
+    double bt[4][4] = {
+            {-1, 3,-3, 1},
+            { 3,-6, 3, 0},
+            { 3,-3, 0, 0},
+            { 1, 0, 0, 0}
+    }; // bt == M^T
+
+	double u2 = u * u; // u^2
+	double u3 = u * u2; // u^3
+	double v2 = v * v; // v^2
+	double v3 = v * v2; // v^3
 	double us[4] = {u3, u2, u, 1}; // [u^3 u^2 u 1]
 	double vs[4] = {v3, v2, v, 1}; // [v^3 v^2 v 1]^T
 
@@ -95,7 +102,7 @@ void bezierPoint(double controlPoints[3][4][4], double u, double v, double point
 	for(int i = 0; i < 3; i++) {
 		multLinMatrix4x4(us, b, temp1[i]); // [u^3 u^2 u 1] * M
 		multLinMatrix4x4(temp1[i], controlPoints[i], temp2[i]); // [u^3 u^2 u 1] * M * P
-		multLinMatrix4x4(temp2[i], b, temp3[i]); // [u^3 u^2 u 1] * M * P * M^T
+		multLinMatrix4x4(temp2[i], bt, temp3[i]); // [u^3 u^2 u 1] * M * P * M^T
 		point[i] = 0;
 		for (int j = 0; j < 4; ++j) {
 			point[i] += temp3[i][j] * vs[j]; // [u^3 u^2 u 1] * M * P * M^T * [v^3 v^2 v 1]^T
