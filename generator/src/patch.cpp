@@ -76,25 +76,25 @@ void multLinMatrix4x4(double l[4], double m[4][4], double r[4]) {
 void bezierPoint(double controlPoints[3][4][4], double u, double v, double point[3]) {
 
 	double b[4][4] = {
-			{-1, 3, 3, 1},
-			{ 3,-6,-3, 0},
+			{ 1, 0, 0, 0},
 			{-3, 3, 0, 0},
-			{ 1, 0, 0, 0}
+			{ 3,-6, 3, 0},
+			{-1, 3,-3, 1}
 	}; // b == M
 
-    double bt[4][4] = {
-            {-1, 3,-3, 1},
-            { 3,-6, 3, 0},
-            { 3,-3, 0, 0},
-            { 1, 0, 0, 0}
-    }; // bt == M^T
+	double bt[4][4] = {
+			{ 1,-3, 3,-1},
+			{ 0, 3,-6, 3},
+			{ 0, 0, 3,-3},
+			{ 0, 0, 0, 1}
+	}; // bt == M^T
 
 	double u2 = u * u; // u^2
 	double u3 = u * u2; // u^3
 	double v2 = v * v; // v^2
 	double v3 = v * v2; // v^3
-	double us[4] = {u3, u2, u, 1}; // [u^3 u^2 u 1]
-	double vs[4] = {v3, v2, v, 1}; // [v^3 v^2 v 1]^T
+	double us[4] = { 1, u, u2, u3}; // [u^3 u^2 u 1]
+	double vs[4] = { 1, v, v2, v3 }; // [v^3 v^2 v 1]^T
 
 	double temp1[3][4];
 	double temp2[3][4];
@@ -127,8 +127,8 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
 
 		//Coisas
 		fprintf(fp, "%d\n", nPatches * tesselations * tesselations * 6);
-        for (int l = 0; l < 1; ++l) {
-            int patchOffset = 3 * 16 * l;
+        for (int l = 0; l < nPatches; ++l) {
+            int patchOffset = 16 * l;
             double controlPoints[3][4][4];
             for (int i = 0; i < 4; ++i) {
                 for (int j = 0; j < 4; ++j) {
@@ -137,30 +137,29 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
                         // Insere na matrix por coluna
                         controlPoints[k][i][j] = points[indexes[indexOffset] * 3 + k];
                     }
-                    // printf("%d %d (%f, %f, %f)\n", l, indexes[j * 4 + i], controlPoints[0][i][j], controlPoints[1][i][j], controlPoints[2][i][j]);
+                    //printf("%d %d (%f, %f, %f)\n", l, indexes[16 * l + (i * 4 + j)], controlPoints[0][i][j], controlPoints[1][i][j], controlPoints[2][i][j]);
                 }
             }
             // Loop que divide as curvas de bezier
-			float parts = 1.0f / tesselations;
-            for (int ui = 0; ui < tesselations; ++ui) {
-				double u = (double) ui / tesselations;
-                for (int vi = 0; vi < tesselations; ++vi) {
-					double v = (double) vi / tesselations;
-					double point[3];
-					bezierPoint(controlPoints, u, v, point); 
-					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
-					bezierPoint(controlPoints, u, (v + parts), point);
-					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
-					bezierPoint(controlPoints, (u + parts), (v + parts), point);
-					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
-				
-					bezierPoint(controlPoints, u, v, point);
-					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
-					bezierPoint(controlPoints, (u + parts), (v + parts), point);
-					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
-					bezierPoint(controlPoints, (u + parts), v, point);
-					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
-			
+				float parts = 1.0f / tesselations;
+				for (int ui = 0; ui < tesselations; ++ui) {
+					double u = (double)ui / tesselations;
+					for (int vi = 0; vi < tesselations; ++vi) {
+						double v = (double)vi / tesselations;
+					    double point[3];
+						bezierPoint(controlPoints, u, v, point);
+						fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
+						bezierPoint(controlPoints, u, (v + parts), point);
+						fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
+						bezierPoint(controlPoints, (u + parts), (v + parts), point);
+						fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
+
+						bezierPoint(controlPoints, u, v, point);
+						fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
+						bezierPoint(controlPoints, (u + parts), (v + parts), point);
+						fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
+						bezierPoint(controlPoints, (u + parts), v, point);
+						fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
                 }
             }
         }
