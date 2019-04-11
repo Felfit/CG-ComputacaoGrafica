@@ -119,6 +119,7 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
         vector<double> points = fillArrayDouble(nCPoints, file);
 
 		//Coisas
+		fprintf(fp, "%d\n", nPatches * tesselations * tesselations * 6);
         for (int l = 0; l < nPatches; ++l) {
             int patchOffset = 16 * l;
             double controlPoints[3][4][4];
@@ -127,7 +128,7 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
                     for (int k = 0; k < 3; ++k) {
                         int indexOffset = patchOffset + (j * 4 + i);
                         // Insere na matrix por coluna
-                        controlPoints[k][j][i] = points[indexes[indexOffset] * 3 + k];
+                        controlPoints[k][i][j] = points[indexes[indexOffset] * 3 + k];
                     }
                     // printf("%d %d (%f, %f, %f)\n", l, indexes[j * 4 + i], controlPoints[0][i][j], controlPoints[1][i][j], controlPoints[2][i][j]);
                 }
@@ -139,19 +140,19 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
                 for (int vi = 0; vi < tesselations; ++vi) {
 					double v = (double) vi / tesselations;
 					double point[3];
-                    bezierPoint(controlPoints, u, v, point); 
-                    fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
-					bezierPoint(controlPoints, (u + parts), (v + parts), point);
-					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
 					bezierPoint(controlPoints, u, (v + parts), point);
-					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
-				
-					bezierPoint(controlPoints, (u + parts), v, point);
-					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
-					bezierPoint(controlPoints, (u + parts), (v + parts), point);
 					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
 					bezierPoint(controlPoints, u, v, point);
 					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
+					bezierPoint(controlPoints, (u + parts), (v + parts), point);
+					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
+			
+					bezierPoint(controlPoints, u, v, point);
+					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
+					bezierPoint(controlPoints, (u + parts), v, point);
+					fprintf(fp,"%f %f %f\n", point[0], point[1], point[2]);
+					bezierPoint(controlPoints, (u + parts), (v + parts), point);
+					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
                 }
             }
         }
