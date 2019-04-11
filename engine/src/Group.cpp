@@ -40,11 +40,11 @@ void RotateStatic::apply() {
 	glRotatef(angle, x, y, z);
 }
 
-// the number of seconds to perform a full 360 degrees rotation around the specified axis
+// time -> the number of seconds to perform a full 360 degrees rotation around the specified axis
 void RotateAnim::apply() {
 	float mstime = time * 1000;
 	float angle = fmod(glutGet(GLUT_ELAPSED_TIME), mstime) / mstime * 360;
-	glRotatef(angle, x, y,z);
+	glRotatef(angle, x, y, z);
 	glutPostRedisplay(); 
 }
 
@@ -75,9 +75,6 @@ void TranslateAnim::apply() {
 
 	int delta = glutGet(GLUT_ELAPSED_TIME) - lastSecond;
 	currtime += 1.0 / (1000 * time) * delta;
-	if (currtime - floor(currtime) < 0.05) {
-		printf("%d\n", glutGet(GLUT_ELAPSED_TIME)/1000);
-	}
 	lastSecond = glutGet(GLUT_ELAPSED_TIME);
 	glutPostRedisplay();
 }

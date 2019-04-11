@@ -55,6 +55,85 @@ float getAttr(XMLElement *element, const char *name) {
     return (float)atof(attr->Value());
 }
 
+void parseTranslate(XMLElement* el, Group* group) {
+	const XMLAttribute *timeAttr = el->FindAttribute("time");
+	if (timeAttr) {
+		TranslateAnim* ta = new TranslateAnim();
+		ta->time = (float)atof(timeAttr->Value());
+		try {
+			XMLElement* point = el->FirstChildElement();
+			int n = 0;
+			while (point) {
+				Point3D p;
+				p.x = getAttr(point, "X");
+				p.y = getAttr(point, "Y");
+				p.z = getAttr(point, "Z");
+				ta->points.push_back(p);
+				point = point->NextSiblingElement();
+				n++;
+			}
+			if (n < 4) {
+				cerr << "Erro no xml: as translações dinamicas devem ter no minimo 4 pontos\n";
+				return;
+			}
+			group->addTransform(ta);
+		}
+		catch (string s) {
+			cerr << "Erro no xml: numa transformacao dinamica um ponto nao tem a coordenada " << s << "\n";
+			delete ta;
+			return;
+		}
+	}
+	else {
+		TranslateStatic* ts = new TranslateStatic();
+		ts->x = getAttrOrDefault(el, "X", 0);
+		ts->y = getAttrOrDefault(el, "Y", 0);
+		ts->z = getAttrOrDefault(el, "Z", 0);
+		group->addTransform(ts);
+	}
+}
+
+void parseScale(XMLElement* el, Group* group) {
+	ScaleStatic* s = new ScaleStatic();
+	s->x = getAttrOrDefault(el, "X", 1);
+	s->y = getAttrOrDefault(el, "Y", 1);
+	s->z = getAttrOrDefault(el, "Z", 1);
+	group->addTransform(s);
+}
+
+void parseRotate(XMLElement* el, Group* group) {
+	float x = getAttrOrDefault(el, "axisX", 0);
+	float y = getAttrOrDefault(el, "axisY", 0);
+	float z = getAttrOrDefault(el, "axisZ", 0);
+	const XMLAttribute *timeAttr = el->FindAttribute("time");
+	if (timeAttr != nullptr) {
+		RotateAnim* ra = new RotateAnim();
+		ra->x = x; ra->y = y; ra->z = z;
+		ra->time = (float)atof(timeAttr->Value());
+		group->addTransform(ra);
+	}
+	else {
+		RotateStatic* rs = new RotateStatic();
+		rs->x = x; rs->y = y; rs->z = z;
+		rs->angle = getAttrOrDefault(el, "angle", 0);
+		group->addTransform(rs);
+	}
+}
+
+void parseModels(XMLElement* el, Group* group, unordered_map<std::string, Model3D*> models) {
+	XMLElement *model = el->FirstChildElement();
+	while (model) {
+		const char *filename = model->Attribute("file");
+		if (!models[filename]) {
+			Model3D *m = new Model3D();
+			m->parse(filename);
+			models[filename] = m;
+		}
+		group->addModel(models[filename]);
+		model = model->NextSiblingElement();
+	}
+}
+
 void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 
 	XMLElement *child = parent->FirstChildElement();
@@ -65,73 +144,16 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 			parseGroup(child, childGr);
 		}
 		else if (!strcmp("models", child->Name())) {
-			XMLElement *model = child->FirstChildElement();
-			while (model) {
-				const char *filename = model->Attribute("file");
-				if (!models[filename]) {
-					Model3D *m = new Model3D();
-					m->parse(filename);
-					models[filename] = m;
-				}
-				parentGr->addModel(models[filename]);
-				model = model->NextSiblingElement();
-			}
+			parseModels(child, parentGr, models);
 		}
 		else if (!strcmp("translate", child->Name())) {
-			const XMLAttribute *timeAttr = child->FindAttribute("time");
-			if (timeAttr != nullptr) {
-				TranslateAnim* ta = new TranslateAnim();
-				ta->time = (float) atof(timeAttr->Value());
-				try {
-					XMLElement *point = child->FirstChildElement();
-					// TODO: exception tamanho minimo 4
-					while (point) {
-						Point3D p;
-						p.x = getAttr(point, "X");
-						p.y = getAttr(point, "Y");
-						p.z = getAttr(point, "Z");
-						ta->points.push_back(p);
-						point = point->NextSiblingElement();
-					}
-					parentGr->addTransform(ta);
-				} 
-				catch (string s) {
-					cerr << "Erro no xml: numa transformacao dinamica um ponto nao tem a coordenada " << s << "\n";
-					break;
-				}
-			}
-			else {
-				TranslateStatic* ts = new TranslateStatic();
-				ts->x = getAttrOrDefault(child, "X", 0);
-				ts->y = getAttrOrDefault(child, "Y", 0);
-				ts->z = getAttrOrDefault(child, "Z", 0);
-				parentGr->addTransform(ts);
-			}
+			parseTranslate(child, parentGr);
 		}
 		else if (!strcmp("scale", child->Name())) {
-			ScaleStatic* s = new ScaleStatic();
-			s->x = getAttrOrDefault(child, "X", 1);
-			s->y = getAttrOrDefault(child, "Y", 1);
-			s->z = getAttrOrDefault(child, "Z", 1);
-			parentGr->addTransform(s);
+			parseScale(child, parentGr);
 		}
 		else if (!strcmp("rotate", child->Name())) {	
-			float x = getAttrOrDefault(child, "axisX", 0);
-			float y = getAttrOrDefault(child, "axisY", 0);
-			float z = getAttrOrDefault(child, "axisZ", 0);
-			const XMLAttribute *timeAttr = child->FindAttribute("time");
-			if (timeAttr != nullptr) {
-				RotateAnim* ra = new RotateAnim();
-				ra->x = x; ra->y = y; ra->z = z;
-				ra->time = (float)atof(timeAttr->Value());
-				parentGr->addTransform(ra);
-			} 
-			else {
-				RotateStatic* rs = new RotateStatic();
-				rs->x = x; rs->y = y; rs->z = z;
-				rs->angle = getAttrOrDefault(child, "angle", 0);
-				parentGr->addTransform(rs);
-			}
+			parseRotate(child, parentGr);
 		}
 		else {
 			cerr << "Erro no xml: tag desconhecida dentro de group\n";
