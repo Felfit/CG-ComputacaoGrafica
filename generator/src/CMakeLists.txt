@@ -3,7 +3,7 @@
 # Project Name
 PROJECT(generator)
 
-add_executable(generator main.cpp)
+add_executable(generator main.cpp patch.cpp patch.h)
 
 
 

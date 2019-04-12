@@ -270,6 +270,7 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
 
 
 int main(int argc, char const *argv[]) {
+	/*
 	if (argc <= 1) {
 		fputs("Usage: generator [OPTION]...\n", stdout);
 		return 1;
@@ -344,6 +345,9 @@ int main(int argc, char const *argv[]) {
 
 		bezier(argv[4], argv[3], tessellation);
 	}
+	return 0;*/
+	int tessellation = 1;
+	parsePatches("teapot.3d", "teapot.patch", tessellation);
 	return 0;
 }
 

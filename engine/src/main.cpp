@@ -21,7 +21,7 @@ float camy = 0;
 float camz = 0;
 int speed = 2;
 
-int alpha = 5, beta = 0 , theta = 2.5, r = 50;
+int alpha = 5, beta = 0, theta = 2.5, r = 50;
 int roll = 0;
 
 void drawCamera() {
