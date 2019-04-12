@@ -270,7 +270,6 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
 
 
 int main(int argc, char const *argv[]) {
-	/*
 	if (argc <= 1) {
 		fputs("Usage: generator [OPTION]...\n", stdout);
 		return 1;
@@ -336,18 +335,14 @@ int main(int argc, char const *argv[]) {
 	}
 	else if (strcmp(argv[1], "bezier") == 0) {
 		// requires tessellation level and bezier patches descrition info filename
-		if (argc <= 6) {
+		if (argc <= 4) {
 			fputs("Usage: generator bezier <tessellation> <bezier patches filename> <output>", stdout);
 			return 1;
 		}
 
 		int tessellation = atoi(argv[2]);
-
-		bezier(argv[4], argv[3], tessellation);
+		parsePatches(argv[4], argv[3], tessellation);
 	}
-	return 0;*/
-	int tessellation = 1;
-	parsePatches("teapot.3d", "teapot.patch", tessellation);
 	return 0;
 }
 
