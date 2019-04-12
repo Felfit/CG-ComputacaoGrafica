@@ -156,6 +156,7 @@ void processKeys(unsigned char keycode, int x, int y) {
 			return;
 			break;
 	}
+	renderScene();
 }
 
 
