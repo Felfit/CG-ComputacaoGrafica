@@ -61,7 +61,9 @@ void TranslateAnim::apply() {
 	renderCatmullCurve(points, 200);
 	float pos[4] = { 0 };
 	float der[4] = { 0 };
-	getGlobalCatmullRomCurvePoint(points, currtime, pos, der);
+	float gt = glutGet(GLUT_ELAPSED_TIME) / (1000.0 * time);
+
+	getGlobalCatmullRomCurvePoint(points, gt, pos, der);
 	glTranslatef(pos[0], pos[1], pos[2]);
 	normalize(der);
 	normalize(y);
@@ -73,8 +75,5 @@ void TranslateAnim::apply() {
 	glMultMatrixf(m);
 	cross(z, der, y);
 
-	int delta = glutGet(GLUT_ELAPSED_TIME) - lastSecond;
-	currtime += 1.0 / (1000 * time) * delta;
-	lastSecond = glutGet(GLUT_ELAPSED_TIME);
 	glutPostRedisplay();
 }

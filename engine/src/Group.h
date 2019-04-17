@@ -25,8 +25,6 @@ class TranslateAnim : public Transform {
 		std::vector<Point3D> points;
 		
 	private:
-		int lastSecond = 0;
-		float currtime = 0;
 		float y[3] = { 0,1,0 };
 };
 
