@@ -16,12 +16,12 @@
 Scene scene;
 
 
-float camx = 0;
-float camy = 0;
+float camx = -200;
+float camy = 100;
 float camz = 0;
 int speed = 2;
 
-int alpha = 5, beta = 0, theta = 2.5, r = 50;
+int alpha = 0, beta = -25, theta = 2.5, r = 50;
 int roll = 0;
 
 void drawCamera() {
