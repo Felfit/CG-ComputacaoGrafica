@@ -16,12 +16,12 @@
 Scene scene;
 
 
-float eyeX = -10;
-float eyeY = 0;
+float eyeX = -20;
+float eyeY = 100;
 float eyeZ = 0;
 int speed = 2;
 
-int alpha = 0, beta = 0, theta = 10, r = 10;
+int alpha = 0, beta = -25, theta = 2.5, r = 50;
 
 bool drawAxis = false;
 
