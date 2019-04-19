@@ -16,25 +16,28 @@
 Scene scene;
 
 
-float camx = 0;
-float camy = 0;
-float camz = 0;
+float eyeX = -10;
+float eyeY = 0;
+float eyeZ = 0;
 int speed = 2;
 
-int alpha = 5, beta = 0, theta = 2.5, r = 50;
-int roll = 0;
+int alpha = 0, beta = 0, theta = 10, r = 10;
 
-void drawCamera() {
+bool drawAxis = false;
+
+void placeCamera() {
 	float camAlpha = alpha * M_PI / 180;
 	float camBeta = beta * M_PI / 180;
-	double lookatxyz[3] = {
-		cos(camBeta)*cos(camAlpha),
-		sin(camBeta),
-		sin(camAlpha)
-	};
-	gluLookAt(camx, camy, camz,
-		lookatxyz[0] + camx, lookatxyz[1] + camy, lookatxyz[2] + camz,
-		0,sin(camBeta+M_PI_2),0);
+
+	float centerX = eyeX + cos(camBeta) * cos(camAlpha);
+	float centerY = eyeY + sin(camBeta);
+	float centerZ = eyeZ + sin(camAlpha);
+
+	float upY = sin(camBeta + M_PI_2);
+
+	gluLookAt(eyeX, eyeY, eyeZ,
+			  centerX, centerY, centerZ,
+		      0.0f, upY, 0.0f);
 }
 
 void changeSize(int w, int h) {
@@ -71,10 +74,11 @@ void renderScene(void) {
 
 	// set the camera
 	glLoadIdentity();
-	
-	drawCamera();
+
+	placeCamera();
 	// XYZ axis
-	glBegin(GL_LINES);
+	if (drawAxis) {
+		glBegin(GL_LINES);
 		glColor3f(1, 0, 0);
 		glVertex3f(-100, 0, 0);
 		glVertex3f(100, 0, 0);
@@ -84,7 +88,8 @@ void renderScene(void) {
 		glColor3f(0, 0, 1);
 		glVertex3f(0, 0, 100);
 		glVertex3f(0, 0, -100);
-	glEnd();
+		glEnd();
+	}
 
 	glColor3f(1, 1, 1);
 	scene.draw();
@@ -96,13 +101,13 @@ void renderScene(void) {
 void processSpecialKeys(int keycode, int x, int y) {
 	switch (keycode) {
 	case GLUT_KEY_DOWN:
-		camy -= speed;
+		eyeY -= speed;
 		break;
 	case GLUT_KEY_UP:
-		camy += speed;
+		eyeY += speed;
 		break;
 	}
-	renderScene();
+	glutPostRedisplay();
 }
 
 void processKeys(unsigned char keycode, int x, int y) {
@@ -120,20 +125,20 @@ void processKeys(unsigned char keycode, int x, int y) {
 			alpha += theta;
 			break;
 		case 'w':
-			camx += dx;
-			camz += dz;
+			eyeX += dx;
+			eyeZ += dz;
 			break;
 		case 's':
-			camx -= dx;
-			camz -= dz;
+			eyeX -= dx;
+			eyeZ -= dz;
 			break;
 		case 'a':
-			camx -= rx;
-			camz -= rz;
+			eyeX -= rx;
+			eyeZ -= rz;
 			break;
 		case 'd':
-			camx += rx;
-			camz += rz;
+			eyeX += rx;
+			eyeZ += rz;
 			break;
 		case 'f':
 			if(beta > -60)
@@ -143,20 +148,10 @@ void processKeys(unsigned char keycode, int x, int y) {
 			if (beta < 60)
 				beta += theta;
 			break;
-		case '1':
-			glPolygonMode(GL_FRONT, GL_FILL);
-			break;
-		case '2':
-			glPolygonMode(GL_FRONT, GL_LINE);
-			break;
-		case '3':
-			glPolygonMode(GL_FRONT, GL_POINT);
-			break;
 		default:
-			return;
 			break;
 	}
-	renderScene();
+	glutPostRedisplay();
 }
 
 
@@ -167,14 +162,109 @@ void printInfo() {
 	printf("Version: %s\n", glGetString(GL_VERSION));
 
 	printf("\nUse WASD to move the camera, up/down to raise the camera, QERF to rotate the camera \n");
-	printf("Use 1:FillMode 2:Wireframe 3:Point Mode\n");
+	printf("Use mouse rightclick to open menu.\n");
+}
+
+
+
+
+int startX, startY, tracking = 0;
+int Malpha = 0, Mbeta = 0, Mr = 5;
+
+void processMouseButtons(int button, int state, int xx, int yy)
+{
+	if (state == GLUT_DOWN) {
+		startX = xx;
+		startY = yy;
+		if (button == GLUT_LEFT_BUTTON)
+			tracking = 1;
+		else if (button == GLUT_RIGHT_BUTTON)
+			tracking = 2;
+		else
+			tracking = 0;
+	}
+	else if (state == GLUT_UP) {
+		if (tracking == 1) {
+			Malpha += (xx - startX);
+			Mbeta += (yy - startY);
+		}
+		else if (tracking == 2) {
+
+			Mr -= yy - startY;
+			if (Mr < 3)
+				Mr = 3.0;
+		}
+		tracking = 0;
+	}
+}
+
+
+void processMouseMotion(int xx, int yy)
+{
+	int alphaAux, betaAux;
+	int rAux;
+
+	if (!tracking)
+		return;
+
+	int deltaX = xx - startX;
+	int deltaY = yy - startY;
+
+	if (tracking == 1) {
+
+		alphaAux = Malpha + deltaX;
+		betaAux = Mbeta + deltaY;
+
+		if (betaAux > 85.0)
+			betaAux = 85.0;
+		else if (betaAux < -85.0)
+			betaAux = -85.0;
+
+		rAux = Mr;
+	}
+	else if (tracking == 2) {
+
+		alphaAux = Malpha;
+		betaAux = Mbeta;
+		rAux = Mr - deltaY;
+		if (rAux < 3)
+			rAux = 3;
+	}
+	eyeX = rAux * sin(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
+	eyeZ = rAux * cos(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
+	eyeY = rAux * sin(betaAux * 3.14 / 180.0);
+	glutPostRedisplay();
+}
+
+
+void processMenuEvents(int op) {
+	switch (op) {
+	case 1:
+		glPolygonMode(GL_FRONT, GL_FILL);
+		break;
+	case 2:
+		glPolygonMode(GL_FRONT, GL_LINE);
+		break;
+	case 3:
+		glPolygonMode(GL_FRONT, GL_POINT);
+		break;
+	case 4:
+		drawAxis = true;
+		break;
+	case 5:
+		drawAxis = false;
+		break;
+	default:
+		break;
+	}
+	glutPostRedisplay();
 }
 
 
 int main(int argc, char **argv) {
 	
 	if (argc <= 1) {
-		fputs("Usage: engine <config>\n", stdout);
+		fputs("Usage: engine <config filename>\n", stdout);
 		return 1;
 	}
 	
@@ -191,12 +281,32 @@ int main(int argc, char **argv) {
 // Required callback registry 
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
+	//glutIdleFunc(NULL);
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	
 // Callback registration for keyboard processing
 	glutKeyboardFunc(processKeys);
 	glutSpecialFunc(processSpecialKeys);
+	glutMouseFunc(processMouseButtons);
+	glutMotionFunc(processMouseMotion);
+
+// Menu
+	int polygonModeMenu = glutCreateMenu(processMenuEvents);
+	glutAddMenuEntry("fill", 1);
+	glutAddMenuEntry("line", 2);
+	glutAddMenuEntry("point", 3);
+
+	int axisMenu = glutCreateMenu(processMenuEvents);
+	glutAddMenuEntry("show", 4);
+	glutAddMenuEntry("hide", 5);
+
+	glutCreateMenu(NULL);
+	glutAddSubMenu("Polygon Mode", polygonModeMenu);
+	glutAddSubMenu("XYZ axis", axisMenu);
+
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
 //  OpenGL settings
 	glEnable(GL_DEPTH_TEST);
