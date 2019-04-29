@@ -5,13 +5,18 @@
 #include <unordered_map>
 #include "Model3D.h"
 #include "Group.h"
+#include "Light.h"
 #include "tinyxml2.h"
 
 class Scene {
 private:
 	std::unordered_map<std::string, Model3D*> models;
+	//std::unordered_map<std::string, ?????> textures;
+	std::list<Light*> lights;
 	std::list<Group*> groups;
 	void parseGroup(tinyxml2::XMLElement* parent, Group* parentGr);
+	void parseLight(tinyxml2::XMLElement* el);
+	void parseModel(tinyxml2::XMLElement* el, Group* group);
 
 public:
 	Scene();

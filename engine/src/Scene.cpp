@@ -27,8 +27,20 @@ int Scene::parse(char *filename) {
 	if (strcmp("scene", el->Name())) {
 		cerr << "Erro no xml: primeira tag deve ser scene\n";
 	}
-	// percorre os <group> do primeiro nível
+	
 	el = el->FirstChildElement();
+	// adiciona luzes se tiver
+	int nl = 0;
+	if (!strcmp("lights", el->Name()) && nl < GL_MAX_LIGHTS) {
+		XMLElement* light = el->FirstChildElement();
+		while (light) {
+			if (strcmp("light", light->Name())) {
+				parseLight(light);
+			}
+			light = light->NextSiblingElement();
+		}
+	}
+	// percorre os <group> do primeiro nível
 	while (el) {
 		if (strcmp("group", el->Name())) {
 			cerr << "Erro no xml: a scene deve apenas conter tags group\n";
@@ -36,7 +48,7 @@ int Scene::parse(char *filename) {
 		Group *group = new Group();
 		parseGroup(el, group);
 		groups.push_front(group);
-		el=el->NextSiblingElement();
+		el = el->NextSiblingElement();
 	}
 	return 0;
 }
@@ -53,6 +65,36 @@ float getAttr(XMLElement *element, const char *name) {
 		throw s;
 	}
     return (float)atof(attr->Value());
+}
+
+
+
+void Scene::parseLight(XMLElement* el) {
+	const XMLAttribute *type = el->FindAttribute("type");
+	if (type == nullptr) {
+		std::string s = "luz";
+		throw s;
+	}
+	if (strcmp("POINT", type->Value())) {
+		LightPoint* l = new LightPoint();
+		l->posX = getAttr(el, "posX");
+		l->posY = getAttr(el, "posY");
+		l->posZ = getAttr(el, "posZ");
+		lights.push_back(l);
+	}
+	else if (strcmp("DIRECTIONAL", type->Value())) {
+		LightDirectional* l = new LightDirectional();
+
+		// TODO adicionar luz
+	}
+	else if (strcmp("SPOT", type->Value())) {
+		LightSpot* l = new LightSpot();
+
+		// TODO adicionar luz
+	}
+	else {
+		// TODO erro
+	}
 }
 
 void parseTranslate(XMLElement* el, Group* group) {
@@ -120,18 +162,14 @@ void parseRotate(XMLElement* el, Group* group) {
 	}
 }
 
-void parseModels(XMLElement* el, Group* group, unordered_map<std::string, Model3D*> models) {
-	XMLElement *model = el->FirstChildElement();
-	while (model) {
-		const char *filename = model->Attribute("file");
-		if (!models[filename]) {
-			Model3D *m = new Model3D();
-			m->parse(filename);
-			models[filename] = m;
-		}
-		group->addModel(models[filename]);
-		model = model->NextSiblingElement();
+void Scene::parseModel(XMLElement* model, Group* group) {
+	const char *filename = model->Attribute("file");
+	if (!models[filename]) {
+		Model3D *m = new Model3D();
+		m->parse(filename);
+		models[filename] = m;
 	}
+	group->addModel(models[filename]);
 }
 
 void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
@@ -144,7 +182,11 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 			parseGroup(child, childGr);
 		}
 		else if (!strcmp("models", child->Name())) {
-			parseModels(child, parentGr, models);
+			XMLElement *model = child->FirstChildElement();
+			while (model) {
+				parseModel(model, parentGr);
+				model = model->NextSiblingElement();
+			}
 		}
 		else if (!strcmp("translate", child->Name())) {
 			parseTranslate(child, parentGr);

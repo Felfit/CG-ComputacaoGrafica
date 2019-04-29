@@ -68,15 +68,13 @@ class ScaleStatic : public Transform {
 		float z;
 };
 
-
-
 class Group {
 	private:
 		std::list<Model3D*> models;
 		std::list<Group*> groups;
 		Transform* transforms[3];
 		int tranformsSize = 0;
-		
+
 	public:
 		void draw();
 		void addTransform(Transform* t);
@@ -85,5 +83,7 @@ class Group {
 		Group();
 		~Group();
 };
+
+
 
 #endif GROUP_H

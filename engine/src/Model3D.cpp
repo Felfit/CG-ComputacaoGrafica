@@ -67,4 +67,18 @@ int Model3D::parse(const char* filename) {
 Model3D::~Model3D() {
 	glDeleteBuffers(1,buffers);
 }
+/*
+float red[4] = { 0.8f, 0.4f, 0.4f, 1.0f };
+glMaterialfv(GL_FRONT, GL_DIFFUSE, red);
+float white[4] = { 1, 1, 1, 1.0f };
+glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+glMaterialf(GL_FRONT, GL_SHININESS, 128);
 
+GLfloat amb[4] = { 0.2, 0.2, 0.2, 1.0 };
+glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
+GLfloat diff[4] = { 1, 1, 1, 1.0 };
+glLightfv(GL_LIGHT0, GL_DIFFUSE, diff);
+
+glEnable(GL_LIGHT0);
+glEnable(GL_LIGHTING);
+*/

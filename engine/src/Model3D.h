@@ -16,6 +16,11 @@ class Model3D {
 	private:
 		int size = 0;
 		GLuint buffers[1];
+		float diffRGB[3];
+		float specRGB[3];
+		float emisRGB[3];
+		float ambiRGB[3];
+		//texture
 
 	public:
 		Model3D();
