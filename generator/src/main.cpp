@@ -109,23 +109,33 @@ z --> faces paralelas a yox
 x --> faces paralelas a yoz
 y --> faces paralelas a zox
 */
-Point calcPoint(Point p, int i, int j, Vector2D v, char type) {
-	Point novo;
+Point calcPoint(Point p, int i, int j, Vector2D v, char type, int div) {
+	Point novo = newPoint(0,0,0);
 	switch (type) {
 	case 'z':
 		novo.x = p.x + i * v.i;
 		novo.y = p.y + j * v.j;
 		novo.z = p.z;
+		novo.u = (i / div)*0.33;
+		novo.v = (j / div)*0.33;
 		novo.nx = 0;
 		novo.nx = 0;
-		if (novo.nz < 0) novo.nz = -1;
+		if (novo.z < 0) { 
+			novo.nz = -1; 
+			novo.u += 0.33;
+		}
 		else novo.nz = 1;
 		break;
 	case 'x':
 		novo.x = p.x;
 		novo.y = p.y + j * v.j;
 		novo.z = p.z + i * v.i;
-		if (novo.nx < 0) novo.nx = -1;
+		novo.u = (i / div)*0.33;
+		novo.v = (j / div)*0.33+0.66;
+		if (novo.x < 0) { 
+			novo.nx = -1; 
+			novo.u += 0.33;
+		}
 		else novo.nx = 1;
 		break;
 
@@ -133,7 +143,12 @@ Point calcPoint(Point p, int i, int j, Vector2D v, char type) {
 		novo.x = p.x + i * v.i;
 		novo.y = p.y;
 		novo.z = p.z + j * v.j;
-		if (novo.ny < 0) novo.ny = -1;
+		novo.u = (i / div)*0.5;
+		novo.v = (j / div)*0.5+0.33;
+		if (novo.y < 0) {
+			novo.ny = -1;
+			novo.u += 0.33;
+		}
 		else novo.ny = 1;
 		break;
 	}
@@ -144,15 +159,15 @@ Point calcPoint(Point p, int i, int j, Vector2D v, char type) {
 void printMultiSquare(FILE *fp, Point start, char type, int rWise, Vector2D v, int div) {
 	for (int j = 1; j <= div; j++) {
 		for (int i = 1; i <= div; i++) {
-			Point root = calcPoint(start, i - 1, j - 1, v, type);
-			Point a = calcPoint(start, i, j, v, type);
-			Point b = calcPoint(start, i, j - 1, v, type);
-			Point c = calcPoint(start, i - 1, j, v, type);
+			Point root = calcPoint(start, i - 1, j - 1, v, type, div);
+			Point a = calcPoint(start, i, j, v, type, div);
+			Point b = calcPoint(start, i, j - 1, v, type, div);
+			Point c = calcPoint(start, i - 1, j, v, type, div);
 			if (rWise == 1) {
-				printSquare(fp, root, c, a, b);
+				printUpdatedSquare(fp, root, c, a, b);
 			}
 			else {
-				printSquare(fp, root, b, a, c);
+				printUpdatedSquare(fp, root, b, a, c);
 			}
 		}
 	}
