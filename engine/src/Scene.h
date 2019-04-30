@@ -10,8 +10,8 @@
 
 class Scene {
 private:
-	std::unordered_map<std::string, Model3D*> models;
-	//std::unordered_map<std::string, ?????> textures;
+	std::unordered_map<std::string, ModelBuffers*> models;
+	std::unordered_map<std::string, Texture*> textures;
 	std::list<Light*> lights;
 	std::list<Group*> groups;
 	void parseGroup(tinyxml2::XMLElement* parent, Group* parentGr);

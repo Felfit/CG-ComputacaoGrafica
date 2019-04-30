@@ -29,17 +29,25 @@ int Scene::parse(char *filename) {
 	}
 	
 	el = el->FirstChildElement();
+
 	// adiciona luzes se tiver
-	int nl = 0;
-	if (!strcmp("lights", el->Name()) && nl < GL_MAX_LIGHTS) {
+	if (!strcmp("lights", el->Name())) {
 		XMLElement* light = el->FirstChildElement();
-		while (light) {
+		int nl = 0;
+		while (light && nl < GL_MAX_LIGHTS) {
 			if (strcmp("light", light->Name())) {
-				parseLight(light);
+				cerr << "Erro no xml: tag desconhecida dentro de lights: " << light->Name() << "\n";
+				continue;
 			}
+			parseLight(light);
 			light = light->NextSiblingElement();
+			nl++;
+		}
+		if (nl == GL_MAX_LIGHTS) {
+			cerr << "O numero de luzes atingiu o limite maximo\n";
 		}
 	}
+	el = el->NextSiblingElement();
 	// percorre os <group> do primeiro nível
 	while (el) {
 		if (strcmp("group", el->Name())) {
@@ -54,54 +62,84 @@ int Scene::parse(char *filename) {
 }
 
 float getAttrOrDefault(XMLElement *element, const char *name, float default) {
-	const XMLAttribute *attr = element->FindAttribute(name);
-    return attr == nullptr ? default : (float)atof(attr->Value());
+	const char* attr = element->Attribute(name);
+    return attr == nullptr ? default : (float)atof(attr);
 }
 
 float getAttr(XMLElement *element, const char *name) {
-	const XMLAttribute *attr = element->FindAttribute(name);
+	const char* attr = element->Attribute(name);
 	if (attr == nullptr) {
 		std::string s = name;
 		throw s;
 	}
-    return (float)atof(attr->Value());
+    return (float)atof(attr);
 }
 
 
-
 void Scene::parseLight(XMLElement* el) {
-	const XMLAttribute *type = el->FindAttribute("type");
+	const char *type = el->Attribute("type");
 	if (type == nullptr) {
 		std::string s = "luz";
 		throw s;
 	}
-	if (strcmp("POINT", type->Value())) {
+	if (!strcmp("POINT", type)) {
 		LightPoint* l = new LightPoint();
 		l->posX = getAttr(el, "posX");
 		l->posY = getAttr(el, "posY");
 		l->posZ = getAttr(el, "posZ");
 		lights.push_back(l);
 	}
-	else if (strcmp("DIRECTIONAL", type->Value())) {
+	else if (!strcmp("DIRECTIONAL", type)) {
 		LightDirectional* l = new LightDirectional();
 
 		// TODO adicionar luz
 	}
-	else if (strcmp("SPOT", type->Value())) {
+	else if (!strcmp("SPOT", type)) {
 		LightSpot* l = new LightSpot();
 
 		// TODO adicionar luz
 	}
 	else {
-		// TODO erro
+		cerr << "Erro no xml: luz tem tipo desconhecido: " << type << "\n";
 	}
 }
 
+
+void Scene::parseModel(XMLElement* model, Group* group) {
+	const char *filename = model->Attribute("file");
+	if (!filename) return;
+
+	Model3D model3d;
+
+	if (!models[filename]) {
+		ModelBuffers* m = new ModelBuffers();
+		m->parse(filename);
+		models[filename] = m;
+	}
+	model3d.buffers = models[filename];
+
+	const char *texture = model->Attribute("texture");
+	if (texture) {
+		if (!textures[texture]) {
+			Texture* t = new Texture();
+			t->parse(texture);
+			textures[texture] = t;
+		}
+		model3d.texture = textures[texture];
+	}
+	// TODO: parse dos materiais
+	//float diffR = getAttrOrDefault(el, "diffR", 0);
+
+	group->addModel(model3d);
+}
+
+
+
 void parseTranslate(XMLElement* el, Group* group) {
-	const XMLAttribute *timeAttr = el->FindAttribute("time");
+	const char *timeAttr = el->Attribute("time");
 	if (timeAttr) {
 		TranslateAnim* ta = new TranslateAnim();
-		ta->time = (float)atof(timeAttr->Value());
+		ta->time = (float)atof(timeAttr);
 		try {
 			XMLElement* point = el->FirstChildElement();
 			int n = 0;
@@ -162,15 +200,6 @@ void parseRotate(XMLElement* el, Group* group) {
 	}
 }
 
-void Scene::parseModel(XMLElement* model, Group* group) {
-	const char *filename = model->Attribute("file");
-	if (!models[filename]) {
-		Model3D *m = new Model3D();
-		m->parse(filename);
-		models[filename] = m;
-	}
-	group->addModel(models[filename]);
-}
 
 void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 
@@ -184,6 +213,10 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 		else if (!strcmp("models", child->Name())) {
 			XMLElement *model = child->FirstChildElement();
 			while (model) {
+				if (strcmp("model", model->Name())) {
+					cerr << "Erro no xml: tag desconhecida dentro de models: " << model->Name() << "\n";
+					break;
+				}
 				parseModel(model, parentGr);
 				model = model->NextSiblingElement();
 			}
@@ -198,7 +231,7 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 			parseRotate(child, parentGr);
 		}
 		else {
-			cerr << "Erro no xml: tag desconhecida dentro de group\n";
+			cerr << "Erro no xml: tag desconhecida dentro de group: " << child->Name() << "\n";
 			break;
 		}
 		child = child->NextSiblingElement();
@@ -206,6 +239,9 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 }
 
 void Scene::draw() {
+	for (auto const& light : lights) {
+		light->create();
+	}
 	for (auto const& group : groups) {
 		group->draw();
 	}

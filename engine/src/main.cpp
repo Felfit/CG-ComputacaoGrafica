@@ -237,6 +237,7 @@ void processMouseMotion(int xx, int yy)
 }
 
 
+
 void processMenuEvents(int op) {
 	switch (op) {
 	case 1:
@@ -261,38 +262,7 @@ void processMenuEvents(int op) {
 }
 
 
-int main(int argc, char **argv) {
-	
-	if (argc <= 1) {
-		fputs("Usage: engine <config filename>\n", stdout);
-		return 1;
-	}
-	
-
-
-
-// init GLUT and the window
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
-	glutInitWindowPosition(100,100);
-	glutInitWindowSize(800,800);
-	glutCreateWindow("engine");
-		
-// Required callback registry 
-	glutDisplayFunc(renderScene);
-	glutReshapeFunc(changeSize);
-	//glutIdleFunc(NULL);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-
-	
-// Callback registration for keyboard processing
-	glutKeyboardFunc(processKeys);
-	glutSpecialFunc(processSpecialKeys);
-	glutMouseFunc(processMouseButtons);
-	glutMotionFunc(processMouseMotion);
-
-// Menu
+void createMenu() {
 	int polygonModeMenu = glutCreateMenu(processMenuEvents);
 	glutAddMenuEntry("fill", 1);
 	glutAddMenuEntry("line", 2);
@@ -306,18 +276,66 @@ int main(int argc, char **argv) {
 	glutAddSubMenu("Polygon Mode", polygonModeMenu);
 	glutAddSubMenu("XYZ axis", axisMenu);
 
-	glutAttachMenu(GLUT_RIGHT_BUTTON);
+	glutAttachMenu(GLUT_MIDDLE_BUTTON);
+}
 
-//  OpenGL settings
+
+void initOpenGL() {
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	//glEnableClientState(GL_NORMAL_ARRAY);
+	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	//  OpenGL settings
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	
+
+	//glEnable(GL_TEXTURE_2D);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0); // ver luses?
+
+}
+
+int main(int argc, char **argv) {
+	
+	if (argc <= 1) {
+		fputs("Usage: engine <config filename>\n", stdout);
+		return 1;
+	}
+	
+	// init GLUT and the window
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
+	glutInitWindowPosition(100,100);
+	glutInitWindowSize(800,800);
+	glutCreateWindow("engine");
+		
+	// Required callback registry 
+	glutDisplayFunc(renderScene);
+	glutReshapeFunc(changeSize);
+	//glutIdleFunc(NULL);
+
+	// Callback registration for keyboard processing
+	glutKeyboardFunc(processKeys);
+	glutSpecialFunc(processSpecialKeys);
+	glutMouseFunc(processMouseButtons);
+	glutMotionFunc(processMouseMotion);
+
+	createMenu();
+
+#ifndef __APPLE__	
 	glewInit();
+#endif	
+
+	initOpenGL();
+
 	printInfo();
 
 	//	Load scene
 	scene.parse(argv[1]);
 
-// enter GLUT's main cycle
 	glutMainLoop();
 	
 	return 1;

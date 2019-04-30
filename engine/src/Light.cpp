@@ -8,9 +8,11 @@ Light::~Light() {
 
 }
 
+// TODO: acabar
+
 void LightPoint::create() {
-	GLfloat dir[4] = { 0.0, 0.0 ,1.0, 0.0 };
-	glLightfv(GL_LIGHT0, GL_POSITION, dir);
+	float lpos[4] = { posX, posY, posZ, 0 };
+	glLightfv(GL_LIGHT0, GL_POSITION, lpos);
 }
 
 void LightDirectional::create() {

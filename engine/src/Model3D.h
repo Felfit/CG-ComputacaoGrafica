@@ -12,21 +12,32 @@ struct Point3D {
 	float z;
 };
 
-class Model3D {
-	private:
+class Texture {
+	public:
+		int parse(const char* filename);
+};
+
+class ModelBuffers {
+	public:
+		~ModelBuffers();
 		int size = 0;
-		GLuint buffers[1];
+		GLuint vertexB[1];
+		// TODO: normais e texturas
+		int parse(const char* filename);
+};
+
+
+class Model3D {
+	public:
+		Model3D();
+		~Model3D();
+		ModelBuffers* buffers;
+		Texture* texture;
 		float diffRGB[3];
 		float specRGB[3];
 		float emisRGB[3];
 		float ambiRGB[3];
-		//texture
-
-	public:
-		Model3D();
-		int parse(const char* filename);
 		const void draw();
-		~Model3D();
-	};
+};
 
 #endif MODEL3D_H
