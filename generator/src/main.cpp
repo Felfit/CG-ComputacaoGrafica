@@ -15,16 +15,39 @@ struct Point {
 	float x;
 	float y;
 	float z;
+	float nx;
+	float ny;
+	float nz;
+	float u;
+	float v;
 };
+
 
 Point newPoint(float x, float y, float z) {
 	Point p;
 	p.x = x;
 	p.y = y;
 	p.z = z;
+	p.nx = 0;
+	p.ny = 0;
+	p.nz = 0;
+	p.u = 0;
+	p.v = 0;
 	return p;
 }
 
+Point newPoint(float x, float y, float z, float nx, float ny, float nz, float u, float v) {
+	Point p;
+	p.x = x;
+	p.y = y;
+	p.z = z;
+	p.nx = nx;
+	p.ny = ny;
+	p.nz = nz;
+	p.u = u;
+	p.v = v;
+	return p;
+}
 
 struct Vector2D {
 	float i;
@@ -44,6 +67,12 @@ void printTriangle(FILE *fp, Point p1, Point p2, Point p3) {
 	fprintf(fp, "%f %f %f\n", p3.x, p3.y, p3.z);
 }
 
+void printUpdatedTriangle(FILE *fp, Point p1, Point p2, Point p3) {
+	fprintf(fp, "%f %f %f %f %f %f %f %f\n", p1.x, p1.y, p1.z, p1.nx, p1.ny, p1.nz, p1.u, p1.v);
+	fprintf(fp, "%f %f %f %f %f %f %f %f\n", p2.x, p2.y, p2.z, p2.nx, p2.ny, p2.nz, p2.u, p2.v);
+	fprintf(fp, "%f %f %f %f %f %f %f %f\n", p3.x, p3.y, p3.z, p3.nx, p3.ny, p3.nz, p3.u, p3.v);
+}
+
 /*
  * p3  -  p2
  *  |  \  |
@@ -52,6 +81,11 @@ void printTriangle(FILE *fp, Point p1, Point p2, Point p3) {
 void printSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
 	printTriangle(fp, p1, p2, p3);
 	printTriangle(fp, p3, p4, p1);
+}
+
+void printUpdatedSquare(FILE *fp, Point p1, Point p2, Point p3, Point p4) {
+	printUpdatedTriangle(fp, p1, p2, p3);
+	printUpdatedTriangle(fp, p3, p4, p1);
 }
 
 void plane(const char* name, float x, float z) {
@@ -148,14 +182,35 @@ void box(const char* name, float x, float y, float z, int div) {
 	fclose(fp);
 }
 
+void normalize(float *a) {
+
+	float l = sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+	a[0] = a[0] / l;
+	a[1] = a[1] / l;
+	a[2] = a[2] / l;
+}
+
+void sphereNormalsAndUV(Point * x) {
+	float coords[3] = { x->x,x->y,x->z };
+	normalize(coords);
+	x->u = atan2f(coords[0], coords[2])/(M_2_PI) + 0.5;
+	x->z = coords[1] * 0.5 + 0.5;
+	x->nx = coords[0];
+	x->ny = coords[1];
+	x->nz = coords[2];
+}
+
+
+
 void sphere(const char* name, float radius, int slices, int stacks) {
 	FILE *fp;
 	fopen_s(&fp, name, "w");
     fprintf(fp, "%d\n", 6 * (stacks-1) * slices);
 
     Point top = newPoint(0.0, radius, 0.0); // polo do topo
+	sphereNormalsAndUV(&top);
     Point bottom = newPoint(0.0, -radius, 0.0); // polo do fundo
-
+	sphereNormalsAndUV(&bottom);
     float alfa = 0.0f; // ângulo atual a ser desenhado
     float delta = (2 * M_PI) / slices; // variação do alfa para o próximo meridiano
     float zeta = M_PI / stacks; // variação do beta para o próximo paralelo
@@ -175,11 +230,15 @@ void sphere(const char* name, float radius, int slices, int stacks) {
         // Imprime os triangulos do topo
         p1 = newPoint(x1, yt, z1);
         p2 = newPoint(x2, yt, z2);
-        printTriangle(fp, p2, p1, top);
+		sphereNormalsAndUV(&p1);
+		sphereNormalsAndUV(&p2);
+        printUpdatedTriangle(fp, p2, p1, top);
         // Imprime os triangulos do fundo
         p1 = newPoint(x1, yb, z1);
         p2 = newPoint(x2, yb, z2);
-        printTriangle(fp, p1, p2, bottom);
+		sphereNormalsAndUV(&p1);
+		sphereNormalsAndUV(&p2);
+        printUpdatedTriangle(fp, p1, p2, bottom);
         // Imprime os restantes
         float beta = betaT; // Começa com beta em cima
         for(int j = 0; j < stacks - 2; j++) { // Imprime até chegar ao penúltimo paralelo
@@ -195,8 +254,12 @@ void sphere(const char* name, float radius, int slices, int stacks) {
             p2 = newPoint(rt * x1, yt, rt * z1);
             p3 = newPoint(rt * x2, yt, rt * z2);
             p4 = newPoint(rb * x2, yb, rb * z2);
+			sphereNormalsAndUV(&p1);
+			sphereNormalsAndUV(&p2);
+			sphereNormalsAndUV(&p3);
+			sphereNormalsAndUV(&p4);
             // Liga os pontos do paralelo j com os pontos do paralelo inferior
-            printSquare(fp, p1, p2, p3, p4);
+            printUpdatedSquare(fp, p1, p2, p3, p4);
             beta -= zeta; // roda a esfera para baixo
         }
         alfa += delta; // roda a esfera para a esquerda
