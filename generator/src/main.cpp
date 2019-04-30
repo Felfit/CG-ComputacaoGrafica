@@ -217,7 +217,7 @@ void sphereNormalsAndUV(Point * x) {
 	float coords[3] = { x->x,x->y,x->z };
 	normalize(coords);
 	x->u = atan2f(coords[0], coords[2])/(M_2_PI) + 0.5;
-	x->z = coords[1] * 0.5 + 0.5;
+	x->v = coords[1]/2+ 0.5;
 	x->nx = coords[0];
 	x->ny = coords[1];
 	x->nz = coords[2];
