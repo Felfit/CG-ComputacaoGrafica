@@ -116,17 +116,25 @@ Point calcPoint(Point p, int i, int j, Vector2D v, char type) {
 		novo.x = p.x + i * v.i;
 		novo.y = p.y + j * v.j;
 		novo.z = p.z;
+		novo.nx = 0;
+		novo.nx = 0;
+		if (novo.nz < 0) novo.nz = -1;
+		else novo.nz = 1;
 		break;
 	case 'x':
 		novo.x = p.x;
 		novo.y = p.y + j * v.j;
 		novo.z = p.z + i * v.i;
+		if (novo.nx < 0) novo.nx = -1;
+		else novo.nx = 1;
 		break;
 
 	case 'y':
 		novo.x = p.x + i * v.i;
 		novo.y = p.y;
 		novo.z = p.z + j * v.j;
+		if (novo.ny < 0) novo.ny = -1;
+		else novo.ny = 1;
 		break;
 	}
 	return novo;
