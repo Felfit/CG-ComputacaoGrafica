@@ -127,8 +127,26 @@ void Scene::parseModel(XMLElement* model, Group* group) {
 		}
 		model3d.texture = textures[texture];
 	}
-	// TODO: parse dos materiais
-	//float diffR = getAttrOrDefault(el, "diffR", 0);
+	
+	model3d.diffRGBA[0] = getAttrOrDefault(model, "diffR", 1);
+	model3d.diffRGBA[1] = getAttrOrDefault(model, "diffG", 1);
+	model3d.diffRGBA[2] = getAttrOrDefault(model, "diffB", 1);
+	model3d.diffRGBA[3] = 1;
+
+	model3d.ambiRGBA[0] = getAttrOrDefault(model, "ambiR", 1);
+	model3d.ambiRGBA[1] = getAttrOrDefault(model, "ambiG", 1);
+	model3d.ambiRGBA[2] = getAttrOrDefault(model, "ambiB", 1);
+	model3d.ambiRGBA[3] = 1;
+
+	model3d.specRGBA[0] = getAttrOrDefault(model, "specR", 1);
+	model3d.specRGBA[1] = getAttrOrDefault(model, "specG", 1);
+	model3d.specRGBA[2] = getAttrOrDefault(model, "specB", 1);
+	model3d.specRGBA[3] = 1;
+
+	model3d.emisRGBA[0] = getAttrOrDefault(model, "diffR", 0);
+	model3d.emisRGBA[1] = getAttrOrDefault(model, "diffG", 0);
+	model3d.emisRGBA[2] = getAttrOrDefault(model, "diffB", 0);
+	model3d.emisRGBA[3] = 0;
 
 	group->addModel(model3d);
 }

@@ -36,8 +36,13 @@ void placeCamera() {
 	float upY = sin(camBeta + M_PI_2);
 
 	gluLookAt(eyeX, eyeY, eyeZ,
+		0.0, 0.0, 0.0,
+		0.0f, 1.0f, 0.0f);
+	/*
+	gluLookAt(eyeX, eyeY, eyeZ,
 			  centerX, centerY, centerZ,
 		      0.0f, upY, 0.0f);
+	*/
 }
 
 void changeSize(int w, int h) {
@@ -283,18 +288,18 @@ void createMenu() {
 void initOpenGL() {
 
 	glEnableClientState(GL_VERTEX_ARRAY);
-	//glEnableClientState(GL_NORMAL_ARRAY);
-	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	//  OpenGL settings
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	
 
-	//glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
 
 	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0); // ver luses?
+	glEnable(GL_LIGHT0);
 
 }
 

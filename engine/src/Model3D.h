@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <GL/glut.h>
+#include <IL/il.h>
 
 struct Point3D {
 	float x;
@@ -21,8 +22,7 @@ class ModelBuffers {
 	public:
 		~ModelBuffers();
 		int size = 0;
-		GLuint vertexB[1];
-		// TODO: normais e texturas
+		GLuint buffers[3];
 		int parse(const char* filename);
 };
 
@@ -33,10 +33,10 @@ class Model3D {
 		~Model3D();
 		ModelBuffers* buffers;
 		Texture* texture;
-		float diffRGB[3];
-		float specRGB[3];
-		float emisRGB[3];
-		float ambiRGB[3];
+		float diffRGBA[4];
+		float specRGBA[4];
+		float emisRGBA[4];
+		float ambiRGBA[4];
 		const void draw();
 };
 
