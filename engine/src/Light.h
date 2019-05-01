@@ -10,6 +10,13 @@ class Light {
 		~Light();
 };
 
+class LightDirectional : public Light {
+	public:
+		float dirX;
+		float dirY;
+		float dirZ;
+		void create();
+};
 
 class LightPoint : public Light {
 	public:
@@ -17,20 +24,16 @@ class LightPoint : public Light {
 		float posY;
 		float posZ;
 		void create();
-		
 };
 
-class LightDirectional : public Light {
-	public:
 
-		void create();
-
-};
 
 class LightSpot : public Light {
 	public:
+		float posX;
+		float posY;
+		float posZ;
 		void create();
-
 };
 
 #endif LIGHT_H

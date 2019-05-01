@@ -86,15 +86,18 @@ void renderScene(void) {
 	if (drawAxis) {
 		glBegin(GL_LINES);
 		float red[4] = { 1, 0, 0, 1 };
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
+		glMaterialfv(GL_FRONT, GL_EMISSION, red);
+		glColor3f(1, 0, 0);
 		glVertex3f(-100, 0, 0);
 		glVertex3f(100, 0, 0);
 		float green[4] = { 0, 1, 0, 1 };
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
+		glMaterialfv(GL_FRONT, GL_EMISSION, green);
+		glColor3f(0, 1, 0);
 		glVertex3f(0, -100, 0);
 		glVertex3f(0, 100, 0);
 		float blue[4] = { 0, 0, 1, 1 };
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
+		glMaterialfv(GL_FRONT, GL_EMISSION, blue);
+		glColor3f(0, 0, 1);
 		glVertex3f(0, 0, 100);
 		glVertex3f(0, 0, -100);
 		glEnd();

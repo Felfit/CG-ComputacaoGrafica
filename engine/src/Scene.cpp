@@ -91,13 +91,17 @@ void Scene::parseLight(XMLElement* el) {
 	}
 	else if (!strcmp("DIRECTIONAL", type)) {
 		LightDirectional* l = new LightDirectional();
-
-		// TODO adicionar luz
+		l->dirX = getAttr(el, "dirX");
+		l->dirX = getAttr(el, "dirX");
+		l->dirX = getAttr(el, "dirX");
+		lights.push_back(l);
 	}
 	else if (!strcmp("SPOT", type)) {
 		LightSpot* l = new LightSpot();
-
-		// TODO adicionar luz
+		l->posX = getAttr(el, "posX");
+		l->posY = getAttr(el, "posY");
+		l->posZ = getAttr(el, "posZ");
+		lights.push_back(l);
 	}
 	else {
 		cerr << "Erro no xml: luz tem tipo desconhecido: " << type << "\n";
