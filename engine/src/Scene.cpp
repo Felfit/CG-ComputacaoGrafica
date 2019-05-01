@@ -92,8 +92,8 @@ void Scene::parseLight(XMLElement* el) {
 	else if (!strcmp("DIRECTIONAL", type)) {
 		LightDirectional* l = new LightDirectional();
 		l->dirX = getAttr(el, "dirX");
-		l->dirX = getAttr(el, "dirX");
-		l->dirX = getAttr(el, "dirX");
+		l->dirY = getAttr(el, "dirY");
+		l->dirZ = getAttr(el, "dirZ");
 		lights.push_back(l);
 	}
 	else if (!strcmp("SPOT", type)) {
@@ -101,6 +101,11 @@ void Scene::parseLight(XMLElement* el) {
 		l->posX = getAttr(el, "posX");
 		l->posY = getAttr(el, "posY");
 		l->posZ = getAttr(el, "posZ");
+		l->dirX = getAttr(el, "dirX");
+		l->dirY = getAttr(el, "dirY");
+		l->dirZ = getAttr(el, "dirZ");
+		l->cutoff = getAttrOrDefault(el, "cutoff", 180);
+		l->exponent = getAttrOrDefault(el, "exponent", 0);
 		lights.push_back(l);
 	}
 	else {

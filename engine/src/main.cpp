@@ -87,22 +87,26 @@ void renderScene(void) {
 		glBegin(GL_LINES);
 		float red[4] = { 1, 0, 0, 1 };
 		glMaterialfv(GL_FRONT, GL_EMISSION, red);
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
 		glColor3f(1, 0, 0);
 		glVertex3f(-100, 0, 0);
 		glVertex3f(100, 0, 0);
 		float green[4] = { 0, 1, 0, 1 };
 		glMaterialfv(GL_FRONT, GL_EMISSION, green);
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
 		glColor3f(0, 1, 0);
 		glVertex3f(0, -100, 0);
 		glVertex3f(0, 100, 0);
 		float blue[4] = { 0, 0, 1, 1 };
 		glMaterialfv(GL_FRONT, GL_EMISSION, blue);
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
 		glColor3f(0, 0, 1);
 		glVertex3f(0, 0, 100);
 		glVertex3f(0, 0, -100);
 		glEnd();
 	}
 
+	glColor3f(1, 1, 1);
 	scene.draw();
 	
 	glutSwapBuffers();
