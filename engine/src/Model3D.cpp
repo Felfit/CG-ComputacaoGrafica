@@ -5,8 +5,6 @@ using namespace std;
 
 const void Model3D::draw() {
 
-	// float red[4] = { 0.8, 0.2, 0.2, 1 };
-
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ambiRGBA);
 
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffRGBA);
@@ -27,9 +25,10 @@ const void Model3D::draw() {
 	glBindBuffer(GL_ARRAY_BUFFER, buffers->buffers[2]);
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
 
-	//glBindTexture(GL_TEXTURE_2D, 0); // ??
 
 	glDrawArrays(GL_TRIANGLES, 0, buffers->size);
+
+	glBindTexture(GL_TEXTURE_2D, texture->texture); 
 }
 
 Model3D::Model3D() {
@@ -53,8 +52,8 @@ int ModelBuffers::parse(const char* filename) {
 		int count = stoi(line);
 		float *vertexB = new float[count * 3];
 		float *normalB = new float[count * 3];
-		float *texturB = new float[count * 3];
-
+		float *texturB = new float[count * 2];
+		int t = 0;
 		for (int i = 0; getline(file, line); i++) {
 
 			const string delimiter = " ";
@@ -92,15 +91,14 @@ int ModelBuffers::parse(const char* filename) {
 			normalB[i * 3 + 2] = stof(token);
 			line.erase(0, pos + delimiter.length());
 
-			/*
+
 			pos = line.find(delimiter);
 			token = line.substr(0, pos);
-			seis = stof(token);
+			texturB[t++] = stof(token);
 			line.erase(0, pos + delimiter.length());
 
-			sete = stof(line);
-			*/
-
+			texturB[t++] = stof(line);
+			
 			size++;
 		}
 		file.close();
@@ -114,7 +112,7 @@ int ModelBuffers::parse(const char* filename) {
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * size * 3, normalB, GL_STATIC_DRAW);
 		
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * size * 3, texturB, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * size * 2, texturB, GL_STATIC_DRAW);
 		
 		delete[] vertexB;
 	}
@@ -127,15 +125,14 @@ int ModelBuffers::parse(const char* filename) {
 }
 
 
-unsigned int texture;
 
 int Texture::parse(const char* filename) {
-	/*
+
 	unsigned int t, tw, th;
 	unsigned char *texData;
 	ilGenImages(1, &t);
 	ilBindImage(t);
-	ilLoadImage((ILstring)"filename");
+	ilLoadImage((ILstring)filename);
 	tw = ilGetInteger(IL_IMAGE_WIDTH);
 	th = ilGetInteger(IL_IMAGE_HEIGHT);
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
@@ -148,10 +145,11 @@ int Texture::parse(const char* filename) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
-	*/
+	glGenerateMipmap(GL_TEXTURE_2D);
+
 	return 0;
 }
 

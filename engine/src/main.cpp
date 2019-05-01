@@ -81,25 +81,27 @@ void renderScene(void) {
 	glLoadIdentity();
 
 	placeCamera();
+
 	// XYZ axis
 	if (drawAxis) {
 		glBegin(GL_LINES);
-		glColor3f(1, 0, 0);
+		float red[4] = { 1, 0, 0, 1 };
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
 		glVertex3f(-100, 0, 0);
 		glVertex3f(100, 0, 0);
-		glColor3f(0, 1, 0);
+		float green[4] = { 0, 1, 0, 1 };
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
 		glVertex3f(0, -100, 0);
 		glVertex3f(0, 100, 0);
-		glColor3f(0, 0, 1);
+		float blue[4] = { 0, 0, 1, 1 };
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
 		glVertex3f(0, 0, 100);
 		glVertex3f(0, 0, -100);
 		glEnd();
 	}
 
-	glColor3f(1, 1, 1);
 	scene.draw();
 	
-	// End of frame
 	glutSwapBuffers();
 }
 
@@ -260,6 +262,12 @@ void processMenuEvents(int op) {
 	case 5:
 		drawAxis = false;
 		break;
+	case 6:
+		glEnable(GL_LIGHTING);
+		break;
+	case 7:
+		glDisable(GL_LIGHTING);
+		break;
 	default:
 		break;
 	}
@@ -277,9 +285,14 @@ void createMenu() {
 	glutAddMenuEntry("show", 4);
 	glutAddMenuEntry("hide", 5);
 
+	int lightingMenu = glutCreateMenu(processMenuEvents);
+	glutAddMenuEntry("enable", 6);
+	glutAddMenuEntry("disable", 7);
+
 	glutCreateMenu(NULL);
 	glutAddSubMenu("Polygon Mode", polygonModeMenu);
 	glutAddSubMenu("XYZ axis", axisMenu);
+	glutAddSubMenu("Lighting", lightingMenu);
 
 	glutAttachMenu(GLUT_MIDDLE_BUTTON);
 }
@@ -333,6 +346,8 @@ int main(int argc, char **argv) {
 #ifndef __APPLE__	
 	glewInit();
 #endif	
+
+	ilInit();
 
 	initOpenGL();
 

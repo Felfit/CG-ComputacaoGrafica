@@ -15,6 +15,7 @@ struct Point3D {
 
 class Texture {
 	public:
+		unsigned int texture;
 		int parse(const char* filename);
 };
 
