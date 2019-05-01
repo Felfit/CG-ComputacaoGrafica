@@ -291,6 +291,18 @@ void sphere(const char* name, float radius, int slices, int stacks) {
 	fclose(fp);
 }
 
+void coneSideNormal(Point * p, float height, float radius, float teta) {
+	float ang = M_PI_2 - atan2(height ,radius);
+	//2D x|y
+	float x = cos(ang);
+	float y = sin(ang);
+	float z = 0;
+	//Apply rotation Theta
+	p->nx = cos(teta)*x;
+	p->ny = y;
+	p->nz = sin(teta)*x;
+}
+
 void cone(const char* name, float radius, float height, int slices, int stacks) {
     FILE *fp;
 	fopen_s(&fp, name, "w");
@@ -321,12 +333,18 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
             Point p1 = newPoint(x, y, z);
             Point p2 = newPoint(upx, upy, upz);
             Point p3 = newPoint(nx, y, nz);
-			printTriangle(fp, p1, p2, p3);
+			coneSideNormal(&p1, height, radius, teta*j);
+			coneSideNormal(&p2, height, radius, teta*j);
+			coneSideNormal(&p3, height, radius, teta*(j+1));
+			printUpdatedTriangle(fp, p1, p2, p3);
             if (i != stacks) {//para nao desenhar o triangulo do topo duas vezes
             	p1 = newPoint(upnx, upy, upnz);
             	p2 = newPoint(nx, y, nz);
             	p3 = newPoint(upx, upy, upz);
-				printTriangle(fp, p1, p2, p3);
+				coneSideNormal(&p1, height, radius, teta*(j+1));
+				coneSideNormal(&p2, height, radius, teta*(j+1));
+				coneSideNormal(&p3, height, radius, teta*j);
+				printUpdatedTriangle(fp, p1, p2, p3);
             }
             x = nx;
 			z = nz;
@@ -337,15 +355,17 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
 		z = 0;
 		y = nxtheight;
     }
-
+	//TODO: Calcular UV coords cilindro
+	int u=0;
+	int v=0;
     x = radius;
     for (int i = 0; i < slices; i++) {
         float nx = x * cost - z * sent;
         float nz = x * sent + z * cost;
-        Point p1 = newPoint(nx, 0, nz);
-        Point p2 = newPoint(0, 0, 0);
-        Point p3 = newPoint(x, 0, z);
-        printTriangle(fp, p1, p2, p3);
+        Point p1 = newPoint(nx, 0, nz,0,-1,0,u,v);
+        Point p2 = newPoint(0, 0, 0, 0, -1, 0, u, v);
+        Point p3 = newPoint(x, 0, z, 0, -1, 0, u, v);
+        printUpdatedTriangle(fp, p1, p2, p3);
         x = nx;
 		z = nz;
     }
