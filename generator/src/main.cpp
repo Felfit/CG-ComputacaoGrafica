@@ -213,15 +213,16 @@ void normalize(float *a) {
 	a[2] = a[2] / l;
 }
 
-void sphereNormalsAndUV(Point * x) {
+void sphereNormalsAndUV(Point * x, int xi, int yj, int slices, int stacks) {
 	float coords[3] = { x->x,x->y,x->z };
 	normalize(coords);
-	x->u = atan2f(coords[0], coords[2])/(M_2_PI) + 0.5;
-	x->v = coords[1]/2+ 0.5;
+	x->u = ((float)slices - xi)/(float)slices;
+	x->v = ((float)yj)/(float)stacks;
 	x->nx = coords[0];
 	x->ny = coords[1];
 	x->nz = coords[2];
 }
+
 
 
 
@@ -231,9 +232,9 @@ void sphere(const char* name, float radius, int slices, int stacks) {
     fprintf(fp, "%d\n", 6 * (stacks-1) * slices);
 
     Point top = newPoint(0.0, radius, 0.0); // polo do topo
-	sphereNormalsAndUV(&top);
+	sphereNormalsAndUV(&top, slices/2, 0, slices, stacks);
     Point bottom = newPoint(0.0, -radius, 0.0); // polo do fundo
-	sphereNormalsAndUV(&bottom);
+	sphereNormalsAndUV(&bottom, slices/2, stacks, slices, stacks);
     float alfa = 0.0f; // ângulo atual a ser desenhado
     float delta = (2 * M_PI) / slices; // variação do alfa para o próximo meridiano
     float zeta = M_PI / stacks; // variação do beta para o próximo paralelo
@@ -253,14 +254,14 @@ void sphere(const char* name, float radius, int slices, int stacks) {
         // Imprime os triangulos do topo
         p1 = newPoint(x1, yt, z1);
         p2 = newPoint(x2, yt, z2);
-		sphereNormalsAndUV(&p1);
-		sphereNormalsAndUV(&p2);
+		sphereNormalsAndUV(&p1, i, 1, slices, stacks);
+		sphereNormalsAndUV(&p2, i+1, 1, slices, stacks);
         printUpdatedTriangle(fp, p2, p1, top);
         // Imprime os triangulos do fundo
         p1 = newPoint(x1, yb, z1);
         p2 = newPoint(x2, yb, z2);
-		sphereNormalsAndUV(&p1);
-		sphereNormalsAndUV(&p2);
+		sphereNormalsAndUV(&p1,i,stacks-1,slices,stacks);
+		sphereNormalsAndUV(&p2,i+1,stacks-1,slices,stacks);
         printUpdatedTriangle(fp, p1, p2, bottom);
         // Imprime os restantes
         float beta = betaT; // Começa com beta em cima
@@ -277,10 +278,10 @@ void sphere(const char* name, float radius, int slices, int stacks) {
             p2 = newPoint(rt * x1, yt, rt * z1);
             p3 = newPoint(rt * x2, yt, rt * z2);
             p4 = newPoint(rb * x2, yb, rb * z2);
-			sphereNormalsAndUV(&p1);
-			sphereNormalsAndUV(&p2);
-			sphereNormalsAndUV(&p3);
-			sphereNormalsAndUV(&p4);
+			sphereNormalsAndUV(&p1, i, j+2, slices, stacks);
+			sphereNormalsAndUV(&p2, i, j+1, slices, stacks);
+			sphereNormalsAndUV(&p3, i+1, j+1, slices, stacks);
+			sphereNormalsAndUV(&p4, i+1, j+2, slices, stacks);
             // Liga os pontos do paralelo j com os pontos do paralelo inferior
             printUpdatedSquare(fp, p1, p2, p3, p4);
             beta -= zeta; // roda a esfera para baixo
