@@ -33,6 +33,11 @@ class LightSpot : public Light {
 		float posX;
 		float posY;
 		float posZ;
+		float dirX;
+		float dirY;
+		float dirZ;
+		float cutoff; // [0,90] or 180
+		float exponent; // [0,128]
 		void create();
 };
 
