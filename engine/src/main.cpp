@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glew.h>
+#include <ATB/AntTweakBar.h>
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -16,14 +17,28 @@
 Scene scene;
 
 
-float eyeX = -20;
-float eyeY = 100;
-float eyeZ = 0;
-int speed = 2;
+// tracking do rato
+int startX, startY, tracking = 0; 
+constexpr auto MOVE = 1;
+constexpr auto ZOOM = 2;
 
-int alpha = 0, beta = -25, theta = 2.5, r = 50;
+// tamanho inicial da janela
+constexpr auto height = 800, width = 800;
 
-bool drawAxis = false;
+// camara quando controlada por rato
+int Malpha = 0, Mbeta = 0, Mr = 100; 
+
+// camara quando controlada por teclado
+int alpha = 0, beta = -25, theta = 2.5, r = 50, speed = 2;
+
+// camara
+float eyeX = Mr * sin(Malpha * 3.14 / 180.0) * cos(Malpha * 3.14 / 180.0);
+float eyeZ = Mr * cos(Malpha * 3.14 / 180.0) * cos(Malpha * 3.14 / 180.0);
+float eyeY = Mr * sin(Malpha * 3.14 / 180.0);
+
+bool isDrawingAxis = false;
+bool isLightingEnabled = true;
+GLenum currentPolyMode = GL_FILL;
 
 void placeCamera() {
 	float camAlpha = alpha * M_PI / 180;
@@ -35,9 +50,7 @@ void placeCamera() {
 
 	float upY = sin(camBeta + M_PI_2);
 
-	gluLookAt(eyeX, eyeY, eyeZ,
-		0.0, 0.0, 0.0,
-		0.0f, 1.0f, 0.0f);
+	gluLookAt(eyeX, eyeY, eyeZ, 0.0, 0.0, 0.0, 0.0f, 1.0f, 0.0f);
 	/*
 	gluLookAt(eyeX, eyeY, eyeZ,
 			  centerX, centerY, centerZ,
@@ -45,7 +58,10 @@ void placeCamera() {
 	*/
 }
 
-void changeSize(int w, int h) {
+
+
+
+void reshape(int w, int h) {
 
 	// Prevent a divide by zero, when window is too short
 	// (you cant make a window with zero width).
@@ -68,13 +84,41 @@ void changeSize(int w, int h) {
 
 	// return to the model view matrix mode
 	glMatrixMode(GL_MODELVIEW);
+
+	TwWindowSize(w, h);
 }
 
+void drawAxis() {
+	glBegin(GL_LINES);
+	float red[4] = { 1, 0, 0, 1 };
+	glMaterialfv(GL_FRONT, GL_EMISSION, red);
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
+	glColor3f(1, 0, 0);
+	glVertex3f(-100, 0, 0);
+	glVertex3f(100, 0, 0);
 
+	float green[4] = { 0, 1, 0, 1 };
+	glMaterialfv(GL_FRONT, GL_EMISSION, green);
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
+	glColor3f(0, 1, 0);
+	glVertex3f(0, -100, 0);
+	glVertex3f(0, 100, 0);
 
-void renderScene(void) {
+	float blue[4] = { 0, 0, 1, 1 };
+	glMaterialfv(GL_FRONT, GL_EMISSION, blue);
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
+	glColor3f(0, 0, 1);
+	glVertex3f(0, 0, 100);
+	glVertex3f(0, 0, -100);
+	glEnd();
+
+	glColor3f(1, 1, 1);
+}
+
+void display(void) {
 
 	// clear buffers
+	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// set the camera
@@ -83,33 +127,17 @@ void renderScene(void) {
 	placeCamera();
 
 	// XYZ axis
-	if (drawAxis) {
-		glBegin(GL_LINES);
-		float red[4] = { 1, 0, 0, 1 };
-		glMaterialfv(GL_FRONT, GL_EMISSION, red);
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
-		glColor3f(1, 0, 0);
-		glVertex3f(-100, 0, 0);
-		glVertex3f(100, 0, 0);
-		float green[4] = { 0, 1, 0, 1 };
-		glMaterialfv(GL_FRONT, GL_EMISSION, green);
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
-		glColor3f(0, 1, 0);
-		glVertex3f(0, -100, 0);
-		glVertex3f(0, 100, 0);
-		float blue[4] = { 0, 0, 1, 1 };
-		glMaterialfv(GL_FRONT, GL_EMISSION, blue);
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
-		glColor3f(0, 0, 1);
-		glVertex3f(0, 0, 100);
-		glVertex3f(0, 0, -100);
-		glEnd();
+	if (isDrawingAxis) {
+		drawAxis();
 	}
 
-	glColor3f(1, 1, 1);
 	scene.draw();
+
+	TwDraw();
 	
 	glutSwapBuffers();
+
+	glutPostRedisplay();
 }
 
 void processSpecialKeys(int keycode, int x, int y) {
@@ -124,14 +152,85 @@ void processSpecialKeys(int keycode, int x, int y) {
 	glutPostRedisplay();
 }
 
+void processMouseButtons(int button, int state, int xx, int yy)
+{
+	if (!TwEventMouseButtonGLUT(button, state, xx, yy))
+	{
+		if (state == GLUT_DOWN) {
+			startX = xx;
+			startY = yy;
+			if (button == GLUT_LEFT_BUTTON)
+				tracking = MOVE;
+			else if (button == GLUT_RIGHT_BUTTON)
+				tracking = ZOOM;
+			else
+				tracking = 0;
+		}
+		else if (state == GLUT_UP) {
+			if (tracking == MOVE) {
+				Malpha += (xx - startX);
+				Mbeta += (yy - startY);
+			}
+			else if (tracking == ZOOM) {
+
+				Mr -= yy - startY;
+				if (Mr < 3)
+					Mr = 3.0;
+			}
+			tracking = 0;
+		}
+	}
+}
+
+void processMouseMotion(int xx, int yy)
+{
+	if (!TwEventMouseMotionGLUT(xx, yy))
+	{
+		if (!tracking)
+			return;
+
+		int deltaX = xx - startX;
+		int deltaY = yy - startY;
+
+		int alphaAux = Malpha;
+		int betaAux = Mbeta;
+		int rAux = Mr;
+
+		if (tracking == MOVE) {
+
+			alphaAux += deltaX;
+			betaAux += deltaY;
+
+			if (betaAux > 85.0)
+				betaAux = 85.0;
+			else if (betaAux < -85.0)
+				betaAux = -85.0;
+
+		}
+		else if (tracking == ZOOM) {
+
+			rAux -= deltaY;
+			if (rAux < 3)
+				rAux = 3;
+		}
+
+		eyeX = rAux * sin(-alphaAux * M_PI / 180.0) * cos(betaAux * M_PI / 180.0);
+		eyeZ = rAux * cos(-alphaAux * M_PI / 180.0) * cos(betaAux * M_PI / 180.0);
+		eyeY = rAux * sin(betaAux * M_PI / 180.0);
+
+		glutPostRedisplay();
+	}
+}
 void processKeys(unsigned char keycode, int x, int y) {
-	float camAlpha = alpha * M_PI / 180.0;
-	float camBeta = beta * M_PI / 180.0;
-	float dx = speed * cos(camAlpha);
-	float dz = speed * sin(camAlpha);
-	float rx = speed * cos(camAlpha + M_PI_2);
-	float rz = speed * sin(camAlpha + M_PI_2);
-	switch (keycode) {
+	if (!TwEventKeyboardGLUT(keycode, x, y))  // send event to AntTweakBar
+	{ 
+		float camAlpha = alpha * M_PI / 180.0;
+		float camBeta = beta * M_PI / 180.0;
+		float dx = speed * cos(camAlpha);
+		float dz = speed * sin(camAlpha);
+		float rx = speed * cos(camAlpha + M_PI_2);
+		float rz = speed * sin(camAlpha + M_PI_2);
+		switch (keycode) {
 		case 'q':
 			alpha -= theta;
 			break;
@@ -155,7 +254,7 @@ void processKeys(unsigned char keycode, int x, int y) {
 			eyeZ += rz;
 			break;
 		case 'f':
-			if(beta > -60)
+			if (beta > -60)
 				beta -= theta;
 			break;
 		case 'r':
@@ -164,8 +263,9 @@ void processKeys(unsigned char keycode, int x, int y) {
 			break;
 		default:
 			break;
+		}
+
 	}
-	glutPostRedisplay();
 }
 
 
@@ -175,143 +275,17 @@ void printInfo() {
 	printf("Renderer: %s\n", glGetString(GL_RENDERER));
 	printf("Version: %s\n", glGetString(GL_VERSION));
 
-	printf("\nUse WASD to move the camera, up/down to raise the camera, QERF to rotate the camera \n");
-	printf("Use mouse rightclick to open menu.\n");
+	printf("\nUse WASD to move the camera, up/down to raise the camera, QERF to rotate the camera \n"); // TODO: atualizar
+	printf("Use mouse middle button to open menu.\n");
 }
 
 
-
-
-int startX, startY, tracking = 0;
-int Malpha = 0, Mbeta = 0, Mr = 5;
-
-void processMouseButtons(int button, int state, int xx, int yy)
-{
-	if (state == GLUT_DOWN) {
-		startX = xx;
-		startY = yy;
-		if (button == GLUT_LEFT_BUTTON)
-			tracking = 1;
-		else if (button == GLUT_RIGHT_BUTTON)
-			tracking = 2;
-		else
-			tracking = 0;
-	}
-	else if (state == GLUT_UP) {
-		if (tracking == 1) {
-			Malpha += (xx - startX);
-			Mbeta += (yy - startY);
-		}
-		else if (tracking == 2) {
-
-			Mr -= yy - startY;
-			if (Mr < 3)
-				Mr = 3.0;
-		}
-		tracking = 0;
-	}
-}
-
-
-void processMouseMotion(int xx, int yy)
-{
-	int alphaAux, betaAux;
-	int rAux;
-
-	if (!tracking)
-		return;
-
-	int deltaX = xx - startX;
-	int deltaY = yy - startY;
-
-	if (tracking == 1) {
-
-		alphaAux = Malpha + deltaX;
-		betaAux = Mbeta + deltaY;
-
-		if (betaAux > 85.0)
-			betaAux = 85.0;
-		else if (betaAux < -85.0)
-			betaAux = -85.0;
-
-		rAux = Mr;
-	}
-	else if (tracking == 2) {
-
-		alphaAux = Malpha;
-		betaAux = Mbeta;
-		rAux = Mr - deltaY;
-		if (rAux < 3)
-			rAux = 3;
-	}
-	eyeX = rAux * sin(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
-	eyeZ = rAux * cos(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
-	eyeY = rAux * sin(betaAux * 3.14 / 180.0);
-	glutPostRedisplay();
-}
-
-
-
-void processMenuEvents(int op) {
-	switch (op) {
-	case 1:
-		glPolygonMode(GL_FRONT, GL_FILL);
-		break;
-	case 2:
-		glPolygonMode(GL_FRONT, GL_LINE);
-		break;
-	case 3:
-		glPolygonMode(GL_FRONT, GL_POINT);
-		break;
-	case 4:
-		drawAxis = true;
-		break;
-	case 5:
-		drawAxis = false;
-		break;
-	case 6:
-		glEnable(GL_LIGHTING);
-		break;
-	case 7:
-		glDisable(GL_LIGHTING);
-		break;
-	default:
-		break;
-	}
-	glutPostRedisplay();
-}
-
-
-void createMenu() {
-	int polygonModeMenu = glutCreateMenu(processMenuEvents);
-	glutAddMenuEntry("fill", 1);
-	glutAddMenuEntry("line", 2);
-	glutAddMenuEntry("point", 3);
-
-	int axisMenu = glutCreateMenu(processMenuEvents);
-	glutAddMenuEntry("show", 4);
-	glutAddMenuEntry("hide", 5);
-
-	int lightingMenu = glutCreateMenu(processMenuEvents);
-	glutAddMenuEntry("enable", 6);
-	glutAddMenuEntry("disable", 7);
-
-	glutCreateMenu(NULL);
-	glutAddSubMenu("Polygon Mode", polygonModeMenu);
-	glutAddSubMenu("XYZ axis", axisMenu);
-	glutAddSubMenu("Lighting", lightingMenu);
-
-	glutAttachMenu(GLUT_MIDDLE_BUTTON);
-}
-
-
-void initOpenGL() {
+void openGLInit() {
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	//  OpenGL settings
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	
@@ -322,6 +296,41 @@ void initOpenGL() {
 	glEnable(GL_LIGHT0);
 
 }
+
+// Function called at exit
+void Terminate(void)
+{
+	TwTerminate();
+}
+
+void TW_CALL setLighting(const void* value, void* clientData)
+{
+	isLightingEnabled = *(const bool*)value;
+	if (isLightingEnabled) {
+		glEnable(GL_LIGHTING);
+	}
+	else {
+		glDisable(GL_LIGHTING);
+	}
+}
+
+void TW_CALL getLighting(void* value, void* clientData)
+{
+	*(bool*)value = isLightingEnabled;
+}
+
+void TW_CALL setPolyMode(const void* value, void* clientData)
+{
+	currentPolyMode = *(const GLenum*)value;
+	glPolygonMode(GL_FRONT, currentPolyMode);
+}
+
+void TW_CALL getPolyMode(void* value, void* clientData)
+{
+	*(GLenum*)value = currentPolyMode;
+}
+
+
 
 int main(int argc, char **argv) {
 	
@@ -334,21 +343,42 @@ int main(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
 	glutInitWindowPosition(100,100);
-	glutInitWindowSize(800,800);
+	glutInitWindowSize(width, height);
 	glutCreateWindow("engine");
 		
 	// Required callback registry 
-	glutDisplayFunc(renderScene);
-	glutReshapeFunc(changeSize);
+	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
 	//glutIdleFunc(NULL);
 
-	// Callback registration for keyboard processing
+	// Callback registration
+	atexit(Terminate);
 	glutKeyboardFunc(processKeys);
 	glutSpecialFunc(processSpecialKeys);
 	glutMouseFunc(processMouseButtons);
 	glutMotionFunc(processMouseMotion);
+	glutPassiveMotionFunc((GLUTmousemotionfun)TwEventMouseMotionGLUT); // same as MouseMotion
+	TwGLUTModifiersFunc(glutGetModifiers);
+	/*
+	glutKeyboardFunc((GLUTkeyboardfun)TwEventKeyboardGLUT);
+	glutSpecialFunc((GLUTspecialfun)TwEventSpecialGLUT);
+	*/
+	
+	// TweakBar
+	TwInit(TW_OPENGL, NULL);
+	TwWindowSize(width, height);
 
-	createMenu();
+	TwBar* bar;
+	bar = TwNewBar("TweakBar");
+	TwDefine(" TweakBar size='200 100' color='96 216 224' "); // tamanho e cor iniciais
+
+	TwAddVarRW(bar, "Draw Axis", TW_TYPE_BOOLCPP, &isDrawingAxis, "  key=x  ");
+	TwAddVarCB(bar, "Lighting", TW_TYPE_BOOLCPP, setLighting, getLighting, NULL, "  key=l  true='Enabled' false='Disabled' ");
+
+	TwEnumVal polyModeEV[3] = { {GL_FILL, "Fill"}, {GL_LINE, "Line"}, {GL_POINT, "Point"} };
+	TwType polyModeType = TwDefineEnum("PolygonModeType", polyModeEV, 3);
+	TwAddVarCB(bar, "Polygon Mode", polyModeType, setPolyMode, getPolyMode, NULL, " keyincr=f ");
+
 
 #ifndef __APPLE__	
 	glewInit();
@@ -356,7 +386,7 @@ int main(int argc, char **argv) {
 
 	ilInit();
 
-	initOpenGL();
+	openGLInit();
 
 	printInfo();
 
@@ -364,6 +394,6 @@ int main(int argc, char **argv) {
 	scene.parse(argv[1]);
 
 	glutMainLoop();
-	
+
 	return 1;
 }

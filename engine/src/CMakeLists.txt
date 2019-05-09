@@ -32,20 +32,29 @@ if  (WIN32)
 	if (NOT EXISTS "${TOOLKITS_FOLDER}/devil/IL/il.h" OR NOT EXISTS "${TOOLKITS_FOLDER}/devil/devIL.lib")
 		message(ERROR ": DevIL not found")
 	endif (NOT EXISTS "${TOOLKITS_FOLDER}/devil/IL/il.h" OR NOT EXISTS "${TOOLKITS_FOLDER}/devil/devIL.lib")	
+
+	if (NOT EXISTS "${TOOLKITS_FOLDER}/devil/IL/il.h" OR NOT EXISTS "${TOOLKITS_FOLDER}/devil/devIL.lib")
+		message(ERROR ": DevIL not found")
+	endif (NOT EXISTS "${TOOLKITS_FOLDER}/devil/IL/il.h" OR NOT EXISTS "${TOOLKITS_FOLDER}/devil/devIL.lib")	
 	
-	include_directories(${TOOLKITS_FOLDER}/glut ${TOOLKITS_FOLDER}/glew ${TOOLKITS_FOLDER}/devil)
+	if (NOT EXISTS "${TOOLKITS_FOLDER}/AntTweakBar/ATB/AntTweakBar.h" OR NOT EXISTS "${TOOLKITS_FOLDER}/AntTweakBar/AntTweakBar.lib")
+		message(ERROR ": AntTweakBar not found")
+	endif (NOT EXISTS "${TOOLKITS_FOLDER}/AntTweakBar/ATB/AntTweakBar.h" OR NOT EXISTS "${TOOLKITS_FOLDER}/AntTweakBar/AntTweakBar.lib")
+
+	include_directories(${TOOLKITS_FOLDER}/glut ${TOOLKITS_FOLDER}/glew ${TOOLKITS_FOLDER}/devil  ${TOOLKITS_FOLDER}/AntTweakBar)
 	target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} 
 										  ${TOOLKITS_FOLDER}/glut/glut32.lib 
 										  ${TOOLKITS_FOLDER}/devil/devIL.lib
-										  ${TOOLKITS_FOLDER}/glew/glew32.lib )
+										  ${TOOLKITS_FOLDER}/glew/glew32.lib 
+										  ${TOOLKITS_FOLDER}/AntTweakBar/AntTweakBar.lib)
 	
-	if (EXISTS "${TOOLKITS_FOLDER}/glut/glut32.dll" AND EXISTS "${TOOLKITS_FOLDER}/glew/glew32.dll"
-													AND EXISTS "${TOOLKITS_FOLDER}/devil/devil.dll")
+	if (EXISTS "${TOOLKITS_FOLDER}/glut/glut32.dll" AND EXISTS "${TOOLKITS_FOLDER}/glew/glew32.dll" AND EXISTS "${TOOLKITS_FOLDER}/devil/devil.dll" AND EXISTS "${TOOLKITS_FOLDER}/AntTweakBar/AntTweakBar.dll")
 		file(COPY ${TOOLKITS_FOLDER}/glut/glut32.dll DESTINATION ${CMAKE_BINARY_DIR})
 		file(COPY ${TOOLKITS_FOLDER}/devil/devil.dll DESTINATION ${CMAKE_BINARY_DIR})
 		file(COPY ${TOOLKITS_FOLDER}/glew/glew32.dll DESTINATION ${CMAKE_BINARY_DIR})
-	endif(EXISTS "${TOOLKITS_FOLDER}/glut/glut32.dll" AND EXISTS "${TOOLKITS_FOLDER}/glew/glew32.dll"
-													AND EXISTS "${TOOLKITS_FOLDER}/devil/devil.dll")
+		file(COPY ${TOOLKITS_FOLDER}/AntTweakBar/AntTweakBar.dll DESTINATION ${CMAKE_BINARY_DIR})
+	endif(EXISTS "${TOOLKITS_FOLDER}/glut/glut32.dll" AND EXISTS "${TOOLKITS_FOLDER}/glew/glew32.dll" AND EXISTS "${TOOLKITS_FOLDER}/devil/devil.dll" AND EXISTS "${TOOLKITS_FOLDER}/AntTweakBar/AntTweakBar.dll")
+
 	
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 	 
@@ -67,7 +76,11 @@ else (WIN32) #Linux and Mac
 	link_libraries(${IL_LIBRARIES} )
 	include_directories(${IL_INCLUDE_DIR})
 
-	target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY} ${IL_LIBRARIES})
+	link_libraries(${CMAKE_CURRENT_SOURCE_DIR}/toolkits/AntTweakBar/lib/)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/toolkits/AntTweakBar/include/)
+
+
+	target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY} ${IL_LIBRARIES} ${CMAKE_CURRENT_SOURCE_DIR}/toolkits/AntTweakBar/lib/libAntTweakBar.so)
 	if(NOT GLUT_FOUND)
 	   message(ERROR ": GLUT not found!")
 	endif(NOT GLUT_FOUND)

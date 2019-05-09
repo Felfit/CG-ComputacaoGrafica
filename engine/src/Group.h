@@ -8,6 +8,7 @@
 #include "Transform.h"
 
 
+
 class Group {
 	private:
 		std::list<Model3D> models;
