@@ -126,13 +126,13 @@ void display(void) {
 	// clear buffers
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 	//Mete camera a seguir modelo se esta estiver a seguir modelo
 	scene.followModel();
 	// set the camera
+	
 	glLoadIdentity();
 	placeCamera();
-
 	scene.drawSkybox(centerX,centerY,centerZ);
 
 	// XYZ axis
@@ -144,6 +144,7 @@ void display(void) {
 
 	TwDraw();
 	
+	
 	glutSwapBuffers();
 
 	glutPostRedisplay();
@@ -152,6 +153,8 @@ void display(void) {
 unsigned char picking(int x,int y) {
 	GLint viewport[4];
 	unsigned char res[4];
+	bool lightingstate = glIsEnabled(GL_LIGHTING);
+
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 
@@ -170,6 +173,7 @@ unsigned char picking(int x,int y) {
 	glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, res);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
+
 	return res[0];
 }
 
@@ -201,13 +205,7 @@ void processMouseButtons(int button, int state, int xx, int yy)
 				tracking = 0;
 			if (button == GLUT_MIDDLE_BUTTON) {
 				camerafollow = picking(xx, yy);
-				if (!camerafollow) {
-					centerX = 0;
-					centerY = 0;
-					centerZ = 0;
-				}
-				display();
-				printf("Hitting modelnumber: %d %f %f %f\n", camerafollow, centerX, centerY, centerZ);
+				printf("Hitting modelnumber: %d\n", camerafollow);
 			}
 		}
 		else if (state == GLUT_UP) {

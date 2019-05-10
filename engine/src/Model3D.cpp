@@ -43,7 +43,6 @@ const void Model3D::draw() {
 	glBindBuffer(GL_ARRAY_BUFFER, buffers->buffers[2]);
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
 
-
 	glDrawArrays(GL_TRIANGLES, 0, buffers->size);
 
 	glBindTexture(GL_TEXTURE_2D, texture->texture); 

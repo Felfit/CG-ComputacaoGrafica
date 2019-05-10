@@ -278,6 +278,7 @@ void Scene::draw() {
 	for (auto const& group : groups) {
 		group->draw();
 	}
+	
 }
 
 void Scene::followModel() {
@@ -304,18 +305,16 @@ void Scene::drawColor() {
 }
 
 void Scene::drawSkybox(int camx, int camy, int camz) {
-	//Camera não pode seguir a skybox
-	currModel = -100;
-
 	if (!this->hasSkybox)
 		return;
-	
+	bool lightingstate = glIsEnabled(GL_LIGHTING);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glCullFace(GL_FRONT);
 	glTranslatef(camx, camy, camz);
 	this->skybox.draw();
 	glCullFace(GL_BACK);
-	glEnable(GL_LIGHTING);
+	if(lightingstate)
+		glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 }

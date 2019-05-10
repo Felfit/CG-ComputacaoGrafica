@@ -24,12 +24,16 @@ bool Group::followModel() {
 		transforms[i]->apply();
 	}
 	for (auto& m : this->models) {
-		if(m.followModel())
+		if (m.followModel()) {
+			glPopMatrix();
 			return true;
+		}
 	}
 	for (auto& g : this->groups) {
-		if(g->followModel())
+		if (g->followModel()) {
+			glPopMatrix();
 			return true;
+		}
 	}
 	glPopMatrix();
 	return false;
