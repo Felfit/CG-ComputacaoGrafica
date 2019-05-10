@@ -8,7 +8,6 @@
 #include "Transform.h"
 
 
-
 class Group {
 	private:
 		std::list<Model3D> models;
@@ -18,7 +17,9 @@ class Group {
 
 	public:
 		void draw();
+		void drawColor();
 		void addTransform(Transform* t);
+		bool followModel();
 		void addModel(Model3D m) { models.push_back(m); }
 		void addGroup(Group* g) { groups.push_back(g); }
 		Group();

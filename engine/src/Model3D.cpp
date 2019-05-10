@@ -1,7 +1,25 @@
 #include<GL/glew.h>
 #include "Model3D.h"
+#include "main.h"
 using namespace std;
 
+int currModel = 1;
+
+
+bool Model3D::followModel() {
+	//Se este for o modelo a ser seguido centra a camera nas coordenadas
+	if (currModel == camerafollow) {
+		float m[4][4];
+		glGetFloatv(GL_MODELVIEW_MATRIX, (float *)m);
+		centerX = m[3][0];
+		centerY = m[3][1];
+		centerZ = m[3][2];
+		return true;
+	}
+
+	currModel++;
+	return false;
+}
 
 const void Model3D::draw() {
 
@@ -29,6 +47,17 @@ const void Model3D::draw() {
 	glDrawArrays(GL_TRIANGLES, 0, buffers->size);
 
 	glBindTexture(GL_TEXTURE_2D, texture->texture); 
+}
+
+
+
+const void Model3D::drawColor() {
+	float color = (currModel) / 255.0f;
+	glColor3f(color, color, color);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers->buffers[0]);
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glDrawArrays(GL_TRIANGLES, 0, buffers->size);
+	currModel++;
 }
 
 Model3D::Model3D() {

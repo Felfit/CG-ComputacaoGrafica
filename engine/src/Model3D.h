@@ -7,6 +7,8 @@
 #include <GL/glut.h>
 #include <IL/il.h>
 
+extern int currModel;
+
 struct Point3D {
 	float x;
 	float y;
@@ -38,7 +40,9 @@ class Model3D {
 		float specRGBA[4];
 		float emisRGBA[4];
 		float ambiRGBA[4];
+		bool followModel();
 		const void draw();
+		const void drawColor();
 };
 
 #endif MODEL3D_H
