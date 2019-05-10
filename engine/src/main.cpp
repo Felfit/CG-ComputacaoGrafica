@@ -13,6 +13,7 @@
 
 #include "Scene.h"
 #include "Model3D.h"
+#include "main.h"
 
 Scene scene;
 
@@ -32,25 +33,30 @@ int Malpha = 0, Mbeta = 0, Mr = 100;
 int alpha = 0, beta = -25, theta = 2.5, r = 50, speed = 2;
 
 // camara
+float centerX = 0;
+float centerY = 0;
+float centerZ = 0;
 float eyeX = Mr * sin(Malpha * 3.14 / 180.0) * cos(Malpha * 3.14 / 180.0);
 float eyeZ = Mr * cos(Malpha * 3.14 / 180.0) * cos(Malpha * 3.14 / 180.0);
 float eyeY = Mr * sin(Malpha * 3.14 / 180.0);
+
+int camerafollow = -1;
 
 bool isDrawingAxis = false;
 bool isLightingEnabled = true;
 GLenum currentPolyMode = GL_FILL;
 
+
 void placeCamera() {
 	float camAlpha = alpha * M_PI / 180;
 	float camBeta = beta * M_PI / 180;
 
-	float centerX = eyeX + cos(camBeta) * cos(camAlpha);
-	float centerY = eyeY + sin(camBeta);
-	float centerZ = eyeZ + sin(camAlpha);
-
+	
+	
 	float upY = sin(camBeta + M_PI_2);
+	
 
-	gluLookAt(eyeX, eyeY, eyeZ, 0.0, 0.0, 0.0, 0.0f, 1.0f, 0.0f);
+	gluLookAt(centerX+eyeX, centerY+eyeY, centerZ+eyeZ, centerX, centerY, centerZ, 0.0f, 1.0f, 0.0f);
 	/*
 	gluLookAt(eyeX, eyeY, eyeZ,
 			  centerX, centerY, centerZ,
@@ -121,10 +127,13 @@ void display(void) {
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	//Mete camera a seguir modelo se esta estiver a seguir modelo
+	scene.followModel();
 	// set the camera
 	glLoadIdentity();
-
 	placeCamera();
+
+	scene.drawSkybox(centerX,centerY,centerZ);
 
 	// XYZ axis
 	if (isDrawingAxis) {
@@ -140,13 +149,38 @@ void display(void) {
 	glutPostRedisplay();
 }
 
+unsigned char picking(int x,int y) {
+	GLint viewport[4];
+	unsigned char res[4];
+	glDisable(GL_LIGHTING);
+	glDisable(GL_TEXTURE_2D);
+
+	glClear(GL_COLOR_BUFFER_BIT);
+	glLoadIdentity();
+	//Camera
+	placeCamera();
+	glDepthFunc(GL_LEQUAL);
+	//DrawColor
+	scene.drawColor();
+
+	//EndDrawColor
+	glDepthFunc(GL_LESS);
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, res);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
+	return res[0];
+}
+
+
 void processSpecialKeys(int keycode, int x, int y) {
 	switch (keycode) {
 	case GLUT_KEY_DOWN:
-		eyeY -= speed;
+		centerY -= speed;
 		break;
 	case GLUT_KEY_UP:
-		eyeY += speed;
+		centerY += speed;
 		break;
 	}
 	glutPostRedisplay();
@@ -163,8 +197,18 @@ void processMouseButtons(int button, int state, int xx, int yy)
 				tracking = MOVE;
 			else if (button == GLUT_RIGHT_BUTTON)
 				tracking = ZOOM;
-			else
+			else 
 				tracking = 0;
+			if (button == GLUT_MIDDLE_BUTTON) {
+				camerafollow = picking(xx, yy);
+				if (!camerafollow) {
+					centerX = 0;
+					centerY = 0;
+					centerZ = 0;
+				}
+				display();
+				printf("Hitting modelnumber: %d %f %f %f\n", camerafollow, centerX, centerY, centerZ);
+			}
 		}
 		else if (state == GLUT_UP) {
 			if (tracking == MOVE) {
@@ -221,6 +265,7 @@ void processMouseMotion(int xx, int yy)
 		glutPostRedisplay();
 	}
 }
+
 void processKeys(unsigned char keycode, int x, int y) {
 	if (!TwEventKeyboardGLUT(keycode, x, y))  // send event to AntTweakBar
 	{ 
@@ -238,20 +283,20 @@ void processKeys(unsigned char keycode, int x, int y) {
 			alpha += theta;
 			break;
 		case 'w':
-			eyeX += dx;
-			eyeZ += dz;
+			centerX += dx;
+			centerZ += dz;
 			break;
 		case 's':
-			eyeX -= dx;
-			eyeZ -= dz;
+			centerX -= dx;
+			centerZ -= dz;
 			break;
 		case 'a':
-			eyeX -= rx;
-			eyeZ -= rz;
+			centerX -= rx;
+			centerZ -= rz;
 			break;
 		case 'd':
-			eyeX += rx;
-			eyeZ += rz;
+			centerX += rx;
+			centerZ += rz;
 			break;
 		case 'f':
 			if (beta > -60)

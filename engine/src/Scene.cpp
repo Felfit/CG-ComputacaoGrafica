@@ -1,7 +1,10 @@
 #include "Scene.h"
-
+#include "main.h"
+#include "Model3D.h"
 using namespace std;
 using namespace tinyxml2;
+
+bool drawCurve;
 
 Scene::Scene() {
 }
@@ -266,10 +269,53 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 }
 
 void Scene::draw() {
+	//Variavel Global. Precisa de reset|para a camera o seguir Para identificar o numero do modelo
+	currModel = 1;
+	drawCurve = true;
 	for (auto const& light : lights) {
 		light->create();
 	}
 	for (auto const& group : groups) {
 		group->draw();
 	}
+}
+
+void Scene::followModel() {
+	drawCurve = false;
+	if (camerafollow <= 0)
+		return;
+	glLoadIdentity();
+	currModel = 1;
+	for (auto const& group : groups) {
+		if(group->followModel())
+			return;
+	}
+}
+
+
+
+void Scene::drawColor() {
+	//Variavel Global. Para identificar o numero do modelo
+	currModel = 1;
+	drawCurve = false;
+	for (auto const& group : groups) {
+		group->drawColor();
+	}
+}
+
+void Scene::drawSkybox(int camx, int camy, int camz) {
+	//Camera não pode seguir a skybox
+	currModel = -100;
+
+	if (!this->hasSkybox)
+		return;
+	
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+	glCullFace(GL_FRONT);
+	glTranslatef(camx, camy, camz);
+	this->skybox.draw();
+	glCullFace(GL_BACK);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
 }
