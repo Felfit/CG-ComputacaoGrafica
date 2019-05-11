@@ -19,7 +19,7 @@ class Group {
 		void draw();
 		void drawColor();
 		void addTransform(Transform* t);
-		bool followModel();
+		bool followModel(int cameraFollow, Point3D* center);
 		void addModel(Model3D m) { models.push_back(m); }
 		void addGroup(Group* g) { groups.push_back(g); }
 		Group();

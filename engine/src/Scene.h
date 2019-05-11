@@ -12,22 +12,27 @@ extern bool drawCurve;
 
 class Scene {
 private:
-	std::unordered_map<std::string, ModelBuffers*> models;
+	int modelsN;
+	std::unordered_map<std::string, ModelBuffers*> modelsBuff;
 	std::unordered_map<std::string, Texture*> textures;
 	std::list<Light*> lights;
 	std::list<Group*> groups;
+	Model3D skybox;
+	bool hasSkybox = false;
+
+	void parseSkybox(tinyxml2::XMLElement* el);
 	void parseGroup(tinyxml2::XMLElement* parent, Group* parentGr);
 	void parseLight(tinyxml2::XMLElement* el);
 	void parseModel(tinyxml2::XMLElement* el, Group* group);
-	bool hasSkybox = false;
-	Model3D skybox;
+	
 
 public:
 	Scene();
 	~Scene();
+
 	int parse(char* filename);
 	void draw();
-	void followModel();
+	void followModel(int cameraFollow, Point3D* center);
 	void drawColor();
 	void drawSkybox(int camx, int camy, int camz);
 };

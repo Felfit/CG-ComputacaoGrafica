@@ -18,18 +18,22 @@ void Group::addTransform(Transform* t) {
 	transforms[tranformsSize++] = t;
 }
 
-bool Group::followModel() {
+bool Group::followModel(int cameraFollow, Point3D* center) {
 	glPushMatrix();
 	for (int i = 0; i < tranformsSize; i++) {
 		transforms[i]->apply();
 	}
 	for (auto& m : this->models) {
-		if(m.followModel())
+		if (m.followModel(cameraFollow, center)) {
+			glPopMatrix();
 			return true;
+		}
 	}
 	for (auto& g : this->groups) {
-		if(g->followModel())
+		if (g->followModel(cameraFollow, center)) {
+			glPopMatrix();
 			return true;
+		}
 	}
 	glPopMatrix();
 	return false;

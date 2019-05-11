@@ -3,21 +3,23 @@
 #include "main.h"
 using namespace std;
 
-int currModel = 1;
+Model3D::Model3D() {
+	texture = nullptr;
+}
 
+Model3D::~Model3D() {
+}
 
-bool Model3D::followModel() {
+bool Model3D::followModel(int cameraFollow, Point3D* center) {
 	//Se este for o modelo a ser seguido centra a camera nas coordenadas
-	if (currModel == camerafollow) {
+	if (id == cameraFollow) {
 		float m[4][4];
 		glGetFloatv(GL_MODELVIEW_MATRIX, (float *)m);
-		centerX = m[3][0];
-		centerY = m[3][1];
-		centerZ = m[3][2];
+		center->x = m[3][0];
+		center->y = m[3][1];
+		center->z = m[3][2];
 		return true;
 	}
-
-	currModel++;
 	return false;
 }
 
@@ -27,11 +29,10 @@ const void Model3D::draw() {
 
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffRGBA);
 
-	glMaterialfv(GL_FRONT, GL_SPECULAR, specRGBA); 
-
 	glMaterialfv(GL_FRONT, GL_EMISSION, emisRGBA);
 
-	glMaterialf(GL_FRONT, GL_SHININESS, 64);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specRGBA);
+	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers->buffers[0]);
@@ -43,33 +44,26 @@ const void Model3D::draw() {
 	glBindBuffer(GL_ARRAY_BUFFER, buffers->buffers[2]);
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
 
+	if (texture != nullptr) {
+		glBindTexture(GL_TEXTURE_2D, texture->texture);
+	}
+	else {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	
 
 	glDrawArrays(GL_TRIANGLES, 0, buffers->size);
-
-	glBindTexture(GL_TEXTURE_2D, texture->texture); 
 }
 
 
-
 const void Model3D::drawColor() {
-	float color = (currModel) / 255.0f;
+	float color = (id) / 255.0f;
 	glColor3f(color, color, color);
 	glBindBuffer(GL_ARRAY_BUFFER, buffers->buffers[0]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 	glDrawArrays(GL_TRIANGLES, 0, buffers->size);
-	currModel++;
 }
 
-Model3D::Model3D() {
-}
-
-Model3D::~Model3D() {
-}
-
-
-ModelBuffers::~ModelBuffers() {
-	glDeleteBuffers(3, buffers);
-}
 
 int ModelBuffers::parse(const char* filename) {
 	string line;
@@ -146,9 +140,6 @@ int ModelBuffers::parse(const char* filename) {
 		delete[] vertexB;
 	}
 	else fprintf(stderr, "%s: %s\n", strerror(errno), filename);
-
-
-	file.close();
 
 	return 0;
 }

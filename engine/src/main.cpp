@@ -14,57 +14,43 @@
 #include "Scene.h"
 #include "Model3D.h"
 #include "main.h"
+#include "utils.hpp"
 
 Scene scene;
-
 
 // tracking do rato
 int startX, startY, tracking = 0; 
 constexpr auto MOVE = 1;
 constexpr auto ZOOM = 2;
 
+
 // tamanho inicial da janela
 constexpr auto height = 800, width = 800;
 
-// camara quando controlada por rato
-int Malpha = 0, Mbeta = 0, Mr = 100; 
 
-// camara quando controlada por teclado
-int alpha = 0, beta = -25, theta = 2.5, r = 50, speed = 2;
+// camara 
+int alpha = 0, beta = 0, r = 100; 
 
-// camara
-float centerX = 0;
-float centerY = 0;
-float centerZ = 0;
-float eyeX = Mr * sin(Malpha * 3.14 / 180.0) * cos(Malpha * 3.14 / 180.0);
-float eyeZ = Mr * cos(Malpha * 3.14 / 180.0) * cos(Malpha * 3.14 / 180.0);
-float eyeY = Mr * sin(Malpha * 3.14 / 180.0);
+Point3D center = Point3D(0, 0, 0);
+float eyeX = r * sin(alpha * 3.14 / 180.0) * cos(alpha * 3.14 / 180.0);
+float eyeZ = r * cos(alpha * 3.14 / 180.0) * cos(alpha * 3.14 / 180.0);
+float eyeY = r * sin(alpha * 3.14 / 180.0);
 
-int camerafollow = -1;
+int camerafollow = 0; // id do modelo que está a ser seguido, se 0 segue centro da cena
 
+
+// definições gerais
 bool isDrawingAxis = false;
 bool isLightingEnabled = true;
 GLenum currentPolyMode = GL_FILL;
 
 
+
 void placeCamera() {
-	float camAlpha = alpha * M_PI / 180;
-	float camBeta = beta * M_PI / 180;
-
-	
-	
-	float upY = sin(camBeta + M_PI_2);
-	
-
-	gluLookAt(centerX+eyeX, centerY+eyeY, centerZ+eyeZ, centerX, centerY, centerZ, 0.0f, 1.0f, 0.0f);
-	/*
-	gluLookAt(eyeX, eyeY, eyeZ,
-			  centerX, centerY, centerZ,
-		      0.0f, upY, 0.0f);
-	*/
+	gluLookAt(	center.x + eyeX, center.y + eyeY, center.z + eyeZ, 
+				center.x, center.y, center.z, 
+				0.0f, 1.0f, 0.0f	);
 }
-
-
 
 
 void reshape(int w, int h) {
@@ -95,28 +81,23 @@ void reshape(int w, int h) {
 }
 
 void drawAxis() {
+	glDisable(GL_LIGHTING);
+
 	glBegin(GL_LINES);
-	float red[4] = { 1, 0, 0, 1 };
-	glMaterialfv(GL_FRONT, GL_EMISSION, red);
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
-	glColor3f(1, 0, 0);
-	glVertex3f(-100, 0, 0);
-	glVertex3f(100, 0, 0);
+		glColor3f(1, 0, 0);
+		glVertex3f(-100, 0, 0);
+		glVertex3f(100, 0, 0);
 
-	float green[4] = { 0, 1, 0, 1 };
-	glMaterialfv(GL_FRONT, GL_EMISSION, green);
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
-	glColor3f(0, 1, 0);
-	glVertex3f(0, -100, 0);
-	glVertex3f(0, 100, 0);
+		glColor3f(0, 1, 0);
+		glVertex3f(0, -100, 0);
+		glVertex3f(0, 100, 0);
 
-	float blue[4] = { 0, 0, 1, 1 };
-	glMaterialfv(GL_FRONT, GL_EMISSION, blue);
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
-	glColor3f(0, 0, 1);
-	glVertex3f(0, 0, 100);
-	glVertex3f(0, 0, -100);
+		glColor3f(0, 0, 1);
+		glVertex3f(0, 0, 100);
+		glVertex3f(0, 0, -100);
 	glEnd();
+
+	if (isLightingEnabled) glEnable(GL_LIGHTING);
 
 	glColor3f(1, 1, 1);
 }
@@ -127,13 +108,14 @@ void display(void) {
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//Mete camera a seguir modelo se esta estiver a seguir modelo
-	scene.followModel();
+	// mete camera a seguir modelo se esta estiver a seguir modelo
+	scene.followModel(camerafollow, &center);
+
 	// set the camera
 	glLoadIdentity();
 	placeCamera();
 
-	scene.drawSkybox(centerX,centerY,centerZ);
+	scene.drawSkybox(center.x, center.y, center.z);
 
 	// XYZ axis
 	if (isDrawingAxis) {
@@ -174,18 +156,6 @@ unsigned char picking(int x,int y) {
 }
 
 
-void processSpecialKeys(int keycode, int x, int y) {
-	switch (keycode) {
-	case GLUT_KEY_DOWN:
-		centerY -= speed;
-		break;
-	case GLUT_KEY_UP:
-		centerY += speed;
-		break;
-	}
-	glutPostRedisplay();
-}
-
 void processMouseButtons(int button, int state, int xx, int yy)
 {
 	if (!TwEventMouseButtonGLUT(button, state, xx, yy))
@@ -202,24 +172,24 @@ void processMouseButtons(int button, int state, int xx, int yy)
 			if (button == GLUT_MIDDLE_BUTTON) {
 				camerafollow = picking(xx, yy);
 				if (!camerafollow) {
-					centerX = 0;
-					centerY = 0;
-					centerZ = 0;
+					center.x = 0;
+					center.y = 0;
+					center.z = 0;
 				}
-				display();
-				printf("Hitting modelnumber: %d %f %f %f\n", camerafollow, centerX, centerY, centerZ);
+				glutPostRedisplay();
+				printf("Hitting modelnumber: %d, %f %f %f\n", camerafollow, center.x, center.y, center.z);
 			}
 		}
 		else if (state == GLUT_UP) {
 			if (tracking == MOVE) {
-				Malpha += (xx - startX);
-				Mbeta += (yy - startY);
+				alpha += (xx - startX);
+				beta += (yy - startY);
 			}
 			else if (tracking == ZOOM) {
 
-				Mr -= yy - startY;
-				if (Mr < 3)
-					Mr = 3.0;
+				r -= yy - startY;
+				if (r < 3)
+					r = 3.0;
 			}
 			tracking = 0;
 		}
@@ -236,9 +206,9 @@ void processMouseMotion(int xx, int yy)
 		int deltaX = xx - startX;
 		int deltaY = yy - startY;
 
-		int alphaAux = Malpha;
-		int betaAux = Mbeta;
-		int rAux = Mr;
+		int alphaAux = alpha;
+		int betaAux = beta;
+		int rAux = r;
 
 		if (tracking == MOVE) {
 
@@ -262,66 +232,18 @@ void processMouseMotion(int xx, int yy)
 		eyeZ = rAux * cos(-alphaAux * M_PI / 180.0) * cos(betaAux * M_PI / 180.0);
 		eyeY = rAux * sin(betaAux * M_PI / 180.0);
 
-		glutPostRedisplay();
+		
 	}
-}
-
-void processKeys(unsigned char keycode, int x, int y) {
-	if (!TwEventKeyboardGLUT(keycode, x, y))  // send event to AntTweakBar
-	{ 
-		float camAlpha = alpha * M_PI / 180.0;
-		float camBeta = beta * M_PI / 180.0;
-		float dx = speed * cos(camAlpha);
-		float dz = speed * sin(camAlpha);
-		float rx = speed * cos(camAlpha + M_PI_2);
-		float rz = speed * sin(camAlpha + M_PI_2);
-		switch (keycode) {
-		case 'q':
-			alpha -= theta;
-			break;
-		case 'e':
-			alpha += theta;
-			break;
-		case 'w':
-			centerX += dx;
-			centerZ += dz;
-			break;
-		case 's':
-			centerX -= dx;
-			centerZ -= dz;
-			break;
-		case 'a':
-			centerX -= rx;
-			centerZ -= rz;
-			break;
-		case 'd':
-			centerX += rx;
-			centerZ += rz;
-			break;
-		case 'f':
-			if (beta > -60)
-				beta -= theta;
-			break;
-		case 'r':
-			if (beta < 60)
-				beta += theta;
-			break;
-		default:
-			break;
-		}
-
-	}
+	glutPostRedisplay();
 }
 
 
 void printInfo() {
-
 	printf("Vendor: %s\n", glGetString(GL_VENDOR));
 	printf("Renderer: %s\n", glGetString(GL_RENDERER));
 	printf("Version: %s\n", glGetString(GL_VERSION));
 
-	printf("\nUse WASD to move the camera, up/down to raise the camera, QERF to rotate the camera \n"); // TODO: atualizar
-	printf("Use mouse middle button to open menu.\n");
+	printf("\nUse mouse left clik drag to move the camera, right click drag up/down to zoom out/in, middle button a model to focus the camera on it.\n");
 }
 
 
@@ -343,7 +265,7 @@ void openGLInit() {
 }
 
 // Function called at exit
-void Terminate(void)
+void Terminate()
 {
 	TwTerminate();
 }
@@ -375,8 +297,6 @@ void TW_CALL getPolyMode(void* value, void* clientData)
 	*(GLenum*)value = currentPolyMode;
 }
 
-
-
 int main(int argc, char **argv) {
 	
 	if (argc <= 1) {
@@ -398,31 +318,40 @@ int main(int argc, char **argv) {
 
 	// Callback registration
 	atexit(Terminate);
-	glutKeyboardFunc(processKeys);
-	glutSpecialFunc(processSpecialKeys);
-	glutMouseFunc(processMouseButtons);
-	glutMotionFunc(processMouseMotion);
-	glutPassiveMotionFunc((GLUTmousemotionfun)TwEventMouseMotionGLUT); // same as MouseMotion
-	TwGLUTModifiersFunc(glutGetModifiers);
-	/*
 	glutKeyboardFunc((GLUTkeyboardfun)TwEventKeyboardGLUT);
 	glutSpecialFunc((GLUTspecialfun)TwEventSpecialGLUT);
-	*/
+	glutMouseFunc(processMouseButtons);
+	glutMotionFunc(processMouseMotion);
+	glutPassiveMotionFunc((GLUTmousemotionfun)TwEventMouseMotionGLUT);
+	TwGLUTModifiersFunc(glutGetModifiers);
 	
+
 	// TweakBar
 	TwInit(TW_OPENGL, NULL);
 	TwWindowSize(width, height);
 
 	TwBar* bar;
 	bar = TwNewBar("TweakBar");
-	TwDefine(" TweakBar size='200 100' color='96 216 224' "); // tamanho e cor iniciais
+	TwDefine(" TweakBar size='300 400' color='96 216 224' refresh=0.5 iconified=false ");
 
-	TwAddVarRW(bar, "Draw Axis", TW_TYPE_BOOLCPP, &isDrawingAxis, "  key=x  ");
-	TwAddVarCB(bar, "Lighting", TW_TYPE_BOOLCPP, setLighting, getLighting, NULL, "  key=l  true='Enabled' false='Disabled' ");
+	TwAddVarRW(bar, "Draw Axis", TW_TYPE_BOOLCPP, &isDrawingAxis, " group='Display' key=x  ");
+	TwAddVarCB(bar, "Lighting", TW_TYPE_BOOLCPP, setLighting, getLighting, NULL, " group='Display' key=l  true='Enabled' false='Disabled' ");
 
 	TwEnumVal polyModeEV[3] = { {GL_FILL, "Fill"}, {GL_LINE, "Line"}, {GL_POINT, "Point"} };
 	TwType polyModeType = TwDefineEnum("PolygonModeType", polyModeEV, 3);
-	TwAddVarCB(bar, "Polygon Mode", polyModeType, setPolyMode, getPolyMode, NULL, " keyincr=f ");
+	TwAddVarCB(bar, "Polygon Mode", polyModeType, setPolyMode, getPolyMode, NULL, " group='Display' keyincr=f ");
+
+	TwAddVarRO(bar, "Focused Model", TW_TYPE_INT16, &camerafollow, " group='Camera' ");
+	TwAddVarRW(bar, "Radius", TW_TYPE_INT16, &r, " group='Camera' min=3 ");
+	TwAddVarRO(bar, "Alpha", TW_TYPE_INT16, &alpha, " group='Camera' ");
+	TwAddVarRO(bar, "Beta", TW_TYPE_INT16, &beta, " group='Camera' ");
+
+	TwStructMember pointMembers[] = {
+		{ "x", TW_TYPE_FLOAT, offsetof(Point3D, x), NULL },
+		{ "y", TW_TYPE_FLOAT, offsetof(Point3D, y), NULL },
+		{ "z", TW_TYPE_FLOAT, offsetof(Point3D, z), NULL } };
+	TwType pointType = TwDefineStruct("POINT", pointMembers, 3, sizeof(Point3D), NULL, NULL);
+	TwAddVarRO(bar, "Center", pointType, &center, " group='Camera' ");
 
 
 #ifndef __APPLE__	

@@ -6,14 +6,8 @@
 #include <string>
 #include <GL/glut.h>
 #include <IL/il.h>
+#include "utils.hpp"
 
-extern int currModel;
-
-struct Point3D {
-	float x;
-	float y;
-	float z;
-};
 
 class Texture {
 	public:
@@ -23,7 +17,6 @@ class Texture {
 
 class ModelBuffers {
 	public:
-		~ModelBuffers();
 		int size = 0;
 		GLuint buffers[3];
 		int parse(const char* filename);
@@ -34,13 +27,18 @@ class Model3D {
 	public:
 		Model3D();
 		~Model3D();
+
+		int id;
+		std::string name;
 		ModelBuffers* buffers;
 		Texture* texture;
 		float diffRGBA[4];
-		float specRGBA[4];
-		float emisRGBA[4];
 		float ambiRGBA[4];
-		bool followModel();
+		float emisRGBA[4];
+		float specRGBA[4];
+		float shininess; // [0, 128]
+
+		bool followModel(int cameraFollow, Point3D* center);
 		const void draw();
 		const void drawColor();
 };

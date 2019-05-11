@@ -33,7 +33,13 @@ int Scene::parse(char *filename) {
 	
 	el = el->FirstChildElement();
 
-	// adiciona luzes se tiver
+	// adiciona skybox se tiver
+	if (!strcmp("skybox", el->Name())) {
+		parseSkybox(el);
+		el = el->NextSiblingElement();
+	}
+	
+	// adiciona luzes
 	if (!strcmp("lights", el->Name())) {
 		XMLElement* light = el->FirstChildElement();
 		int nl = 0;
@@ -46,8 +52,13 @@ int Scene::parse(char *filename) {
 			light = light->NextSiblingElement();
 			nl++;
 		}
+		if (nl == 0) {
+			cerr << "Deve existir pelo menos uma luz\n";
+			return 1;
+		}
 		if (nl == GL_MAX_LIGHTS) {
 			cerr << "O numero de luzes atingiu o limite maximo\n";
+			return 1;
 		}
 	}
 	el = el->NextSiblingElement();
@@ -78,6 +89,21 @@ float getAttr(XMLElement *element, const char *name) {
     return (float)atof(attr);
 }
 
+void Scene::parseSkybox(XMLElement* el) {
+	const char* model = el->Attribute("model");
+	if (model == nullptr) {
+		throw "skybox model missing";
+	}
+	const char* texture = el->Attribute("texture");
+	if (texture == nullptr) {
+		throw "skybox texture missing";
+	}
+	hasSkybox = true;
+	skybox.buffers = new ModelBuffers;
+	skybox.buffers->parse(model);
+	skybox.texture = new Texture;
+	skybox.texture->parse(texture);
+}
 
 void Scene::parseLight(XMLElement* el) {
 	const char *type = el->Attribute("type");
@@ -116,20 +142,21 @@ void Scene::parseLight(XMLElement* el) {
 	}
 }
 
-
 void Scene::parseModel(XMLElement* model, Group* group) {
 	const char *filename = model->Attribute("file");
 	if (!filename) return;
 
 	Model3D model3d;
 
-	if (!models[filename]) {
+	// carrega ficheiro .3d
+	if (!modelsBuff[filename]) {
 		ModelBuffers* m = new ModelBuffers();
 		m->parse(filename);
-		models[filename] = m;
+		modelsBuff[filename] = m;
 	}
-	model3d.buffers = models[filename];
+	model3d.buffers = modelsBuff[filename];
 
+	// carrega textura se tiver
 	const char *texture = model->Attribute("texture");
 	if (texture) {
 		if (!textures[texture]) {
@@ -139,31 +166,41 @@ void Scene::parseModel(XMLElement* model, Group* group) {
 		}
 		model3d.texture = textures[texture];
 	}
-	
-	model3d.diffRGBA[0] = getAttrOrDefault(model, "diffR", 1);
-	model3d.diffRGBA[1] = getAttrOrDefault(model, "diffG", 1);
-	model3d.diffRGBA[2] = getAttrOrDefault(model, "diffB", 1);
+
+	// guarda nome
+	const char* name = model->Attribute("name");
+	if (name) {
+		model3d.name = name;
+	}
+
+	// guarda caracteristicas especificadas do material
+	model3d.diffRGBA[0] = getAttrOrDefault(model, "diffR", 0.8);
+	model3d.diffRGBA[1] = getAttrOrDefault(model, "diffG", 0.8);
+	model3d.diffRGBA[2] = getAttrOrDefault(model, "diffB", 0.8);
 	model3d.diffRGBA[3] = 1;
 
-	model3d.ambiRGBA[0] = getAttrOrDefault(model, "ambiR", 1);
-	model3d.ambiRGBA[1] = getAttrOrDefault(model, "ambiG", 1);
-	model3d.ambiRGBA[2] = getAttrOrDefault(model, "ambiB", 1);
+	model3d.ambiRGBA[0] = getAttrOrDefault(model, "ambiR", 0.2);
+	model3d.ambiRGBA[1] = getAttrOrDefault(model, "ambiG", 0.2);
+	model3d.ambiRGBA[2] = getAttrOrDefault(model, "ambiB", 0.2);
 	model3d.ambiRGBA[3] = 1;
 
-	model3d.specRGBA[0] = getAttrOrDefault(model, "specR", 1);
-	model3d.specRGBA[1] = getAttrOrDefault(model, "specG", 1);
-	model3d.specRGBA[2] = getAttrOrDefault(model, "specB", 1);
+	model3d.specRGBA[0] = getAttrOrDefault(model, "specR", 0);
+	model3d.specRGBA[1] = getAttrOrDefault(model, "specG", 0);
+	model3d.specRGBA[2] = getAttrOrDefault(model, "specB", 0);
 	model3d.specRGBA[3] = 1;
 
 	model3d.emisRGBA[0] = getAttrOrDefault(model, "diffR", 0);
 	model3d.emisRGBA[1] = getAttrOrDefault(model, "diffG", 0);
 	model3d.emisRGBA[2] = getAttrOrDefault(model, "diffB", 0);
-	model3d.emisRGBA[3] = 0;
+	model3d.emisRGBA[3] = 1;
 
-	group->addModel(model3d);
+	model3d.shininess = getAttrOrDefault(model, "shininess", 0);
+
+	// id
+	model3d.id = ++modelsN;
+
+	group->addModel(model3d);	
 }
-
-
 
 void parseTranslate(XMLElement* el, Group* group) {
 	const char *timeAttr = el->Attribute("time");
@@ -230,7 +267,6 @@ void parseRotate(XMLElement* el, Group* group) {
 	}
 }
 
-
 void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 
 	XMLElement *child = parent->FirstChildElement();
@@ -268,9 +304,9 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 	}
 }
 
+
 void Scene::draw() {
 	//Variavel Global. Precisa de reset|para a camera o seguir Para identificar o numero do modelo
-	currModel = 1;
 	drawCurve = true;
 	for (auto const& light : lights) {
 		light->create();
@@ -280,14 +316,16 @@ void Scene::draw() {
 	}
 }
 
-void Scene::followModel() {
+
+void Scene::followModel(int cameraFollow, Point3D* center) {
+
 	drawCurve = false;
-	if (camerafollow <= 0)
+	if (cameraFollow <= 0)
 		return;
+
 	glLoadIdentity();
-	currModel = 1;
 	for (auto const& group : groups) {
-		if(group->followModel())
+		if(group->followModel(cameraFollow, center))
 			return;
 	}
 }
@@ -296,7 +334,6 @@ void Scene::followModel() {
 
 void Scene::drawColor() {
 	//Variavel Global. Para identificar o numero do modelo
-	currModel = 1;
 	drawCurve = false;
 	for (auto const& group : groups) {
 		group->drawColor();
@@ -305,7 +342,6 @@ void Scene::drawColor() {
 
 void Scene::drawSkybox(int camx, int camy, int camz) {
 	//Camera não pode seguir a skybox
-	currModel = -100;
 
 	if (!this->hasSkybox)
 		return;
