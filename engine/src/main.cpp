@@ -112,6 +112,7 @@ void display(void) {
 	scene.followModel(camerafollow, &center);
 
 	// set the camera
+	
 	glLoadIdentity();
 	placeCamera();
 
@@ -126,6 +127,7 @@ void display(void) {
 
 	TwDraw();
 	
+	
 	glutSwapBuffers();
 
 	glutPostRedisplay();
@@ -134,6 +136,8 @@ void display(void) {
 unsigned char picking(int x,int y) {
 	GLint viewport[4];
 	unsigned char res[4];
+	bool lightingstate = glIsEnabled(GL_LIGHTING);
+
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 
@@ -152,6 +156,7 @@ unsigned char picking(int x,int y) {
 	glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, res);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
+
 	return res[0];
 }
 

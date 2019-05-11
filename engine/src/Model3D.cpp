@@ -51,7 +51,6 @@ const void Model3D::draw() {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	
-
 	glDrawArrays(GL_TRIANGLES, 0, buffers->size);
 }
 
