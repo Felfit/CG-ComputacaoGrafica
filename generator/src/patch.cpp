@@ -199,23 +199,23 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
 
 					bezierPoint(controlPoints, u, v, point);
 					bezierNormal(controlPoints, u, v, normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 2.1, 1.5);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u, v);
 					bezierPoint(controlPoints, u, (v + parts), point);
 					bezierNormal(controlPoints, u, (v + parts), normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 2.1, 1.5);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u, v+parts);
 					bezierPoint(controlPoints, (u + parts), (v + parts), point);
 					bezierNormal(controlPoints, (u + parts), (v + parts), normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 2.1, 1.5);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u+parts, v+parts);
 
 					bezierPoint(controlPoints, u, v, point);
 					bezierNormal(controlPoints, u, v, normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 2.1, 1.5);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u, v);
 					bezierPoint(controlPoints, (u + parts), (v + parts), point);
 					bezierNormal(controlPoints, (u + parts), (v + parts), normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 2.1, 1.5);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u+parts, v+parts);
 					bezierPoint(controlPoints, (u + parts), v, point);
 					bezierNormal(controlPoints, (u + parts), v, normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 2.1, 1.5);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u+parts, v);
 				}
 			}
 		}
