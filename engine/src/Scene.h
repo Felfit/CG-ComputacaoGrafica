@@ -8,7 +8,7 @@
 #include "Light.h"
 #include "tinyxml2.h"
 
-extern bool drawCurve;
+extern bool drawCurve; // apagar
 
 class Scene {
 private:
@@ -21,8 +21,8 @@ private:
 	bool hasSkybox = false;
 
 	void parseSkybox(tinyxml2::XMLElement* el);
-	void parseGroup(tinyxml2::XMLElement* parent, Group* parentGr);
 	void parseLight(tinyxml2::XMLElement* el);
+	void parseGroup(tinyxml2::XMLElement* parent, Group* parentGr);
 	void parseModel(tinyxml2::XMLElement* el, Group* group);
 	
 
@@ -34,7 +34,8 @@ public:
 	void draw();
 	void followModel(int cameraFollow, Point3D* center);
 	void drawColor();
-	void drawSkybox(int camx, int camy, int camz);
+	void drawSkybox(float camx, float camy, float camz);
+	int getModelsN() { return modelsN; };
 };
 
 #endif SCENE_H

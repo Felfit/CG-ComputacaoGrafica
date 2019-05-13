@@ -7,6 +7,7 @@ using namespace tinyxml2;
 bool drawCurve;
 
 Scene::Scene() {
+	modelsN = 0;
 }
 
 Scene::~Scene() {
@@ -14,6 +15,7 @@ Scene::~Scene() {
 }
 
 int Scene::parse(char *filename) {
+	// abre ficheiro de configuração xml
 	XMLDocument doc;
 	XMLError eresult = doc.LoadFile(filename);
 	if (eresult != XML_SUCCESS) {
@@ -25,6 +27,7 @@ int Scene::parse(char *filename) {
 		cerr << "Erro no xml: ficheiro nao tem nodos\n";
 		return -2;
 	}
+
 	// <scene> 
 	XMLElement* el = n->ToElement();
 	if (strcmp("scene", el->Name())) {
@@ -33,17 +36,18 @@ int Scene::parse(char *filename) {
 	
 	el = el->FirstChildElement();
 
-	// adiciona skybox se tiver
+	// <skybox ... /> adiciona skybox se tiver
 	if (!strcmp("skybox", el->Name())) {
 		parseSkybox(el);
 		el = el->NextSiblingElement();
 	}
 	
-	// adiciona luzes
+	// <lights> adiciona luzes
 	if (!strcmp("lights", el->Name())) {
 		XMLElement* light = el->FirstChildElement();
 		int nl = 0;
 		while (light && nl < GL_MAX_LIGHTS) {
+			// <light ... />
 			if (strcmp("light", light->Name())) {
 				cerr << "Erro no xml: tag desconhecida dentro de lights: " << light->Name() << "\n";
 				continue;
@@ -53,19 +57,20 @@ int Scene::parse(char *filename) {
 			nl++;
 		}
 		if (nl == 0) {
-			cerr << "Deve existir pelo menos uma luz\n";
+			cerr << "Erro no xml: deve existir pelo menos uma luz\n";
 			return 1;
 		}
 		if (nl == GL_MAX_LIGHTS) {
-			cerr << "O numero de luzes atingiu o limite maximo\n";
+			cerr << "Erro no xml: o numero de luzes atingiu o limite maximo\n";
 			return 1;
 		}
 	}
 	el = el->NextSiblingElement();
-	// percorre os <group> do primeiro nível
+
+	// <group> percorre os grupos do primeiro nível
 	while (el) {
 		if (strcmp("group", el->Name())) {
-			cerr << "Erro no xml: a scene deve apenas conter tags group\n";
+			cerr << "Erro no xml: tag desconhecida dentro de scene\n";
 		}
 		Group *group = new Group();
 		parseGroup(el, group);
@@ -75,12 +80,12 @@ int Scene::parse(char *filename) {
 	return 0;
 }
 
-float getAttrOrDefault(XMLElement *element, const char *name, float default) {
+float getAttrOrDefaultf(XMLElement *element, const char *name, float default) {
 	const char* attr = element->Attribute(name);
     return attr == nullptr ? default : (float)atof(attr);
 }
 
-float getAttr(XMLElement *element, const char *name) {
+float getAttrf(XMLElement *element, const char *name) {
 	const char* attr = element->Attribute(name);
 	if (attr == nullptr) {
 		std::string s = name;
@@ -92,11 +97,13 @@ float getAttr(XMLElement *element, const char *name) {
 void Scene::parseSkybox(XMLElement* el) {
 	const char* model = el->Attribute("model");
 	if (model == nullptr) {
-		throw "skybox model missing";
+		cerr << "Erro no xml: a skybox deve conter o atributo model\n";
+		return;
 	}
 	const char* texture = el->Attribute("texture");
 	if (texture == nullptr) {
-		throw "skybox texture missing";
+		cerr << "Erro no xml: a skybox deve conter o atributo texture\n";
+		return;
 	}
 	hasSkybox = true;
 	skybox.buffers = new ModelBuffers;
@@ -113,28 +120,28 @@ void Scene::parseLight(XMLElement* el) {
 	}
 	if (!strcmp("POINT", type)) {
 		LightPoint* l = new LightPoint();
-		l->posX = getAttr(el, "posX");
-		l->posY = getAttr(el, "posY");
-		l->posZ = getAttr(el, "posZ");
+		l->posX = getAttrf(el, "posX");
+		l->posY = getAttrf(el, "posY");
+		l->posZ = getAttrf(el, "posZ");
 		lights.push_back(l);
 	}
 	else if (!strcmp("DIRECTIONAL", type)) {
 		LightDirectional* l = new LightDirectional();
-		l->dirX = getAttr(el, "dirX");
-		l->dirY = getAttr(el, "dirY");
-		l->dirZ = getAttr(el, "dirZ");
+		l->dirX = getAttrf(el, "dirX");
+		l->dirY = getAttrf(el, "dirY");
+		l->dirZ = getAttrf(el, "dirZ");
 		lights.push_back(l);
 	}
 	else if (!strcmp("SPOT", type)) {
 		LightSpot* l = new LightSpot();
-		l->posX = getAttr(el, "posX");
-		l->posY = getAttr(el, "posY");
-		l->posZ = getAttr(el, "posZ");
-		l->dirX = getAttr(el, "dirX");
-		l->dirY = getAttr(el, "dirY");
-		l->dirZ = getAttr(el, "dirZ");
-		l->cutoff = getAttrOrDefault(el, "cutoff", 180);
-		l->exponent = getAttrOrDefault(el, "exponent", 0);
+		l->posX = getAttrf(el, "posX");
+		l->posY = getAttrf(el, "posY");
+		l->posZ = getAttrf(el, "posZ");
+		l->dirX = getAttrf(el, "dirX");
+		l->dirY = getAttrf(el, "dirY");
+		l->dirZ = getAttrf(el, "dirZ");
+		l->cutoff = getAttrOrDefaultf(el, "cutoff", 180);
+		l->exponent = getAttrOrDefaultf(el, "exponent", 0);
 		lights.push_back(l);
 	}
 	else {
@@ -173,28 +180,28 @@ void Scene::parseModel(XMLElement* model, Group* group) {
 		model3d.name = name;
 	}
 
-	// guarda caracteristicas especificadas do material
-	model3d.diffRGBA[0] = getAttrOrDefault(model, "diffR", 0.8);
-	model3d.diffRGBA[1] = getAttrOrDefault(model, "diffG", 0.8);
-	model3d.diffRGBA[2] = getAttrOrDefault(model, "diffB", 0.8);
+	// guarda caracteristicas do material
+	model3d.diffRGBA[0] = getAttrOrDefaultf(model, "diffR", 0.8);
+	model3d.diffRGBA[1] = getAttrOrDefaultf(model, "diffG", 0.8);
+	model3d.diffRGBA[2] = getAttrOrDefaultf(model, "diffB", 0.8);
 	model3d.diffRGBA[3] = 1;
 
-	model3d.ambiRGBA[0] = getAttrOrDefault(model, "ambiR", 0.2);
-	model3d.ambiRGBA[1] = getAttrOrDefault(model, "ambiG", 0.2);
-	model3d.ambiRGBA[2] = getAttrOrDefault(model, "ambiB", 0.2);
+	model3d.ambiRGBA[0] = getAttrOrDefaultf(model, "ambiR", 0.2);
+	model3d.ambiRGBA[1] = getAttrOrDefaultf(model, "ambiG", 0.2);
+	model3d.ambiRGBA[2] = getAttrOrDefaultf(model, "ambiB", 0.2);
 	model3d.ambiRGBA[3] = 1;
 
-	model3d.specRGBA[0] = getAttrOrDefault(model, "specR", 0);
-	model3d.specRGBA[1] = getAttrOrDefault(model, "specG", 0);
-	model3d.specRGBA[2] = getAttrOrDefault(model, "specB", 0);
+	model3d.specRGBA[0] = getAttrOrDefaultf(model, "specR", 0);
+	model3d.specRGBA[1] = getAttrOrDefaultf(model, "specG", 0);
+	model3d.specRGBA[2] = getAttrOrDefaultf(model, "specB", 0);
 	model3d.specRGBA[3] = 1;
 
-	model3d.emisRGBA[0] = getAttrOrDefault(model, "diffR", 0);
-	model3d.emisRGBA[1] = getAttrOrDefault(model, "diffG", 0);
-	model3d.emisRGBA[2] = getAttrOrDefault(model, "diffB", 0);
+	model3d.emisRGBA[0] = getAttrOrDefaultf(model, "emisR", 0);
+	model3d.emisRGBA[1] = getAttrOrDefaultf(model, "emisG", 0);
+	model3d.emisRGBA[2] = getAttrOrDefaultf(model, "emisB", 0);
 	model3d.emisRGBA[3] = 1;
 
-	model3d.shininess = getAttrOrDefault(model, "shininess", 0);
+	model3d.shininess = getAttrOrDefaultf(model, "shininess", 0);
 
 	// id
 	model3d.id = ++modelsN;
@@ -212,9 +219,9 @@ void parseTranslate(XMLElement* el, Group* group) {
 			int n = 0;
 			while (point) {
 				Point3D p;
-				p.x = getAttr(point, "X");
-				p.y = getAttr(point, "Y");
-				p.z = getAttr(point, "Z");
+				p.x = getAttrf(point, "X");
+				p.y = getAttrf(point, "Y");
+				p.z = getAttrf(point, "Z");
 				ta->points.push_back(p);
 				point = point->NextSiblingElement();
 				n++;
@@ -233,25 +240,25 @@ void parseTranslate(XMLElement* el, Group* group) {
 	}
 	else {
 		TranslateStatic* ts = new TranslateStatic();
-		ts->x = getAttrOrDefault(el, "X", 0);
-		ts->y = getAttrOrDefault(el, "Y", 0);
-		ts->z = getAttrOrDefault(el, "Z", 0);
+		ts->x = getAttrOrDefaultf(el, "X", 0);
+		ts->y = getAttrOrDefaultf(el, "Y", 0);
+		ts->z = getAttrOrDefaultf(el, "Z", 0);
 		group->addTransform(ts);
 	}
 }
 
 void parseScale(XMLElement* el, Group* group) {
 	ScaleStatic* s = new ScaleStatic();
-	s->x = getAttrOrDefault(el, "X", 1);
-	s->y = getAttrOrDefault(el, "Y", 1);
-	s->z = getAttrOrDefault(el, "Z", 1);
+	s->x = getAttrOrDefaultf(el, "X", 1);
+	s->y = getAttrOrDefaultf(el, "Y", 1);
+	s->z = getAttrOrDefaultf(el, "Z", 1);
 	group->addTransform(s);
 }
 
 void parseRotate(XMLElement* el, Group* group) {
-	float x = getAttrOrDefault(el, "axisX", 0);
-	float y = getAttrOrDefault(el, "axisY", 0);
-	float z = getAttrOrDefault(el, "axisZ", 0);
+	float x = getAttrOrDefaultf(el, "axisX", 0);
+	float y = getAttrOrDefaultf(el, "axisY", 0);
+	float z = getAttrOrDefaultf(el, "axisZ", 0);
 	const XMLAttribute *timeAttr = el->FindAttribute("time");
 	if (timeAttr != nullptr) {
 		RotateAnim* ra = new RotateAnim();
@@ -262,7 +269,7 @@ void parseRotate(XMLElement* el, Group* group) {
 	else {
 		RotateStatic* rs = new RotateStatic();
 		rs->x = x; rs->y = y; rs->z = z;
-		rs->angle = getAttrOrDefault(el, "angle", 0);
+		rs->angle = getAttrOrDefaultf(el, "angle", 0);
 		group->addTransform(rs);
 	}
 }
@@ -341,10 +348,11 @@ void Scene::drawColor() {
 	}
 }
 
-void Scene::drawSkybox(int camx, int camy, int camz) {
+void Scene::drawSkybox(float camx, float camy, float camz) {
 	//Camera não pode seguir a skybox
 	if (!this->hasSkybox)
 		return;
+	glPushMatrix();
 	bool lightingstate = glIsEnabled(GL_LIGHTING);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -355,4 +363,5 @@ void Scene::drawSkybox(int camx, int camy, int camz) {
 	if(lightingstate)
 		glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
+	glPopMatrix();
 }

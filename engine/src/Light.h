@@ -6,8 +6,6 @@
 class Light {
 	public:
 		virtual void create() = 0;
-		Light();
-		~Light();
 };
 
 class LightDirectional : public Light {
@@ -25,8 +23,6 @@ class LightPoint : public Light {
 		float posZ;
 		void create();
 };
-
-
 
 class LightSpot : public Light {
 	public:

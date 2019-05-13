@@ -47,7 +47,7 @@ GLenum currentPolyMode = GL_FILL;
 
 
 void placeCamera() {
-	gluLookAt(	center.x + eyeX, center.y + eyeY, center.z + eyeZ, 
+	gluLookAt(	center.x + (double)eyeX, center.y + (double)eyeY, center.z + (double)eyeZ, 
 				center.x, center.y, center.z, 
 				0.0f, 1.0f, 0.0f	);
 }
@@ -82,6 +82,7 @@ void reshape(int w, int h) {
 
 void drawAxis() {
 	glDisable(GL_LIGHTING);
+	glDisable(GL_TEXTURE_2D);
 
 	glBegin(GL_LINES);
 		glColor3f(1, 0, 0);
@@ -97,6 +98,7 @@ void drawAxis() {
 		glVertex3f(0, 0, -100);
 	glEnd();
 
+	glEnable(GL_TEXTURE_2D);
 	if (isLightingEnabled) glEnable(GL_LIGHTING);
 
 	glColor3f(1, 1, 1);
@@ -116,7 +118,7 @@ void display(void) {
 	glLoadIdentity();
 	placeCamera();
 
-	scene.drawSkybox(center.x, center.y, center.z);
+	scene.drawSkybox(center.x + eyeX, center.y + eyeY, center.z + eyeZ);
 
 	// XYZ axis
 	if (isDrawingAxis) {
@@ -157,6 +159,7 @@ unsigned char picking(int x,int y) {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 
+	glColor3f(1, 1, 1);
 	return res[0];
 }
 
@@ -182,7 +185,6 @@ void processMouseButtons(int button, int state, int xx, int yy)
 					center.z = 0;
 				}
 				glutPostRedisplay();
-				printf("Hitting modelnumber: %d, %f %f %f\n", camerafollow, center.x, center.y, center.z);
 			}
 		}
 		else if (state == GLUT_UP) {
@@ -329,7 +331,19 @@ int main(int argc, char **argv) {
 	glutMotionFunc(processMouseMotion);
 	glutPassiveMotionFunc((GLUTmousemotionfun)TwEventMouseMotionGLUT);
 	TwGLUTModifiersFunc(glutGetModifiers);
-	
+
+#ifndef __APPLE__	
+	glewInit();
+#endif	
+
+	ilInit();
+
+	openGLInit();
+
+	printInfo();
+
+	//	Load scene
+	scene.parse(argv[1]);
 
 	// TweakBar
 	TwInit(TW_OPENGL, NULL);
@@ -346,7 +360,9 @@ int main(int argc, char **argv) {
 	TwType polyModeType = TwDefineEnum("PolygonModeType", polyModeEV, 3);
 	TwAddVarCB(bar, "Polygon Mode", polyModeType, setPolyMode, getPolyMode, NULL, " group='Display' keyincr=f ");
 
-	TwAddVarRO(bar, "Focused Model", TW_TYPE_INT16, &camerafollow, " group='Camera' ");
+	TwAddVarRW(bar, "Focused Model", TW_TYPE_INT16, &camerafollow, " group='Camera' min='0' ");
+	int max = scene.getModelsN();
+	TwSetParam(bar, "Focused Model", "max", TW_PARAM_INT32, 1, &max);
 	TwAddVarRW(bar, "Radius", TW_TYPE_INT16, &r, " group='Camera' min=3 ");
 	TwAddVarRO(bar, "Alpha", TW_TYPE_INT16, &alpha, " group='Camera' ");
 	TwAddVarRO(bar, "Beta", TW_TYPE_INT16, &beta, " group='Camera' ");
@@ -357,20 +373,6 @@ int main(int argc, char **argv) {
 		{ "z", TW_TYPE_FLOAT, offsetof(Point3D, z), NULL } };
 	TwType pointType = TwDefineStruct("POINT", pointMembers, 3, sizeof(Point3D), NULL, NULL);
 	TwAddVarRO(bar, "Center", pointType, &center, " group='Camera' ");
-
-
-#ifndef __APPLE__	
-	glewInit();
-#endif	
-
-	ilInit();
-
-	openGLInit();
-
-	printInfo();
-
-	//	Load scene
-	scene.parse(argv[1]);
 
 	glutMainLoop();
 

@@ -1,20 +1,10 @@
 #include "Light.h"
 
-Light::Light() {
-
-}
-
-Light::~Light() {
-
-}
-
-// TODO: acabar
-
 void LightDirectional::create() {
-	float lpos[4] = { dirX, dirY, dirZ, 0 };
-	glLightfv(GL_LIGHT0, GL_POSITION, lpos);
+	float ldir[4] = { dirX, dirY, dirZ, 0 };
+	glLightfv(GL_LIGHT0, GL_POSITION, ldir);
 
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, lpos);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, cor);
 }
 
 void LightPoint::create() {
@@ -24,10 +14,8 @@ void LightPoint::create() {
 	float attenuation = 1;
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, attenuation);
 
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, lpos);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, cor);
 }
-
-
 
 void LightSpot::create() {
 	float lpos[4] = { posX, posY, posZ, 1 };
@@ -40,5 +28,5 @@ void LightSpot::create() {
 
 	glLightf(GL_LIGHT0,GL_SPOT_EXPONENT, exponent); 
 
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, lpos);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, cor);
 }
