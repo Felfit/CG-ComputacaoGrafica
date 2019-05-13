@@ -50,6 +50,9 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
 			coneSideNormal(&p1, height, radius, teta * j);
 			coneSideNormal(&p2, height, radius, teta * j);
 			coneSideNormal(&p3, height, radius, teta * (j + 1));
+			p1.u = ((float)(slices-j) / slices); p1.v = ((float)(stacks-i) / stacks)*0.5 ;
+			p2.u = ((float)(slices-j) / slices); p2.v = ((float)(stacks-i-1) / stacks)*0.5 ;
+			p3.u = ((float)(slices-j-1) / slices); p3.v = ((float)(stacks-i) / stacks)*0.5 ;
 			printUpdatedTriangle(fp, p1, p2, p3);
 			if (i != stacks) {//para nao desenhar o triangulo do topo duas vezes
 				p1 = Point(upnx, upy, upnz);
@@ -58,6 +61,9 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
 				coneSideNormal(&p1, height, radius, teta * (j + 1));
 				coneSideNormal(&p2, height, radius, teta * (j + 1));
 				coneSideNormal(&p3, height, radius, teta * j);
+				p1.u = ((float)(slices-j-1) / slices); p1.v = ((float)(stacks-i-1) / stacks)*0.5 ;
+				p2.u = ((float)(slices-j-1) / slices); p2.v = ((float)(stacks-i) / stacks)*0.5 ;
+				p3.u = ((float)(slices-j) / slices); p3.v = ((float)(stacks-i-1) / stacks)*0.5 ;
 				printUpdatedTriangle(fp, p1, p2, p3);
 			}
 			x = nx;
@@ -75,10 +81,11 @@ void cone(const char* name, float radius, float height, int slices, int stacks) 
 	x = radius;
 	for (int i = 0; i < slices; i++) {
 		float nx = x * cost - z * sent;
+		
 		float nz = x * sent + z * cost;
-		Point p1 = Point(nx, 0, nz, 0, -1, 0, u, v);
-		Point p2 = Point(0, 0, 0, 0, -1, 0, u, v);
-		Point p3 = Point(x, 0, z, 0, -1, 0, u, v);
+		Point p1 = Point(nx, 0, nz, 0, -1, 0, 0.25*sin((i+1)*teta)+0.5, 0.25*cos((i+1)*teta)+0.75);
+		Point p2 = Point(0, 0, 0, 0, -1, 0, 0.5, 0.75);
+		Point p3 = Point(x, 0, z, 0, -1, 0, 0.25*sin(i*teta)+0.5, 0.25*cos(i*teta)+0.75);
 		printUpdatedTriangle(fp, p1, p2, p3);
 		x = nx;
 		z = nz;
