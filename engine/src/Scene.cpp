@@ -174,12 +174,6 @@ void Scene::parseModel(XMLElement* model, Group* group) {
 		model3d.texture = textures[texture];
 	}
 
-	// guarda nome
-	const char* name = model->Attribute("name");
-	if (name) {
-		model3d.name = name;
-	}
-
 	// guarda caracteristicas do material
 	model3d.diffRGBA[0] = getAttrOrDefaultf(model, "diffR", 0.8);
 	model3d.diffRGBA[1] = getAttrOrDefaultf(model, "diffG", 0.8);

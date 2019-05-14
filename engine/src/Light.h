@@ -4,7 +4,12 @@
 #include <GL/glut.h>
 
 class Light {
+	private:
+		static int lightCount;
+		
 	public:
+		Light();
+		int lightn; // = i, corresponde a uma GL_LIGHTi 
 		virtual void create() = 0;
 };
 
@@ -13,6 +18,7 @@ class LightDirectional : public Light {
 		float dirX;
 		float dirY;
 		float dirZ;
+
 		void create();
 };
 
@@ -21,6 +27,7 @@ class LightPoint : public Light {
 		float posX;
 		float posY;
 		float posZ;
+
 		void create();
 };
 
@@ -34,6 +41,7 @@ class LightSpot : public Light {
 		float dirZ;
 		float cutoff; // [0,90] or 180
 		float exponent; // [0,128]
+
 		void create();
 };
 

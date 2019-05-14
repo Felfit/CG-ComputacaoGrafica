@@ -8,7 +8,7 @@
 #include "Light.h"
 #include "tinyxml2.h"
 
-extern bool drawCurve; // apagar
+extern bool drawCurve; // determina se as curvas de catmull rom sao desenhadas
 
 class Scene {
 private:
