@@ -26,9 +26,10 @@ Point calcPoint(Point p, int i, int j, Vector2D v, char type, int div) {
 		novo.u = (i) / (4.0 * div) + 0.25;
 		novo.v = (div - j) / (3.0 * div) + 1.0 / 3;
 		novo.nx = 0;
-		novo.nx = 0;
+		novo.ny = 0;
+		novo.nz = 1;
 		if (novo.z < 0) {
-			novo.nz = -1;
+			novo.nz = 1;
 			novo.u = (div - i) / (4.0 * div) + 0.75;
 		}
 		else novo.nz = 1;
@@ -39,6 +40,9 @@ Point calcPoint(Point p, int i, int j, Vector2D v, char type, int div) {
 		novo.z = p.z + i * v.i;
 		novo.u = (div - i) / (4.0 * div) + 0.5;
 		novo.v = (div - j) / (3.0 * div) + 1.0 / 3;
+		novo.nx = 1;
+		novo.ny = 0;
+		novo.nz = 0;
 		if (novo.x < 0) {
 			novo.nx = -1;
 			novo.u = (i) / (4.0 * div);
@@ -52,6 +56,9 @@ Point calcPoint(Point p, int i, int j, Vector2D v, char type, int div) {
 		novo.z = p.z + j * v.j;
 		novo.u = (i) / (4.0 * div) + 0.25;
 		novo.v = (j) / (3.0 * div);
+		novo.nx = 0;
+		novo.ny = 1;
+		novo.nz = 0;
 		if (novo.y < 0) {
 			novo.v = (div - j) / (3.0 * div) + 2.0 / 3;;
 			novo.ny = -1;

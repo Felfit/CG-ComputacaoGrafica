@@ -156,7 +156,8 @@ unsigned char picking(int x,int y) {
 
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, res);
-	glEnable(GL_LIGHTING);
+	if (lightingstate)
+		glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(1, 1, 1);
