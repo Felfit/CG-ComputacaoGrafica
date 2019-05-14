@@ -10,8 +10,8 @@ Model3D::Model3D() {
 Model3D::~Model3D() {
 }
 
+// Se este for o modelo a ser seguido centra a camera nas coordenadas
 bool Model3D::followModel(int cameraFollow, Point3D* center) {
-	//Se este for o modelo a ser seguido centra a camera nas coordenadas
 	if (id == cameraFollow) {
 		float m[4][4];
 		glGetFloatv(GL_MODELVIEW_MATRIX, (float *)m);
@@ -83,6 +83,7 @@ int ModelBuffers::parse(const char* filename) {
 			size_t pos = 0;
 			std::string token;
 
+			// vertices
 			pos = line.find(delimiter);
 			token = line.substr(0, pos);
 			vertexB[i * 3] = stof(token);
@@ -98,6 +99,7 @@ int ModelBuffers::parse(const char* filename) {
 			vertexB[i * 3 + 2] = stof(token);
 			line.erase(0, pos + delimiter.length());
 
+			// normais
 			pos = line.find(delimiter);
 			token = line.substr(0, pos);
 			normalB[i * 3] = stof(token);
@@ -113,7 +115,7 @@ int ModelBuffers::parse(const char* filename) {
 			normalB[i * 3 + 2] = stof(token);
 			line.erase(0, pos + delimiter.length());
 
-
+			// texturas
 			pos = line.find(delimiter);
 			token = line.substr(0, pos);
 			texturB[t++] = stof(token);
@@ -121,6 +123,7 @@ int ModelBuffers::parse(const char* filename) {
 
 			texturB[t++] = stof(line);
 			
+
 			size++;
 		}
 		file.close();

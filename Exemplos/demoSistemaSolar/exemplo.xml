@@ -1,0 +1,112 @@
+<scene>
+    <skybox model="sphere.3d" texture="starmap.jpg"/>
+    <lights>
+        <light type="POINT" posX="0" posY="0" posZ="0"/>
+    </lights>
+    <group>
+        <group>    
+            <translate time="10">
+                <point X="100" Y="0" Z="0" />                
+                <point X="-40" Y="0" Z="-40" />
+                <point X="0" Y="0" Z="100" />
+                <point X="150" Y="0" Z="250" />
+                <point X="250" Y="0" Z="250" />
+                <point X="250" Y="0" Z="150" />
+                <point X="100" Y="0" Z="0" />                
+                <point X="-40" Y="0" Z="-40" />
+                <point X="0" Y="0" Z="100" />           
+            </translate>
+            <rotate time="10" axisX="1"/>
+            <models>
+                <model name="cometa" file="teapot.3d"/>
+            </models>
+        </group>
+        <group>    
+            <scale X="4" Y="4" Z="4"/>                    
+            <models>
+                <model name ="Sol" file="sphere.3d" texture="sunmap.jpg" emisR="0.98" emisG="0.83" emisB="0.25"/>
+            </models>
+        </group>
+        <group>
+            <rotate time="5.8" axisY="1"/>   
+            <translate X="50" Y="0" Z="0"/>        
+            <scale X="0.54" Y="0.54" Z="0.54"/>        
+            <models>
+                <model name="Mercúrio" file="sphere.3d" texture="mercurymap.jpg"/>
+            </models>
+        </group>
+        <group>
+            <rotate time="7.9" axisY="1"/>   
+            <translate X="100" Y="0" Z="0"/>        
+            <group>
+                <rotate time="5" axisY="1"/>   
+                <scale X="0.94" Y="0.94" Z="0.94"/>
+                <models>
+                    <model name="Vénus" file="sphere.3d" texture="venusmap.jpg"/>
+                </models>
+            </group>
+        </group>
+        <group>
+            <rotate time="10" axisY="1"/>        
+            <translate X="150" Y="0" Z="0"/>  
+            <group>
+                <rotate time="5" axisY="1"/>   
+                <scale X="0.96" Y="0.96" Z="0.96"/>          
+                <models>
+                    <model name="Terra" file="sphere.3d" texture="earthmap.jpg"/>
+                </models> 
+            </group> 
+            <group>
+                <rotate time="27" axisY="-1"/>        
+                <translate X="5" Y="0" Z="0"/>  
+                <group>
+                    <rotate time="27" axisY="1"/>     
+                    <scale X="0.2" Y="0.2" Z="0.2"/>
+                    <models>
+                        <model name="Lua" file="sphere.3d"/>
+                    </models>
+                </group> 
+            </group> 
+        </group> 
+        <group>
+            <rotate time="11.5" axisY="1"/>   
+            <translate X="200" Y="0" Z="0"/>        
+            <scale X="0.69" Y="0.69" Z="0.69"/>        
+            <models>
+                <model name="Marte" file="sphere.3d" texture="marsmap.jpg"/>
+            </models>
+        </group> 
+        <group>
+            <rotate time="21.3" axisY="1"/>  
+            <translate X="250" Y="0" Z="0"/>        
+            <scale X="2" Y="2" Z="2"/>        
+            <models>
+                <model name="Júpiter" file="sphere.3d" texture="jupitermap.jpg"/>
+            </models>
+        </group> 
+        <group>
+            <rotate time="28.7" axisY="1"/>  
+            <translate X="300" Y="0" Z="0"/>        
+            <scale X="1.9" Y="1.9" Z="1.9"/>        
+            <models>
+                <model name="Saturno" file="sphere.3d" texture="saturnmap.jpg"/>
+            </models>
+        </group>
+        <group>
+            <rotate time="40.9" axisY="1"/>  
+            <translate X="350" Y="0" Z="0"/>        
+            <scale X="1.53" Y="1.53" Z="1.53"/>        
+            <models>
+                <model name="Urano" file="sphere.3d" texture="uranusmap.jpg"/>
+            </models>
+        </group> 
+        <group astro="neptuno">
+            <rotate time="51.3" axisY="1"/>  
+            <translate X="400" Y="0" Z="0"/>        
+            <scale X="1.51" Y="1.51" Z="1.51"/>        
+            <models>
+                <model name="Neptuno" file="sphere.3d" texture="neptunemap.jpg"/>
+            </models>
+        </group>        
+    </group>
+</scene>

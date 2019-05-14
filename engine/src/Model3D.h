@@ -12,6 +12,7 @@
 class Texture {
 	public:
 		unsigned int texture;
+
 		int parse(const char* filename);
 };
 
@@ -19,6 +20,7 @@ class ModelBuffers {
 	public:
 		int size = 0;
 		GLuint buffers[3];
+
 		int parse(const char* filename);
 };
 
@@ -29,7 +31,6 @@ class Model3D {
 		~Model3D();
 
 		int id;
-		std::string name;
 		ModelBuffers* buffers;
 		Texture* texture;
 		float diffRGBA[4];
