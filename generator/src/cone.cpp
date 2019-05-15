@@ -6,7 +6,7 @@
 #include "utils.h"
 
 void coneSideNormal(Point* p, float height, float radius, float teta) {
-	float ang = M_PI_2 - atan2(height, radius);
+	float ang = atan2(radius, height);
 	//2D x|y
 	float x = cos(ang);
 	float y = sin(ang);

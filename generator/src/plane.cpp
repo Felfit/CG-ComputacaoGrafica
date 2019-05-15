@@ -9,10 +9,10 @@ void plane(const char* name, float x, float z) {
 
 	fputs("6\n", fp);
 
-	Point p1 = Point(x, 0, z, 1, 0, 0, 1, 1);
-	Point p2 = Point(x, 0, -z, 1, 0, 0, 1, 0);
-	Point p3 = Point(-x, 0, -z, 1, 0, 0, 0, 0);
-	Point p4 = Point(-x, 0, z, 1, 0, 0, 0, 1);
+	Point p1 = Point(x, 0, z, 0, 1, 0, 1, 1);
+	Point p2 = Point(x, 0, -z, 0, 1, 0, 1, 0);
+	Point p3 = Point(-x, 0, -z, 0, 1, 0, 0, 0);
+	Point p4 = Point(-x, 0, z, 0, 1, 0, 0, 1);
 
 	printUpdatedSquare(fp, p1, p2, p3, p4);
 
