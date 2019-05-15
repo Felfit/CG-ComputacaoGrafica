@@ -58,12 +58,23 @@
             </group> 
             <group>
                 <rotate time="27" axisY="-1"/>        
-                <translate X="5" Y="0" Z="0"/>  
+                <translate X="30" Y="0" Z="0"/>  
                 <group>
                     <rotate time="27" axisY="1"/>     
                     <scale X="0.2" Y="0.2" Z="0.2"/>
+                    <group>
+                        <rotate time="5" axisY="1"/>     
+                        <group>
+                            <translate X="15" Y="0" Z="0"/>  
+                            <rotate angle = "-90" axisX="1"/>     
+                            <scale X="0.2" Y="0.2" Z="0.2"/>
+                            <models>
+                                <model name="spaceMan" file="cone.3d" texture="cone.jpg"/>
+                            </models>
+                        </group>
+                    </group> 
                     <models>
-                        <model name="Lua" file="sphere.3d"/>
+                        <model name="Lua" file="sphere.3d" texture="moonmap.jpg"/>
                     </models>
                 </group> 
             </group> 
