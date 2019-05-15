@@ -4,7 +4,6 @@
 using namespace std;
 using namespace tinyxml2;
 
-bool drawCurve;
 
 Scene::Scene() {
 	modelsN = 0;
@@ -314,7 +313,6 @@ void Scene::parseGroup(XMLElement *parent, Group *parentGr) {
 
 void Scene::draw() {
 	//Variavel Global. Precisa de reset|para a camera o seguir Para identificar o numero do modelo
-	drawCurve = true;
 	for (auto const& light : lights) {
 		light->create();
 	}
@@ -327,7 +325,6 @@ void Scene::draw() {
 
 void Scene::followModel(int cameraFollow, Point3D* center) {
 
-	drawCurve = false;
 	if (cameraFollow <= 0)
 		return;
 
@@ -342,7 +339,6 @@ void Scene::followModel(int cameraFollow, Point3D* center) {
 
 void Scene::drawColor() {
 	//Variavel Global. Para identificar o numero do modelo
-	drawCurve = false;
 	for (auto const& group : groups) {
 		group->drawColor();
 	}

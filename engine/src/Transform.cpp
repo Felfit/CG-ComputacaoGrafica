@@ -27,9 +27,7 @@ Due to Catmull-Rom�s curve definition it is always required an initial point b
 curve segment and another point after the last segment. The minimum number of points is 4.
 */
 void TranslateAnim::apply() {
-	if (drawCurve) {
-		renderCatmullCurve(points, 200);
-	}
+
 	float pos[4] = { 0 };
 	float der[4] = { 0 };
 	float gt = glutGet(GLUT_ELAPSED_TIME) / (1000.0 * time);
