@@ -1,5 +1,8 @@
 #include "Light.h"
 
+// luz ambiente branca
+float amb[4] = { 1, 1, 1, 1 };
+
 int Light::lightCount = 0;
 
 Light::Light() {
@@ -13,7 +16,6 @@ void LightDirectional::create() {
 	float ldir[4] = { dirX, dirY, dirZ, 0 };
 	glLightfv(light, GL_POSITION, ldir);
 
-	float amb[4] = { 1, 1, 1, 1 };
 	glLightfv(light, GL_AMBIENT, amb);
 	//glLightfv(light0, GL_DIFFUSE, diff); default -> 0, 0, 0, 0
 }
@@ -25,10 +27,10 @@ void LightPoint::create() {
 	float lpos[4] = { posX, posY, posZ, 1 };
 	glLightfv(light, GL_POSITION, lpos);
 
-	float attenuation = 1;
-	glLightf(light, GL_CONSTANT_ATTENUATION, attenuation);
+	glLightf(light, GL_CONSTANT_ATTENUATION, conAtt);
+	glLightf(light, GL_LINEAR_ATTENUATION, linAtt);
+	glLightf(light, GL_QUADRATIC_ATTENUATION, quaAtt);
 
-	float amb[4] = { 1, 1, 1, 1 };
 	glLightfv(light, GL_AMBIENT, amb);
 	//glLightfv(light0, GL_DIFFUSE, diff); default -> 0, 0, 0, 0
 }
@@ -47,10 +49,10 @@ void LightSpot::create() {
 
 	glLightf(light, GL_SPOT_EXPONENT, exponent); 
 
-	float attenuation = 1;
-	glLightf(light, GL_CONSTANT_ATTENUATION, attenuation);
+	glLightf(light, GL_CONSTANT_ATTENUATION, conAtt);
+	glLightf(light, GL_LINEAR_ATTENUATION, linAtt);
+	glLightf(light, GL_QUADRATIC_ATTENUATION, quaAtt);
 
-	float amb[4] = { 1, 1, 1, 1 };
 	glLightfv(light, GL_AMBIENT, amb);
 	//glLightfv(light0, GL_DIFFUSE, diff); default -> 0, 0, 0, 0
 }

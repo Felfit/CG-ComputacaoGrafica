@@ -123,6 +123,9 @@ void Scene::parseLight(XMLElement* el) {
 		l->posX = getAttrf(el, "posX");
 		l->posY = getAttrf(el, "posY");
 		l->posZ = getAttrf(el, "posZ");
+		l->conAtt = getAttrOrDefaultf(el, "conAtt", 1);
+		l->linAtt = getAttrOrDefaultf(el, "linAtt", 0);
+		l->quaAtt = getAttrOrDefaultf(el, "quaAtt", 0);
 		lights.push_back(l);
 	}
 	else if (!strcmp("DIRECTIONAL", type)) {
@@ -142,6 +145,9 @@ void Scene::parseLight(XMLElement* el) {
 		l->dirZ = getAttrf(el, "dirZ");
 		l->cutoff = getAttrOrDefaultf(el, "cutoff", 180);
 		l->exponent = getAttrOrDefaultf(el, "exponent", 0);
+		l->conAtt = getAttrOrDefaultf(el, "conAtt", 1);
+		l->linAtt = getAttrOrDefaultf(el, "linAtt", 0);
+		l->quaAtt = getAttrOrDefaultf(el, "quaAtt", 0);
 		lights.push_back(l);
 	}
 	else {

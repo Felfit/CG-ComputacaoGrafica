@@ -27,6 +27,9 @@ class LightPoint : public Light {
 		float posX;
 		float posY;
 		float posZ;
+		float conAtt;
+		float linAtt;
+		float quaAtt;
 
 		void create();
 };
@@ -41,6 +44,9 @@ class LightSpot : public Light {
 		float dirZ;
 		float cutoff; // [0,90] or 180
 		float exponent; // [0,128]
+		float conAtt;
+		float linAtt;
+		float quaAtt;
 
 		void create();
 };
