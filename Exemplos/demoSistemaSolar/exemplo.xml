@@ -1,4 +1,4 @@
-<scene>
+﻿<scene>
     <skybox model="sphere.3d" texture="starmap.jpg"/>
     <lights>
         <light type="POINT" posX="0" posY="0" posZ="0"/>
@@ -18,7 +18,7 @@
             </translate>
             <rotate time="10" axisX="1"/>
             <models>
-                <model name="cometa" file="teapot.3d"/>
+                <model name="cometa" file="teapot.3d" texture="teapotmap.jpg"/>
             </models>
         </group>
         <group>    
@@ -58,23 +58,12 @@
             </group> 
             <group>
                 <rotate time="27" axisY="-1"/>        
-                <translate X="30" Y="0" Z="0"/>  
+                <translate X="5" Y="0" Z="0"/>  
                 <group>
                     <rotate time="27" axisY="1"/>     
                     <scale X="0.2" Y="0.2" Z="0.2"/>
-                    <group>
-                        <rotate time="5" axisY="1"/>     
-                        <group>
-                            <translate X="15" Y="0" Z="0"/>  
-                            <rotate angle = "-90" axisX="1"/>     
-                            <scale X="0.2" Y="0.2" Z="0.2"/>
-                            <models>
-                                <model name="spaceMan" file="cone.3d" texture="cone.jpg"/>
-                            </models>
-                        </group>
-                    </group> 
                     <models>
-                        <model name="Lua" file="sphere.3d" texture="moonmap.jpg"/>
+                        <model name="Lua" file="sphere.3d"/>
                     </models>
                 </group> 
             </group> 
