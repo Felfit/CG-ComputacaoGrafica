@@ -102,7 +102,7 @@ void normalize(double *a) {
 	a[2] = a[2] / l;
 }
 
-//Calcula todas as multiplicações --> U * M * P * M^T * V^T
+//Calcula todas as multiplicaï¿½ï¿½es --> U * M * P * M^T * V^T
 void allCalcs(double controlPoints[3][4][4], double us[4], double vs[4], double point[3]) {
 	double temp1[3][4];
 	double temp2[3][4];
@@ -190,32 +190,32 @@ void parsePatches(const char* name, const char* cpFile, int tesselations) {
 			}
 			// Loop que divide as curvas de bezier
 			float parts = 1.0f / tesselations;
-			for (int ui = 0; ui < tesselations; ++ui) {
-				double u = (double)ui / tesselations;
-				for (int vi = 0; vi < tesselations; ++vi) {
-					double v = (double)vi / tesselations;
+			for (int vi = 0; vi < tesselations; ++vi) {
+				double v = (double)vi / tesselations;
+				for (int ui = 0; ui < tesselations; ++ui) {
+					double u = (double)ui / tesselations;
 					double point[3];
 					double normal[3];
 
 					bezierPoint(controlPoints, u, v, point);
 					bezierNormal(controlPoints, u, v, normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u, v);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 1 - v, u);
 					bezierPoint(controlPoints, u, (v + parts), point);
 					bezierNormal(controlPoints, u, (v + parts), normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u, v+parts);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 1 - (v+parts), u);
 					bezierPoint(controlPoints, (u + parts), (v + parts), point);
 					bezierNormal(controlPoints, (u + parts), (v + parts), normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u+parts, v+parts);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 1 - (v+parts), u+parts);
 
 					bezierPoint(controlPoints, u, v, point);
 					bezierNormal(controlPoints, u, v, normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u, v);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 1 - v, u);
 					bezierPoint(controlPoints, (u + parts), (v + parts), point);
 					bezierNormal(controlPoints, (u + parts), (v + parts), normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u+parts, v+parts);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 1 - (v+parts), u+parts);
 					bezierPoint(controlPoints, (u + parts), v, point);
 					bezierNormal(controlPoints, (u + parts), v, normal);
-					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], u+parts, v);
+					fprintf(fp, "%f %f %f %f %f %f %f %f\n", point[0], point[1], point[2], normal[0], normal[1], normal[2], 1 - v, u+parts);
 				}
 			}
 		}
